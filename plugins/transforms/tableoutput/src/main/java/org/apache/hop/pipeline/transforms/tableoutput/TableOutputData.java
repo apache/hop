@@ -35,6 +35,8 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.batch.BatchSupport;
 import org.apache.hop.core.database.batch.IRowBatch;
 import org.apache.hop.core.database.batch.RecoverableBatch;
+import org.apache.hop.core.database.dml.DmlPlan;
+import org.apache.hop.core.database.dml.DmlSpec;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -74,6 +76,22 @@ public class TableOutputData extends BaseTransformData implements ITransformData
   public boolean dynamicLineageTruncated;
 
   public List<Object[]> batchBuffer;
+
+  /**
+   * True while several rows per INSERT may still be used: recovered batches, more than one row per
+   * statement asked for, and nothing at init that rules it out. Each table is then planned on its
+   * first batched row, see {@link #insertPlans}.
+   */
+  public boolean multiRowCandidate;
+
+  /**
+   * The INSERT plan of each table, made on its first batched row: several rows per statement, or
+   * null for a table that gets one row per statement.
+   */
+  public Map<String, DmlPlan> insertPlans = new HashMap<>();
+
+  /** The INSERT of each table of the multi-row batches, made on its first row. */
+  public Map<String, DmlSpec> insertSpecs = new HashMap<>();
 
   /**
    * The values bound to the prepared statement for each row in {@link #batchBuffer}, in the same

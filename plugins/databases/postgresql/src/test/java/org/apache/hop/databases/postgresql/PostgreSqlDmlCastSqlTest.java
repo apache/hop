@@ -141,4 +141,19 @@ class PostgreSqlDmlCastSqlTest {
       assertTrue(DIALECT.isDmlComparable(type, Types.OTHER), type);
     }
   }
+
+  /**
+   * The plain VALUES list of an INSERT of several rows is not cast: its types come from the target
+   * columns.
+   */
+  @Test
+  void anInsertOfSeveralRowsIsNotCast() throws Exception {
+    List<DmlColumn> all = columns("id", "name", "code", "amount", "flags", "ts", "doc");
+    String sql =
+        DmlStatementBuilder.insert(
+                databaseMeta(), DIALECT.getDmlSyntax(), DmlSpec.insert("target", all), 2)
+            .getSql();
+    assertEquals(List.of(), casts(sql));
+    assertTrue(sql.endsWith("VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)"), sql);
+  }
 }

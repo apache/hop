@@ -22,14 +22,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import lombok.Getter;
@@ -41,6 +44,8 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.batch.BatchFailureContract;
+import org.apache.hop.core.database.dml.DmlOperation;
+import org.apache.hop.core.database.dml.DmlSpec;
 import org.apache.hop.core.database.dml.DmlSyntax;
 import org.apache.hop.core.database.dml.UpsertForm;
 import org.apache.hop.core.database.types.ColumnContext;
@@ -990,6 +995,14 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * change alone on its own, which is what "update only changed" asks for. Checked against MySQL
    * 8.4 and 5.7 with the Connector/J Hop downloads by {@code MySqlMergeIT}.
    *
+   * <p>An INSERT carries several rows in one {@code VALUES} list. A statement takes at most 65535
+   * parameters when the server prepares it ({@code useServerPrepStmts=true}). Checked against MySQL
+   * 9 by {@code MySqlDmlIT}. In strict mode, the default since 5.7, a row that breaks a NOT NULL
+   * constraint fails its statement of an InnoDB table; without strict mode, or into a table without
+   * transactions, MySQL writes the column's implicit default into a row of a multi-row INSERT and
+   * only warns, where a one-row INSERT fails, see {@link #getMultiRowDmlRefusal}. A statement has
+   * to fit in {@code max_allowed_packet}, see {@link #getMaxDmlStatementBytes}.
+   *
    * <p>Only declared for this dialect itself, not for the ones that extend it: MariaDB has no row
    * alias, and the others have not been run.
    */
@@ -1005,6 +1018,169 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
                 .withMinimumMajorVersion(8)
                 .withMinimumMinorVersion(1))
         .upsert(DmlSyntax.Upsert.of(UpsertForm.ON_DUPLICATE_KEY))
+        .insertForm(DmlSyntax.InsertForm.VALUES_LIST)
+        .maxParameters(65535)
         .build();
+  }
+
+  /**
+   * Several rows per INSERT only in strict SQL mode ({@code STRICT_TRANS_TABLES} or {@code
+   * STRICT_ALL_TABLES} in the session's {@code sql_mode}), and only into a table of a transactional
+   * storage engine (InnoDB, NDB). Without strict mode MySQL writes the column's implicit default
+   * for a NULL in a NOT NULL column of a multi-row INSERT and only warns, where the same row in an
+   * INSERT of its own fails: the row would be changed silently instead of rejected. A table without
+   * transactions (MyISAM, MEMORY, ARCHIVE, ...) does the same in {@code STRICT_TRANS_TABLES} mode
+   * for any row but the first of a statement, and keeps the rows before a bad one in {@code
+   * STRICT_ALL_TABLES} mode. The engine is read with {@code SHOW CREATE TABLE}, which also finds a
+   * temporary table. When the mode or the engine can't be read, one row per statement is written.
+   */
+  @Override
+  public String getMultiRowDmlRefusal(Connection connection, DmlSpec spec) {
+    if (connection == null || spec == null || spec.getOperation() != DmlOperation.INSERT) {
+      return null;
+    }
+    String sqlMode;
+    try (Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT @@SESSION.sql_mode")) {
+      sqlMode = resultSet.next() ? resultSet.getString(1) : null;
+    } catch (SQLException e) {
+      return BaseMessages.getString(PKG, "MySQLDatabaseMeta.MultiRow.ModeUnknown", e.getMessage());
+    }
+    if (!isStrictSqlMode(sqlMode)) {
+      return BaseMessages.getString(
+          PKG, "MySQLDatabaseMeta.MultiRow.NotStrict", Const.NVL(sqlMode, ""));
+    }
+    String table = spec.getQuotedTable();
+    String engine;
+    try (Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SHOW CREATE TABLE " + table)) {
+      engine = resultSet.next() ? tableEngine(resultSet.getString(2)) : null;
+    } catch (SQLException e) {
+      return BaseMessages.getString(
+          PKG, "MySQLDatabaseMeta.MultiRow.EngineUnknown", table, e.getMessage());
+    }
+    if (engine == null) {
+      return BaseMessages.getString(
+          PKG, "MySQLDatabaseMeta.MultiRow.EngineUnknown", table, "no ENGINE in its definition");
+    }
+    if (TRANSACTIONAL_ENGINES.contains(engine.toUpperCase(Locale.ROOT))) {
+      return null;
+    }
+    return BaseMessages.getString(
+        PKG, "MySQLDatabaseMeta.MultiRow.NotTransactional", table, engine);
+  }
+
+  /** The storage engines whose tables refuse a bad row of a multi-row INSERT as a whole. */
+  private static final Set<String> TRANSACTIONAL_ENGINES = Set.of("INNODB", "NDBCLUSTER", "NDB");
+
+  private static final java.util.regex.Pattern ENGINE_OPTION =
+      java.util.regex.Pattern.compile("\\bENGINE\\s*=\\s*([A-Za-z0-9_]+)");
+
+  /**
+   * The storage engine of a table, from what {@code SHOW CREATE TABLE} reports: the {@code ENGINE}
+   * option after the list of column definitions. Quoted names, comments and defaults are skipped,
+   * so an "ENGINE=" inside one doesn't count.
+   *
+   * @param createTable the CREATE TABLE statement; a view's CREATE VIEW has no engine
+   * @return the engine as MySQL names it, or null when the statement names none
+   */
+  static String tableEngine(String createTable) {
+    if (createTable == null) {
+      return null;
+    }
+    int depth = 0;
+    char quote = 0;
+    for (int i = 0; i < createTable.length(); i++) {
+      char c = createTable.charAt(i);
+      if (quote != 0) {
+        if (c == '\\' && quote != '`') {
+          i++;
+        } else if (c == quote) {
+          if (i + 1 < createTable.length() && createTable.charAt(i + 1) == quote) {
+            i++;
+          } else {
+            quote = 0;
+          }
+        }
+      } else if (c == '\'' || c == '"' || c == '`') {
+        quote = c;
+      } else if (c == '(') {
+        depth++;
+      } else if (c == ')' && --depth == 0) {
+        java.util.regex.Matcher matcher =
+            ENGINE_OPTION.matcher(createTable).region(i + 1, createTable.length());
+        return matcher.find() ? matcher.group(1) : null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * The server's {@code max_allowed_packet}, or the connection's {@code maxAllowedPacket} when it
+   * is lower: Connector/J refuses a statement larger than that before it sends it
+   * (PacketTooBigException), with and without server-side prepared statements, where a batch of
+   * one-row statements only needs each row to fit. 4 MB, the default of MySQL 5.7 and of many
+   * hosted servers, against 100 rows of a few large values, would otherwise fail a load that one
+   * row per statement writes. Checked by {@code MySqlDmlIT}. When it can't be read, the 4 MB is
+   * assumed.
+   */
+  @Override
+  public long getMaxDmlStatementBytes(Connection connection) {
+    long limit = 0;
+    if (connection != null) {
+      try (Statement statement = connection.createStatement();
+          ResultSet resultSet = statement.executeQuery("SELECT @@SESSION.max_allowed_packet")) {
+        limit = resultSet.next() ? resultSet.getLong(1) : 0;
+      } catch (SQLException e) {
+        limit = 0;
+      }
+    }
+    if (limit <= 0) {
+      limit = DEFAULT_MAX_ALLOWED_PACKET;
+    }
+    long client = byteSize(getConnectionOption("maxAllowedPacket"));
+    return client > 0 && client < limit ? client : limit;
+  }
+
+  /** MySQL 5.7's default max_allowed_packet. */
+  static final long DEFAULT_MAX_ALLOWED_PACKET = 4L * 1024 * 1024;
+
+  /**
+   * @param value a size as Connector/J reads it: a number of bytes, with an optional k, m or g
+   * @return the bytes, or 0 when it is not set or not a size
+   */
+  static long byteSize(String value) {
+    if (Utils.isEmpty(value)) {
+      return 0;
+    }
+    String size = value.trim().toLowerCase(Locale.ROOT);
+    long multiplier = 1;
+    char unit = size.isEmpty() ? 0 : size.charAt(size.length() - 1);
+    if (unit == 'k' || unit == 'm' || unit == 'g') {
+      multiplier = unit == 'k' ? 1024L : unit == 'm' ? 1024L * 1024 : 1024L * 1024 * 1024;
+      size = size.substring(0, size.length() - 1).trim();
+    }
+    try {
+      return Math.max(0, Long.parseLong(size) * multiplier);
+    } catch (NumberFormatException e) {
+      return 0;
+    }
+  }
+
+  /**
+   * @param sqlMode the value of {@code @@sql_mode}: a comma separated list of modes
+   * @return true if it holds STRICT_TRANS_TABLES or STRICT_ALL_TABLES
+   */
+  static boolean isStrictSqlMode(String sqlMode) {
+    if (sqlMode == null) {
+      return false;
+    }
+    for (String mode : sqlMode.split(",")) {
+      String name = mode.trim().toUpperCase(Locale.ROOT);
+      if (name.equals("STRICT_TRANS_TABLES") || name.equals("STRICT_ALL_TABLES")) {
+        return true;
+      }
+    }
+    return false;
   }
 }

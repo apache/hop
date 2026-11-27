@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.database.batch;
 
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 
 /**
@@ -62,4 +63,17 @@ public interface IBatchRowListener {
    *     example on a connection without transactions; true when the database refused it
    */
   void rowRejected(Object[] outputRow, String message, boolean attempted) throws HopException;
+
+  /**
+   * The row never reached the database: one of its values can't be bound to the statement. A {@link
+   * MultiRowBatch} binds its rows when it is flushed and reports such a row here, where a {@link
+   * RecoverableBatch} throws from {@link IRowBatch#add} instead. The default reports it as a row
+   * the database never ran.
+   *
+   * @param outputRow the output row that was added with it
+   * @param error why the value can't be bound
+   */
+  default void rowNotBound(Object[] outputRow, HopDatabaseException error) throws HopException {
+    rowRejected(outputRow, error.toString(), false);
+  }
 }

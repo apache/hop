@@ -26,9 +26,9 @@ import lombok.Getter;
 import org.apache.hop.core.exception.HopDatabaseException;
 
 /**
- * What an upsert does, independent of how a database writes it: the target table, the key columns
- * that identify a row (always matched with "="), the columns written on insert and those written on
- * update.
+ * What a DML statement does, independent of how a database writes it: the operation (an upsert or a
+ * plain INSERT), the target table, the key columns that identify a row (always matched with "="),
+ * the columns written on insert and those written on update.
  *
  * <p>The values of one row are passed as a bind row that holds one value per source column: the key
  * columns first, then the other columns, each column once whatever the number of lists it is in.
@@ -38,10 +38,13 @@ import org.apache.hop.core.exception.HopDatabaseException;
 @Getter
 public final class DmlSpec {
 
+  /** What the statement does. */
+  private final DmlOperation operation;
+
   /** The target table, already quoted and schema-qualified. */
   private final String quotedTable;
 
-  /** The columns that identify a row. */
+  /** The columns that identify a row; empty for an INSERT. */
   private final List<DmlColumn> keys;
 
   /** The columns written by the insert, keys excluded. */
@@ -67,19 +70,21 @@ public final class DmlSpec {
   private final List<DmlColumn> setColumns;
 
   private DmlSpec(
+      DmlOperation operation,
       String quotedTable,
       List<DmlColumn> keys,
       List<DmlColumn> inserted,
       List<DmlColumn> updated,
       boolean updateOnlyChanged)
       throws HopDatabaseException {
+    this.operation = operation;
     this.quotedTable = quotedTable;
     this.keys = keys == null ? List.of() : List.copyOf(keys);
     this.inserted = inserted == null ? List.of() : List.copyOf(inserted);
     this.updated = updated == null ? List.of() : List.copyOf(updated);
     this.updateOnlyChanged = updateOnlyChanged;
 
-    if (this.keys.isEmpty()) {
+    if (operation == DmlOperation.UPSERT && this.keys.isEmpty()) {
       throw new HopDatabaseException("An upsert needs at least one key column");
     }
 
@@ -106,6 +111,20 @@ public final class DmlSpec {
       }
     }
     this.setColumns = List.copyOf(set);
+
+    if (operation == DmlOperation.INSERT && this.sourceColumns.isEmpty()) {
+      throw new HopDatabaseException("An INSERT needs at least one column");
+    }
+  }
+
+  /**
+   * @param quotedTable the target table, quoted and schema-qualified
+   * @param columns the columns to insert, in the order of the bind row
+   * @throws HopDatabaseException without a column
+   */
+  public static DmlSpec insert(String quotedTable, List<DmlColumn> columns)
+      throws HopDatabaseException {
+    return new DmlSpec(DmlOperation.INSERT, quotedTable, List.of(), columns, List.of(), false);
   }
 
   /**
@@ -124,7 +143,8 @@ public final class DmlSpec {
       List<DmlColumn> updated,
       boolean updateOnlyChanged)
       throws HopDatabaseException {
-    return new DmlSpec(quotedTable, keys, inserted, updated, updateOnlyChanged);
+    return new DmlSpec(
+        DmlOperation.UPSERT, quotedTable, keys, inserted, updated, updateOnlyChanged);
   }
 
   /**
@@ -201,6 +221,6 @@ public final class DmlSpec {
 
   @Override
   public String toString() {
-    return "UPSERT " + quotedTable + " keys=" + keys + " source=" + sourceColumns;
+    return operation + " " + quotedTable + " keys=" + keys + " source=" + sourceColumns;
   }
 }

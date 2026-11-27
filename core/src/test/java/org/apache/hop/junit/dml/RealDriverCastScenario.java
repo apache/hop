@@ -45,16 +45,17 @@ import org.apache.hop.core.database.dml.DmlSyntax;
 import org.apache.hop.core.database.dml.UpsertForm;
 
 /**
- * Writes one value through every upsert form a dialect declares, and through the plain one-row
- * INSERT or UPDATE, on a real database. The plain statement is the reference: the upsert, whose
- * parameters may be cast ({@link DmlSyntax#castParameters()}), must store the same value, match the
- * same rows, or refuse the value as the plain statement does. A cast that cuts or rounds the value
- * shows up as a difference.
+ * Writes one value through every upsert form a dialect declares and through its INSERT of several
+ * rows, and through the plain one-row INSERT or UPDATE, on a real database. The plain statement is
+ * the reference: the tested statement, whose parameters may be cast ({@link
+ * DmlSyntax#castParameters()}, {@link DmlSyntax#castValuesLists()}), must store the same value,
+ * match the same rows, or refuse the value as the plain statement does. A cast that cuts or rounds
+ * the value shows up as a difference.
  *
- * <p>Value forms write the value into column {@code v} of {@code (id INTEGER PRIMARY KEY, v type)}.
- * The key form matches on {@code (id, v)} in {@code (id INTEGER, v type, note VARCHAR(10))}, where
- * the existing rows hold the value the tested one would become if it were truncated or rounded
- * ({@link Case#near()}).
+ * <p>Value forms write the value into column {@code v} of {@code (id INTEGER PRIMARY KEY, v type)};
+ * the INSERT of several rows writes it next to a second row with a good value. The key form matches
+ * on {@code (id, v)} in {@code (id INTEGER, v type, note VARCHAR(10))}, where the existing rows
+ * hold the value the tested one would become if it were truncated or rounded ({@link Case#near()}).
  */
 public final class RealDriverCastScenario {
 
@@ -113,8 +114,10 @@ public final class RealDriverCastScenario {
     }
   }
 
-  /** An upsert form of one row. */
+  /** A statement form that carries its row in a derived table, or its rows in a VALUES list. */
   public enum Form {
+    /** INSERT of two rows in one statement, against two plain INSERTs. */
+    INSERT_ROWS,
     /** Upsert of a new row, against a plain INSERT. */
     UPSERT_NEW_ONE,
     /** Upsert of an existing row, against a plain UPDATE. */
@@ -138,7 +141,7 @@ public final class RealDriverCastScenario {
   }
 
   /**
-   * Runs a case through each upsert form the dialect declares.
+   * Runs a case through the INSERT of several rows and each upsert form the dialect declares.
    *
    * @return the outcome of each form, keyed by the form and, for an upsert, its form ("MERGE
    *     UPSERT_NEW_ONE")
@@ -150,6 +153,9 @@ public final class RealDriverCastScenario {
     Map<String, Outcome> outcomes = new LinkedHashMap<>();
     Runner runner = new Runner(connection, databaseMeta, table, kase, syntax);
     try {
+      if (syntax.insertForm() != null) {
+        outcomes.put(Form.INSERT_ROWS.name(), runner.insertRows());
+      }
       for (DmlSyntax.Upsert upsert : syntax.upserts()) {
         String prefix = upsert.form() + " ";
         outcomes.put(prefix + Form.UPSERT_NEW_ONE, runner.upsert(upsert, false));
@@ -225,6 +231,16 @@ public final class RealDriverCastScenario {
     }
 
     // ------------------------------------------------------------------------------ value forms
+
+    /** The tested value next to a good one in one INSERT of two rows. */
+    Outcome insertRows() throws Exception {
+      createValueTable();
+      List<DmlColumn> columns = columns("id", "v");
+      List<Map<String, Object>> bindRows = rows(1, kase.value(), 2, kase.good());
+      String reference = plain(insert(columns), bindRows, this::createValueTable, false);
+      createValueTable();
+      return tested(reference, DmlSpec.insert(table, columns), null, bindRows);
+    }
 
     Outcome upsert(DmlSyntax.Upsert upsert, boolean existing) throws Exception {
       Runnable setUp =
@@ -328,7 +344,10 @@ public final class RealDriverCastScenario {
     private Outcome tested(
         String reference, DmlSpec spec, DmlSyntax.Upsert upsert, List<Map<String, Object>> rows)
         throws Exception {
-      DmlStatement statement = DmlStatementBuilder.upsert(databaseMeta, syntax, upsert, spec);
+      DmlStatement statement =
+          upsert == null
+              ? DmlStatementBuilder.insert(databaseMeta, syntax, spec, rows.size())
+              : DmlStatementBuilder.upsert(databaseMeta, syntax, upsert, spec);
       try {
         execute(statement, rows);
         return new Outcome(reference, dump(hasNote(spec)), statement.getSql(), null);
@@ -337,15 +356,15 @@ public final class RealDriverCastScenario {
       }
     }
 
-    /** Runs a one-row statement with the values of the one row given. */
+    /** Runs a statement with the values of the rows it carries. */
     private int execute(DmlStatement statement, List<Map<String, Object>> rows)
         throws SQLException {
       try (PreparedStatement prepared = connection.prepareStatement(statement.getSql())) {
-        for (Map<String, Object> row : rows) {
-          for (int p = 0; p < statement.getParameterCount(); p++) {
+        for (int r = 0; r < rows.size(); r++) {
+          for (int p = 0; p < statement.getParametersPerRow(); p++) {
             String column = statement.getRowColumns().get(p).column();
-            Object value = row.get(column.toLowerCase(Locale.ROOT));
-            int index = p + 1;
+            Object value = rows.get(r).get(column.toLowerCase(Locale.ROOT));
+            int index = statement.parameterIndex(r, p);
             switch (column.toLowerCase(Locale.ROOT)) {
               case "id" -> prepared.setLong(index, ((Number) value).longValue());
               case "note" -> prepared.setString(index, (String) value);

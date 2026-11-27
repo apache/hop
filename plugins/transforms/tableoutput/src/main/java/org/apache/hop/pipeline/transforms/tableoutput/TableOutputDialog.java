@@ -125,6 +125,9 @@ public class TableOutputDialog extends BaseTransformDialog {
   private Label wlBatch;
   private Button wBatch;
 
+  private Label wlRowsPerStatement;
+  private TextVar wRowsPerStatement;
+
   private Button wUsePart;
 
   private Label wlPartField;
@@ -713,13 +716,37 @@ public class TableOutputDialog extends BaseTransformDialog {
           }
         });
 
+    // Rows per statement, used in batch mode
+    wlRowsPerStatement = new Label(wMainComp, SWT.RIGHT);
+    wlRowsPerStatement.setText(
+        BaseMessages.getString(PKG, "TableOutputDialog.RowsPerStatement.Label"));
+    wlRowsPerStatement.setToolTipText(
+        BaseMessages.getString(PKG, "TableOutputDialog.RowsPerStatement.Tooltip"));
+    PropsUi.setLook(wlRowsPerStatement);
+    FormData fdlRowsPerStatement = new FormData();
+    fdlRowsPerStatement.left = new FormAttachment(0, 0);
+    fdlRowsPerStatement.top = new FormAttachment(wBatch, margin);
+    fdlRowsPerStatement.right = new FormAttachment(middle, -margin);
+    wlRowsPerStatement.setLayoutData(fdlRowsPerStatement);
+    wRowsPerStatement = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRowsPerStatement.enableExpandedInteger();
+    wRowsPerStatement.setToolTipText(
+        BaseMessages.getString(PKG, "TableOutputDialog.RowsPerStatement.Tooltip"));
+    PropsUi.setLook(wRowsPerStatement);
+    FormData fdRowsPerStatement = new FormData();
+    fdRowsPerStatement.left = new FormAttachment(middle, 0);
+    fdRowsPerStatement.top = new FormAttachment(wlRowsPerStatement, 0, SWT.CENTER);
+    fdRowsPerStatement.right = new FormAttachment(100, 0);
+    wRowsPerStatement.setLayoutData(fdRowsPerStatement);
+    wRowsPerStatement.addModifyListener(lsMod);
+
     // NameInField
     Label wlNameInField = new Label(wMainComp, SWT.RIGHT);
     wlNameInField.setText(BaseMessages.getString(PKG, "TableOutputDialog.NameInField.Label"));
     PropsUi.setLook(wlNameInField);
     FormData fdlNameInField = new FormData();
     fdlNameInField.left = new FormAttachment(0, 0);
-    fdlNameInField.top = new FormAttachment(wBatch, margin * 5);
+    fdlNameInField.top = new FormAttachment(wRowsPerStatement, margin * 5);
     fdlNameInField.right = new FormAttachment(middle, -margin);
     wlNameInField.setLayoutData(fdlNameInField);
     wNameInField = new Button(wMainComp, SWT.CHECK);
@@ -1373,6 +1400,8 @@ public class TableOutputDialog extends BaseTransformDialog {
 
     wlBatch.setEnabled(enableBatch);
     wBatch.setEnabled(enableBatch);
+    wlRowsPerStatement.setEnabled(useBatch);
+    wRowsPerStatement.setEnabled(useBatch);
 
     boolean specifyFields = wSpecifyFields.getSelection();
     wFields.setEnabled(specifyFields);
@@ -1486,6 +1515,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     wBatch.setSelection(input.isUseBatchUpdate());
 
     wCommit.setText(input.getCommitSize());
+    wRowsPerStatement.setText(Const.NVL(input.getRowsPerStatement(), ""));
 
     wUsePart.setSelection(input.isPartitioningEnabled());
     wPartDaily.setSelection(input.isPartitioningDaily());
@@ -1564,6 +1594,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     info.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
     info.setIgnoreErrors(wIgnore.getSelection());
     info.setUseBatchUpdate(wBatch.getSelection());
+    info.setRowsPerStatement(wRowsPerStatement.getText());
     info.setPartitioningEnabled(wUsePart.getSelection());
     info.setPartitioningField(wPartField.getText());
     info.setPartitioningDaily(wPartDaily.getSelection());

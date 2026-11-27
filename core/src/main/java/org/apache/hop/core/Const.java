@@ -223,6 +223,17 @@ public class Const {
   public static final String HOP_DATABASE_BATCH_RECOVERY = "HOP_DATABASE_BATCH_RECOVERY";
 
   /**
+   * Set to DISABLED to write one row per statement on every connection, whatever rows per statement
+   * a transform asks for (Table output's INSERT): the way Hop always wrote rows. Empty (the
+   * default) follows each connection's setting.
+   */
+  @Variable(
+      value = "",
+      description =
+          "Set to DISABLED to write one row per statement on every connection, whatever rows per statement a transform asks for (Table output's INSERT), the way Hop always did. Empty (the default) follows each connection's setting.")
+  public static final String HOP_DATABASE_MULTI_ROW_DML = "HOP_DATABASE_MULTI_ROW_DML";
+
+  /**
    * Per-run override for the engine-compatibility gate in {@code Pipeline.prepareExecution} /
    * {@code Workflow.startExecution}. Set to 'Y' to run a pipeline or workflow that contains
    * transforms or actions the selected engine has marked UNSUPPORTED. CLI sets it from {@code

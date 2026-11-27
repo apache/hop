@@ -23,7 +23,8 @@ import org.apache.hop.core.exception.HopDatabaseException;
 
 /**
  * Writes the upsert statement of one row in the {@link UpsertForm} a dialect declares in its {@link
- * DmlSyntax}. The standard MERGE, for example:
+ * DmlSyntax}, and INSERT statements of one row or of several rows in the {@link
+ * DmlSyntax.InsertForm} it declares. The standard MERGE, for example:
  *
  * <pre>
  * MERGE INTO target t
@@ -76,7 +77,7 @@ public final class DmlStatementBuilder {
     if (syntax == null || upsert == null) {
       throw new HopDatabaseException("An upsert needs a DML syntax and an upsert form");
     }
-    Writer writer = new Writer(databaseMeta, syntax, spec);
+    Writer writer = new Writer(databaseMeta, syntax, spec, 1);
     return switch (upsert.form()) {
       case MERGE -> writer.merge(upsert);
       case ON_CONFLICT -> writer.onConflict();
@@ -84,18 +85,80 @@ public final class DmlStatementBuilder {
     };
   }
 
-  /** Writes the statements of one spec. */
+  /**
+   * Builds the INSERT of a plan for a number of rows.
+   *
+   * @param databaseMeta the connection, for quoting
+   * @param plan the chosen forms, which must be supported
+   * @param spec what the statement does: an INSERT
+   * @param rows the rows the statement carries; 1 writes the one-row INSERT
+   */
+  public static DmlStatement insert(DatabaseMeta databaseMeta, DmlPlan plan, DmlSpec spec, int rows)
+      throws HopDatabaseException {
+    if (!plan.isSupported()) {
+      throw new HopDatabaseException(plan.getUnsupportedReason());
+    }
+    return insert(databaseMeta, plan.getSyntax(), spec, rows);
+  }
+
+  /**
+   * Builds an INSERT of one row, or of several rows in the declared {@link DmlSyntax.InsertForm}:
+   *
+   * <pre>
+   * INSERT INTO target (a, b) VALUES (?, ?)
+   * INSERT INTO target (a, b) VALUES (?, ?), (?, ?), (?, ?)
+   * </pre>
+   *
+   * @param databaseMeta the connection, for quoting
+   * @param syntax the dialect's declaration; may be null for one row
+   * @param spec what the statement does: an INSERT
+   * @param rows the rows the statement carries; 1 writes the one-row INSERT
+   * @throws HopDatabaseException when the syntax has no INSERT of several rows
+   */
+  public static DmlStatement insert(
+      DatabaseMeta databaseMeta, DmlSyntax syntax, DmlSpec spec, int rows)
+      throws HopDatabaseException {
+    if (spec.getOperation() != DmlOperation.INSERT) {
+      throw new HopDatabaseException("Not an INSERT: " + spec);
+    }
+    if (rows < 1) {
+      throw new HopDatabaseException("A statement carries at least one row, not " + rows);
+    }
+    return new Writer(databaseMeta, syntax, spec, rows).insert();
+  }
+
+  /** Writes the statements of one spec for one number of rows. */
   private static final class Writer {
     private final DatabaseMeta databaseMeta;
     private final DmlSyntax syntax;
     private final DmlSpec spec;
+    private final int rows;
     private final String table;
 
-    Writer(DatabaseMeta databaseMeta, DmlSyntax syntax, DmlSpec spec) {
+    Writer(DatabaseMeta databaseMeta, DmlSyntax syntax, DmlSpec spec, int rows) {
       this.databaseMeta = databaseMeta;
       this.syntax = syntax;
       this.spec = spec;
+      this.rows = rows;
       this.table = spec.getQuotedTable();
+    }
+
+    DmlStatement insert() throws HopDatabaseException {
+      List<DmlColumn> columns = spec.getSourceColumns();
+      String head = "INSERT INTO " + table + " (" + names(columns) + ") ";
+      if (rows == 1) {
+        return statement(head + "VALUES " + plainRow(columns), columns);
+      }
+      DmlSyntax.InsertForm form = syntax == null ? null : syntax.insertForm();
+      if (form == null) {
+        throw new HopDatabaseException(
+            "This database declares no INSERT of several rows, see DmlSyntax.insertForm()");
+      }
+      StringBuilder sql = new StringBuilder(head).append("VALUES ");
+      for (int r = 0; r < rows; r++) {
+        sql.append(r == 0 ? "" : ", ").append(plainRow(columns));
+      }
+      return statement(sql.toString(), columns);
     }
 
     DmlStatement merge(DmlSyntax.Upsert upsert) throws HopDatabaseException {
@@ -218,24 +281,43 @@ public final class DmlStatementBuilder {
       return source.append(") s").toString();
     }
 
-    /** {@code (?, ?, ?)}: a row of an INSERT, whose types come from the target. */
-    private static String plainRow(List<DmlColumn> columns) {
+    /**
+     * {@code (?, ?, ?)}: a row of an INSERT, whose types come from the target. Cast only in a
+     * {@code VALUES} list of several rows when the syntax asks for it ({@link
+     * DmlSyntax#castValuesLists()}), to the type the dialect gives for such a list ({@link
+     * org.apache.hop.core.database.IDatabase#getDmlValuesListCastType}).
+     */
+    private String plainRow(List<DmlColumn> columns) throws HopDatabaseException {
+      boolean cast =
+          rows > 1 && syntax != null && syntax.castParameters() && syntax.castValuesLists();
       StringBuilder row = new StringBuilder("(");
       for (int i = 0; i < columns.size(); i++) {
-        row.append(i == 0 ? "?" : ", ?");
+        row.append(i == 0 ? "" : ", ");
+        if (cast) {
+          String type =
+              databaseMeta.getIDatabase().getDmlValuesListCastType(castType(columns.get(i)));
+          row.append("CAST(? AS ").append(type).append(')');
+        } else {
+          row.append('?');
+        }
       }
       return row.append(')').toString();
     }
 
+    /** A parameter of a derived table, cast when the syntax asks for it. */
     private String parameter(DmlColumn column) throws HopDatabaseException {
-      if (!syntax.castParameters()) {
+      if (syntax == null || !syntax.castParameters()) {
         return "?";
       }
+      return "CAST(? AS " + castType(column) + ")";
+    }
+
+    private static String castType(DmlColumn column) throws HopDatabaseException {
       if (column.nativeType() == null || column.nativeType().isBlank()) {
         throw new HopDatabaseException(
             "The type of column " + column.column() + " is needed to cast its parameter");
       }
-      return "CAST(? AS " + column.nativeType() + ")";
+      return column.nativeType();
     }
 
     /** {@code t.a = s.a AND t.b = s.b} */
@@ -302,7 +384,7 @@ public final class DmlStatementBuilder {
       for (int i = 0; i < layout.length; i++) {
         layout[i] = spec.sourceIndex(rowColumns.get(i));
       }
-      return new DmlStatement(sql, rowColumns, layout);
+      return new DmlStatement(sql, rows, rowColumns, layout);
     }
   }
 }

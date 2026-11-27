@@ -955,17 +955,18 @@ public interface IDatabase extends Cloneable {
   }
 
   /**
-   * How this database writes the DML statements Hop generates beyond a plain INSERT, UPDATE or
-   * DELETE: its upsert forms (MERGE, ON CONFLICT, ON DUPLICATE KEY), see {@link
-   * org.apache.hop.core.database.dml.DmlSyntax}.
+   * How this database writes the DML statements Hop generates beyond a plain one-row INSERT, UPDATE
+   * or DELETE: its upsert forms (MERGE, ON CONFLICT, ON DUPLICATE KEY) and its INSERT of several
+   * rows, see {@link org.apache.hop.core.database.dml.DmlSyntax}.
    *
    * <p>Return null when the database has none of these, or when nobody has verified that they work:
-   * a transform that needs an upsert then refuses the connection with a clear message instead of
-   * failing on the first row. Declare only the forms a test ran against the database, and only for
-   * the dialect itself ({@code getClass() == MyDatabaseMeta.class}): a dialect that extends it
-   * talks to another server and has to declare its own.
+   * Hop then inserts one row per statement, and a transform that needs an upsert refuses the
+   * connection with a clear message instead of failing on the first row. Declare only the forms a
+   * test ran against the database, and only for the dialect itself ({@code getClass() ==
+   * MyDatabaseMeta.class}): a dialect that extends it talks to another server and has to declare
+   * its own.
    *
-   * @return the DML syntax, or null when the database has no upsert in Hop
+   * @return the DML syntax, or null when the database has no upsert and only one-row INSERTs in Hop
    */
   default org.apache.hop.core.database.dml.DmlSyntax getDmlSyntax() {
     return null;
@@ -1012,6 +1013,56 @@ public interface IDatabase extends Cloneable {
    */
   default boolean isDmlComparable(String typeName, int dataType) {
     return org.apache.hop.core.database.dml.DmlColumns.comparable(typeName, dataType);
+  }
+
+  /**
+   * The type a parameter of a {@code VALUES} list of several rows is cast to, when the syntax casts
+   * those lists ({@link org.apache.hop.core.database.dml.DmlSyntax#castValuesLists()}). The cast
+   * has to change no value on its way to the column, which assigns it as it would assign the
+   * parameter itself. The default is the column's cast type, {@link #getDmlCastType}.
+   *
+   * @param castType the column's cast type, as {@link #getDmlCastType} wrote it
+   * @return the type to cast the parameter to
+   */
+  default String getDmlValuesListCastType(String castType) {
+    return castType;
+  }
+
+  /**
+   * Why statements of several rows must not be used for a table on this open connection although
+   * {@link #getDmlSyntax()} declares them: a session setting or a kind of table with which the
+   * database treats a bad row in a statement of several rows differently from the same row in a
+   * statement of its own. MySQL outside strict SQL mode, for one, writes a column's implicit
+   * default for a NULL in a NOT NULL column of a multi-row INSERT and only warns, where the one-row
+   * INSERT fails; a MyISAM table does the same in strict mode. The row would then be changed
+   * silently instead of rejected.
+   *
+   * <p>Asked once per target table when the statements are planned, on the connection they will run
+   * on, so it may run queries. When in doubt, give a reason: one row per statement costs speed
+   * only.
+   *
+   * @param connection the open connection
+   * @param spec the statement to write, with its target table
+   * @return why one row per statement is written, or null when several rows per statement are fine
+   */
+  default String getMultiRowDmlRefusal(
+      java.sql.Connection connection, org.apache.hop.core.database.dml.DmlSpec spec) {
+    return null;
+  }
+
+  /**
+   * The most bytes one statement may take on this open connection, the values of its parameters
+   * included, where a statement of one row only has to fit its own row: MySQL's {@code
+   * max_allowed_packet}, for one. Statements of several rows are then cut short before they reach
+   * it.
+   *
+   * <p>Asked once per target table when the statements are planned, so it may run a query.
+   *
+   * @param connection the open connection
+   * @return the limit in bytes, or 0 when the database has none that matters
+   */
+  default long getMaxDmlStatementBytes(java.sql.Connection connection) {
+    return 0;
   }
 
   /**

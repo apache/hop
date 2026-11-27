@@ -59,7 +59,11 @@ services:
       - oracle-data:/opt/oracle-data:ro
 
   oracle:
-    image: container-registry.oracle.com/database/free:latest
+    # Pinned: 23.26.4.0 (October 2026, and "latest" since) no longer ships a database in oradata or
+    # the DBCA templates. Its own start command unpacks the database from a tarball, which these
+    # entrypoints bypass, and without the templates oracle-nchar cannot build its database at all:
+    # both fail with DBT-10508. Both services use the same image; move them together.
+    image: container-registry.oracle.com/database/free:23.26.3.0
     # The certificate CN follows this name, and the tests keep server DN matching switched on, so
     # it has to match the host the tests connect to.
     hostname: oracle
@@ -94,7 +98,8 @@ services:
   # See the entrypoint for how a non-Unicode database is obtained from an image that ships a
   # Unicode one.
   oracle-nchar:
-    image: container-registry.oracle.com/database/free:latest
+    # Pinned with the oracle service above: building a database needs the DBCA templates.
+    image: container-registry.oracle.com/database/free:23.26.3.0
     hostname: oracle-nchar
     environment:
       - ORACLE_PWD=HopIntegrationTest_1

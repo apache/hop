@@ -2075,6 +2075,36 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     }
   }
 
+  /**
+   * @return true if this connection writes one row per statement, whatever rows per statement a
+   *     transform asks for (Table output's INSERT)
+   */
+  public boolean isMultiRowDmlDisabled() {
+    Map<String, String> attributes = iDatabase.getAttributes();
+    return attributes != null
+        && "Y"
+            .equalsIgnoreCase(
+                attributes.get(
+                    org.apache.hop.core.database.dml.DmlSupport.ATTRIBUTE_MULTI_ROW_DML_DISABLED));
+  }
+
+  /**
+   * @param disabled true to write one row per statement on this connection, the way Hop always did;
+   *     false to let transforms write several rows per statement where the dialect declares it
+   */
+  public void setMultiRowDmlDisabled(boolean disabled) {
+    Map<String, String> attributes = iDatabase.getAttributes();
+    if (attributes == null) {
+      return;
+    }
+    String key = org.apache.hop.core.database.dml.DmlSupport.ATTRIBUTE_MULTI_ROW_DML_DISABLED;
+    if (disabled) {
+      attributes.put(key, "Y");
+    } else {
+      attributes.remove(key);
+    }
+  }
+
   /* Returns weather or not the database supports a custom SQL statement to perform update operations */
   public boolean isSupportsCustomUpdateStmt() {
     return iDatabase.isSupportsCustomUpdateStmt();

@@ -94,6 +94,9 @@ They are ordinary methods with sensible defaults, and the ones that matter most 
 |`isSupportsErrorHandling()`
 |Set this false for databases that invalidate a statement, or the whole connection, when a statement fails. SQLite is the example in the tree.
 
+|`getDmlSyntax()`
+|The upsert forms (`MERGE`, `ON CONFLICT`, `ON DUPLICATE KEY`) and the INSERT of several rows the database has, or `null` for plain one-row statements only. See <<DML statements>>.
+
 |`getLimitClause(int)`
 |The clause appended *after* the FROM clause to limit rows, such as `" LIMIT 10"`.
 
@@ -164,6 +167,95 @@ The MySQL, SQL Server and Oracle ones run with `-Dhop.it.batchContracts=true`.
 Not declared, after measuring: SQLite (it stops at the failed row but reports no counts), MariaDB with its own driver (a batch that spans several packets keeps the other packets while every row is reported as failed), and SQL Server through jTDS.
 The dialects that extend PostgreSQL and MySQL (Greenplum, Redshift, CockroachDB, CrateDB, MariaDB, Doris, Infobright) declare nothing either: their drivers or servers were not measured.
 
+== DML statements
+
+Hop writes upsert statements, and INSERT statements of several rows, through one builder, `org.apache.hop.core.database.dml.DmlStatementBuilder`.
+What a dialect declares in the `DmlSyntax` it returns from `getDmlSyntax()` decides which forms are used; an INSERT it doesn't declare is written one row per statement, which every database runs.
+
+An upsert is written in one of the declared `upserts`, in order of preference.
+The standard `MERGE` needs nothing but the statement:
+
+[source,sql]
+----
+MERGE INTO target t
+USING (VALUES (?, ?, ?)) AS s (id, name, amount)
+ON (t.id = s.id)
+WHEN MATCHED [AND (changed)] THEN UPDATE SET name = s.name, amount = s.amount
+WHEN NOT MATCHED THEN INSERT (id, name, amount) VALUES (s.id, s.name, s.amount)
+----
+
+`ON_CONFLICT` (`INSERT ... ON CONFLICT (keys) DO UPDATE SET c = EXCLUDED.c`) needs a primary key or unique index on exactly the key columns, and `ON_DUPLICATE_KEY` (`INSERT ... ON DUPLICATE KEY UPDATE c = VALUES(c)`) needs that to be the table's only unique index, since MySQL reacts to any of them.
+`org.apache.hop.core.database.dml.DmlSupport.plan(...)` checks this on the open connection and picks the first form that qualifies, or the one the user asked for.
+
+An INSERT can carry several rows: generating one `INSERT ... VALUES (...), (...)` in Hop is cheaper than sending N one-row statements.
+`DmlSupport.planStatements(...)` picks the rows per INSERT for a connection: the rows asked for, capped by the dialect's limits.
+
+What a `DmlSyntax` holds:
+
+`rowSource`::
+How a row of parameters becomes a derived table, aliased `s`: `VALUES` (`(VALUES (?, ?)) AS s (a, b)`: H2, DuckDB, PostgreSQL, SQL Server, DB2), `SELECT` (`(SELECT ? AS a, ? AS b) s`) or `SELECT_FROM_DUAL` (Oracle).
+It is the source of a `MERGE`.
+
+`castParameters`::
+Whether each parameter of that derived table is written as `CAST(? AS type)`. PostgreSQL, SQL Server and DB2 need this: pgjdbc sends timestamps, and strings bound for other columns, untyped, and PostgreSQL turns an untyped value in a `VALUES` list into text. The types come from the table, through `DmlColumns.fromTable(...)`, and the dialect writes each as a cast target in `IDatabase.getDmlCastType(...)`. A cast must change no value: the column must still decide whether the value fits, as it does for a plain INSERT. Check a new dialect with `RealDriverCastScenario`, which writes overlong and over-precise values through every declared form and through the plain one-row statements and compares the outcomes. The plain `VALUES` list of an INSERT is not cast.
+
+`castValuesLists`::
+Also cast the plain `VALUES` list of an INSERT when it carries several rows. SQL Server needs it: it types a multi-row `VALUES` list from its parameters before it assigns the rows, mssql-jdbc declares a `BigDecimal` as `decimal(38, scale)`, and two scales together overflow 38 digits, so `1` and `2.25` are silently written as `1.00` and `2.00` into a `numeric(10,2)` column.
+Each parameter is cast to `IDatabase.getDmlValuesListCastType(...)`, by default the column's cast type. SQL Server casts character types to `nvarchar(max)` there: a cast to `varchar` converts the value to the code page of the database's default collation, so a column with another collation (a `_UTF8` one, say) would get `?` for every character that code page lacks, without an error.
+
+`upserts`::
+`DmlSyntax.Upsert` entries, each with its `form`, `minimumMajorVersion` and `minimumMinorVersion` (checked against `DatabaseMetaData` when the transform connects), the `terminator` of a `MERGE` (SQL Server wants `;`), its `changedCondition` and `rowAlias`.
+
+`insertForm`::
+How several rows go into one INSERT: `VALUES_LIST` (`INSERT INTO t (a, b) VALUES (?, ?), (?, ?)`). `null` inserts one row per statement.
+
+`maxParameters`, `maxRowsPerStatement`::
+Limits of one statement, 0 for none: PostgreSQL and MySQL (with server-side prepared statements) take 65535 parameters, SQL Server 2098 parameters with mssql-jdbc (the server's 2100 less two of the driver's) and 1000 rows in an INSERT, SQLite 32766 parameters, H2 100000 parameters.
+Derby compiles a statement to Java bytecode and refuses one that is too complex (42ZA0): its budget is about 6 per row plus 1 per parameter, so it declares 50000 parameters and 1000 rows, which stay well inside it for every column type.
+The rows per statement are the number asked for, capped by both limits, so on a wide table the parameters decide: 1000 columns on PostgreSQL leave 65 rows per statement.
+
+What the verified dialects declare for an INSERT of several rows:
+
+[options="header",cols="1,1,1,1"]
+|===
+|Database |INSERT |Casts |Limits
+|PostgreSQL 14, 18 |`VALUES_LIST` |none |65535 parameters
+|SQL Server 2022 |`VALUES_LIST` |every parameter of every row |2098 parameters, 1000 rows
+|MySQL 9 |`VALUES_LIST` (strict SQL mode, InnoDB and NDB tables only) |none |65535 parameters, `max_allowed_packet` bytes
+|H2 |`VALUES_LIST` |none |100000 parameters
+|DuckDB |`VALUES_LIST` |none |
+|SQLite (see below) |`VALUES_LIST` |none |32766 parameters, 500 rows
+|Derby |`VALUES_LIST` |none |50000 parameters, 1000 rows
+|===
+
+Oracle declares no INSERT of several rows and writes one row per statement.
+Measured against Oracle Database 23 Free, `INSERT ... SELECT ... FROM dual UNION ALL` of several rows is no faster than a batch of one-row INSERTs, which the driver already sends as one array execution, while its hard parse grows with the square of its binds (about a second at 10,000 binds, 50 seconds at 65,000).
+The driver's parameter metadata, which Hop asks for to bind a string to a VARCHAR2, NVARCHAR2 or CLOB column, did not finish on a statement of 65 rows of 1000 columns.
+With strict mode off, MySQL writes the implicit default into a NOT NULL column for a row of a multi-row INSERT and only warns, where a one-row INSERT fails; a table without transactions (MyISAM, MEMORY, ...) does the same in `STRICT_TRANS_TABLES` mode, and keeps the rows before a bad one in `STRICT_ALL_TABLES` mode.
+`IDatabase.getMultiRowDmlRefusal(...)` is asked for every target table on the open connection; MySQL's reads the session's `sql_mode` and the table's engine (`SHOW CREATE TABLE`) and falls back to one row per statement for either, or when it can't read them.
+`IDatabase.getMaxDmlStatementBytes(...)` gives the most bytes one statement may take on the connection; MySQL's is `max_allowed_packet`, since Connector/J refuses a larger statement where a batch of one-row statements only needs each row to fit. `MultiRowBatch` then closes a statement early, at a power of two of rows, before an estimate of its values would pass the limit.
+SQLite declares the multi-row INSERT and `SqliteDmlTest` runs it, but SQLite has no batch failure contract (see above), so Table output writes one row per statement there.
+
+Return `null`, the default, when the database has none of these, or when you have not run them.
+Declare the syntax only for the dialect itself (`if (getClass() != MyDatabaseMeta.class) return null;`): a dialect that extends it, such as Greenplum, CockroachDB, CrateDB and Redshift for PostgreSQL, talks to another server and declares its own.
+
+The rows go through `org.apache.hop.core.database.batch.MultiRowBatch`, the multi-row counterpart of `RecoverableBatch`, and only on a connection whose batch failure contract is validated (see above).
+It cuts the rows into statements of the chosen size, and sends a shorter remainder as statements of power-of-two sizes.
+When a statement of several rows fails, which it does as a whole on every database, its rows are run again one by one so that exactly the bad rows go to the error hop; work done earlier in the transaction is kept.
+A row of a multi-row INSERT is reported with an update count of 1.
+
+Users can go back to one row per statement on a dialect that declares an INSERT of several rows: with *Write one row per statement* on the *Advanced* tab of the connection, with the variable `HOP_DATABASE_MULTI_ROW_DML=DISABLED` for every connection, or with `HOP_DATABASE_BATCH_RECOVERY=LEGACY`, since only recovered batches carry several rows. `DmlSupport.planStatements(...)` checks the first two when it is given the transform's variables, so a transform must pass them.
+
+Verify the declaration against a real database before returning it.
+The hop-core test jar has the scenarios:
+
+* `org.apache.hop.junit.merge.RealDriverMergeScenario` runs the one-row `MERGE` through a `PreparedStatement` and checks the table after each step.
+* `org.apache.hop.junit.dml.RealDriverDmlScenario` runs the declared INSERT of several rows through a `MultiRowBatch`, with rows that fail on their own and amounts of different scales in one statement, and checks both the table and the verdict of every row. `runAtLimits(...)` writes full statements at the dialect's `maxParameters` and `maxRowsPerStatement`, so a limit that is too high fails the test. `runWide(...)` does the same on a table as wide as the database allows, without recovering a failure, so a statement the server or the driver refuses for its size fails the test, and reads every value back. `measure(...)` times one row per statement against several.
+
+Copy `H2MergeTest` and `H2DmlTest` for an embedded database, or `PostgreSqlMergeIT` and `PostgreSqlDmlIT` for one in a Testcontainers image. The `*DmlIT` classes of SQL Server (in the mssqlnative plugin) and MySQL run with `-Dhop.it.dml=true`, with drivers Hop downloads.
+
+pgjdbc's `reWriteBatchedInserts=true` also folds a JDBC batch of Hop's multi-row INSERTs into larger INSERTs (in powers of two) and then reports `SUCCESS_NO_INFO`. The rows come out the same; the failed batch entry pgjdbc names then counts its own statements, so the dialect gives no hint for a failed INSERT of several rows and the batch is recovered without one.
+
 == SQL differences
 
 Where the SQL itself differs, override the statement the difference belongs to: `getTruncateTableStatement`, `getAddColumnStatement`, `getModifyColumnStatement`, `getSqlListOfSchemas`, and so on.
@@ -210,5 +302,6 @@ Declare the dependency as `provided` in the module's `pom.xml`, so the plugin bu
 * Every plugin class in the module carries the same `classLoaderGroup`.
 * Column types are declared as rules, not as an overridden `getFieldDefinition`.
 * There is a golden test for the generated DDL, see xref:database/testing.adoc[Testing a database plugin].
+* `getDmlSyntax()` declares only forms that a test ran against the database, or returns `null`, and only for the dialect's own class.
 * There is a page in the user manual, and `documentationUrl` points at it.
 * `getBatchFailureContract()` returns a measured value, or `null` if nobody has measured the driver.

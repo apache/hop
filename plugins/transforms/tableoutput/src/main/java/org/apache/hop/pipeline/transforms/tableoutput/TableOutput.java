@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +34,20 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.batch.BatchSupport;
 import org.apache.hop.core.database.batch.IBatchRowListener;
 import org.apache.hop.core.database.batch.IRowBatch;
+import org.apache.hop.core.database.batch.MultiRowBatch;
 import org.apache.hop.core.database.batch.RecoverableBatch;
+import org.apache.hop.core.database.dml.DmlColumn;
+import org.apache.hop.core.database.dml.DmlColumns;
+import org.apache.hop.core.database.dml.DmlPlan;
+import org.apache.hop.core.database.dml.DmlSpec;
+import org.apache.hop.core.database.dml.DmlStatements;
+import org.apache.hop.core.database.dml.DmlSupport;
+import org.apache.hop.core.database.dml.DmlSyntax;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -708,7 +718,11 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
   private void addToRecoveredBatch(
       IRowMeta rowMeta, Object[] r, String tableName, Object[] insertRowData, Object[] outputRow)
       throws HopException {
-    IRowBatch batch = getRecoveredBatch(tableName);
+    // A multi-row batch binds the row when it is flushed, and reports a value that can't be bound
+    // then, through rowNotBound. A one-row batch binds it now.
+    DmlPlan plan = insertPlan(tableName);
+    IRowBatch batch =
+        plan != null ? getMultiRowBatch(tableName, plan) : getRecoveredBatch(tableName);
     TableOutputData.PendingRow pending = new TableOutputData.PendingRow(outputRow, rowMeta);
     data.pendingRows.add(pending);
     data.pendingByRow.put(outputRow, pending);
@@ -772,6 +786,134 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
   }
 
   /**
+   * The plan of the INSERT statements of several rows into a table, made on its first batched row,
+   * when the insert columns are known; null when the table gets one row per statement. Each table
+   * is planned on its own: the database can rule out several rows per statement for one table and
+   * not for another (a MySQL table without transactions, say).
+   */
+  private DmlPlan insertPlan(String tableName) {
+    if (!data.multiRowCandidate) {
+      return null;
+    }
+    if (data.insertPlans.containsKey(tableName)) {
+      return data.insertPlans.get(tableName);
+    }
+    int asked = meta.getRowsPerStatement(this);
+    String reason = null;
+    DmlPlan plan = null;
+    DmlSpec spec = null;
+    try {
+      spec = insertSpec(tableName);
+    } catch (HopDatabaseException e) {
+      // The one-row INSERT needs no column types, so it still runs.
+      reason = "unable to read the column types of table " + tableName + ": " + e.getMessage();
+    }
+    if (spec != null && spec.getSourceColumns().size() != data.insertRowMeta.size()) {
+      // Two fields with the same column name, ignoring case: the one-row INSERT names them both,
+      // as it always did, and lets the database decide.
+      reason = "two fields write the same column";
+    } else if (spec != null
+        && !Utils.isEmpty(
+            data.databaseMeta
+                .getIDatabase()
+                .getSqlInsertClauseBeforeFields(data.db, spec.getQuotedTable()))) {
+      reason = "the database needs a clause before the column list of an INSERT";
+    } else if (spec != null) {
+      // Note: on PostgreSQL, reWriteBatchedInserts=true also folds a JDBC batch of these
+      // multi-row INSERTs into bigger multi-row INSERTs (in powers of two). The rows come out
+      // the same, but the driver then reports SUCCESS_NO_INFO for most entries, and a failure
+      // names no batch entry (PostgreSqlDatabaseMeta.getFailedBatchEntry gives -1 for an INSERT
+      // of several rows), so a failed JDBC batch is recovered row by row. MultiRowBatch counts
+      // a row of a multi-row INSERT as 1 whatever the driver reports.
+      try {
+        plan =
+            DmlSupport.planStatements(
+                data.databaseMeta, data.db.getDatabaseMetaData(), spec, asked, this);
+        if (plan.getRowsPerStatement() <= 1) {
+          reason = plan.getNote() != null ? plan.getNote() : plan.getUnsupportedReason();
+          plan = null;
+        }
+      } catch (HopDatabaseException e) {
+        reason = e.getMessage();
+        plan = null;
+      }
+    }
+    data.insertPlans.put(tableName, plan);
+    if (isDetailed()) {
+      if (plan == null) {
+        logDetailed(
+            "Inserting one row per statement into table "
+                + tableName
+                + " instead of "
+                + asked
+                + ": "
+                + reason);
+      } else {
+        logDetailed(
+            "Inserting "
+                + plan.getRowsPerStatement()
+                + " rows per statement into table "
+                + tableName
+                + (plan.getMaxStatementBytes() > 0
+                    ? ", " + plan.getMaxStatementBytes() + " bytes per statement at most"
+                    : "")
+                + (plan.getNote() == null ? "" : ": " + plan.getNote()));
+      }
+    }
+    return plan;
+  }
+
+  /**
+   * The INSERT of a table: its columns are the fields of the insert row, in that order, with their
+   * types read from the table when the dialect casts the VALUES list of several rows (SQL Server).
+   * Made once per table.
+   */
+  private DmlSpec insertSpec(String tableName) throws HopDatabaseException {
+    DmlSpec spec = data.insertSpecs.get(tableName);
+    if (spec != null) {
+      return spec;
+    }
+    List<String> names = new ArrayList<>();
+    for (IValueMeta valueMeta : data.insertRowMeta.getValueMetaList()) {
+      names.add(valueMeta.getName());
+    }
+    String schema = resolve(meta.getSchemaName());
+    DmlSyntax syntax = data.databaseMeta.getIDatabase().getDmlSyntax();
+    List<DmlColumn> columns;
+    if (syntax != null && syntax.castParameters() && syntax.castValuesLists()) {
+      columns = DmlColumns.fromTable(data.db, schema, tableName, names);
+    } else {
+      columns = names.stream().map(DmlColumn::of).toList();
+    }
+    String quotedTable = data.databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName);
+    spec = DmlSpec.insert(quotedTable, columns);
+    data.insertSpecs.put(tableName, spec);
+    return spec;
+  }
+
+  /** The multi-row batch of a table, created on its first row. */
+  private IRowBatch getMultiRowBatch(String tableName, DmlPlan plan) throws HopException {
+    IRowBatch batch = data.batches.get(tableName);
+    if (batch != null) {
+      return batch;
+    }
+    DmlStatements statements =
+        DmlStatements.of(data.db, plan, insertSpec(tableName), data.insertRowMeta);
+    if (isDetailed()) {
+      // The statement of one row: the one of several rows repeats its VALUES list.
+      logDetailed(
+          "Prepared statement : "
+              + statements.statement(1).getSql()
+              + " (up to "
+              + plan.getRowsPerStatement()
+              + " rows per statement)");
+    }
+    batch = statements.newBatch(data.db, data.batchSupport);
+    data.batches.put(tableName, batch);
+    return batch;
+  }
+
+  /**
    * Runs and commits a table's recovered batch. With an error hop every row goes to the output or
    * the error stream once its fate is known; without one a failure rolls back and stops the
    * transform.
@@ -801,6 +943,31 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
       }
       throw new HopException(msg.toString(), be);
+    } catch (MultiRowBatch.UnboundRowException unbound) {
+      // A value that can't be bound stops the transform, as it does with one row per statement
+      // when the row arrives (handleUnbatchedRowError); a multi-row batch finds it when it binds.
+      TableOutputData.PendingRow pending = data.pendingByRow.get(unbound.getOutputRow());
+      setErrors(getErrors() + 1);
+      discardRecoveredBatches();
+      data.db.rollback();
+      throw new HopException(
+          "Error inserting row into table [" + tableName + "] with values: " + rowValues(pending),
+          unbound.getCause());
+    }
+  }
+
+  /**
+   * The values of a waiting row for a message, as its fields show them, or as the plain values when
+   * a value doesn't fit its field (which may be why it couldn't be bound).
+   */
+  private static String rowValues(TableOutputData.PendingRow pending) {
+    if (pending == null) {
+      return "";
+    }
+    try {
+      return pending.rowMeta.getString(pending.row);
+    } catch (HopValueException e) {
+      return Arrays.toString(pending.row);
     }
   }
 
@@ -855,6 +1022,16 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         pending.settled = true;
         pending.message = message;
         pending.errorCode = attempted ? "TOP0002" : "TOP0003";
+      }
+
+      @Override
+      public void rowNotBound(Object[] outputRow, HopDatabaseException error) {
+        // The same verdict as for a row that can't be bound when it arrives, see
+        // handleUnbatchedRowError: a multi-row batch binds its rows when it is flushed.
+        TableOutputData.PendingRow pending = data.pendingByRow.remove(outputRow);
+        pending.settled = true;
+        pending.message = error.toString();
+        pending.errorCode = "TOP001";
       }
     };
   }
@@ -956,6 +1133,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         if (data.recoveredBatches) {
           data.useSafePoints = false;
           data.batchMode = true;
+          data.multiRowCandidate = multiRowCandidate();
         } else {
           // Batch updates are not supported on PostgreSQL (and look-a-likes)
           // together with error handling
@@ -1020,6 +1198,40 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.preparedStatements.clear();
       }
     }
+  }
+
+  /**
+   * Whether several rows per INSERT may be used; the dialect is asked on the first batched row.
+   * Otherwise the detailed log says why one row per statement is written.
+   */
+  private boolean multiRowCandidate() throws HopDatabaseException {
+    int asked = meta.getRowsPerStatement(this);
+    if (asked <= 1) {
+      return false;
+    }
+    String reason = null;
+    if (meta.isIgnoreErrors()) {
+      // A row that can't be bound is ignored with a warning on the one-row path; a multi-row
+      // batch only finds out when it is flushed.
+      reason = "insert errors are ignored";
+    } else if (!Utils.isEmpty(data.db.getConnectionGroup())) {
+      reason = "the connection is shared by a transactional pipeline";
+    } else {
+      try {
+        if (!data.db.getDatabaseMetaData().supportsTransactions()) {
+          reason = "the database has no transactions to recover a failed statement with";
+        }
+      } catch (SQLException e) {
+        reason = "unable to find out if the database supports transactions: " + e.getMessage();
+      }
+    }
+    if (reason != null) {
+      if (isDetailed()) {
+        logDetailed("Inserting one row per statement instead of " + asked + ": " + reason);
+      }
+      return false;
+    }
+    return true;
   }
 
   void truncateTable() throws HopDatabaseException {
@@ -1606,6 +1818,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       try {
         emptyAndCommitBatchBuffers(true);
       } finally {
+        // A multi-row batch prepared its statements itself; a one-row batch's statement is closed
+        // with the others below.
+        if (data.batches != null) {
+          for (IRowBatch batch : data.batches.values()) {
+            batch.close();
+          }
+        }
         try {
           // close prepared statements
           for (Map.Entry<String, PreparedStatement> preparedStatement :

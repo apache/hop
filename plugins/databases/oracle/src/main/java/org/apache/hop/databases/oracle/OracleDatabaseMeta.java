@@ -1326,6 +1326,13 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * ("ORA-02000: missing THEN keyword" otherwise). Checked against Oracle Database 23 Free by
    * {@code OracleMergeIT}.
    *
+   * <p>There is no INSERT of several rows: an INSERT stays one row per statement. Measured against
+   * Oracle Database 23 Free, {@code INSERT ... SELECT ... FROM dual UNION ALL} of several rows is
+   * no faster than a batch of one-row INSERTs, which the driver already sends as one array
+   * execution, while its hard parse grows with the square of its binds (about a second at 10,000,
+   * 50 seconds at 65,000), and the driver's parameter metadata, which binding a string asks for,
+   * did not finish on a statement of 65 rows of 1000 columns.
+   *
    * <p>Only declared for this dialect itself, not for the ones that extend it.
    */
   @Override

@@ -23,7 +23,7 @@ import org.apache.hop.core.exception.HopException;
 
 /**
  * A batch of rows a transform writes through one statement: a {@link RecoverableBatch} on a one-row
- * statement, or a multi-row batch that writes several rows per statement. Both give every row
+ * statement, or a {@link MultiRowBatch} that writes several rows per statement. Both give every row
  * exactly one verdict, once, in the order the rows were added, through an {@link
  * IBatchRowListener}.
  */
@@ -31,8 +31,8 @@ public interface IRowBatch {
 
   /**
    * Adds a row. Nothing is sent to the database until {@link #flush}. A one-row batch binds the row
-   * now and throws when a value can't be bound; a multi-row batch binds it at the flush and rejects
-   * it there.
+   * now and throws when a value can't be bound; a multi-row batch binds it at the flush and reports
+   * it there, through {@link IBatchRowListener#rowNotBound}.
    *
    * @param bindRow the values of the statement's parameters
    * @param outputRow the row to report back once its fate is known

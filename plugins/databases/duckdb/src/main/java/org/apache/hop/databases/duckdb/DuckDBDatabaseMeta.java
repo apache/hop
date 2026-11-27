@@ -365,9 +365,10 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * DuckDB has MERGE INTO since 1.4 and accepts a {@code VALUES} source with untyped parameters. It
    * also has {@code INSERT ... ON CONFLICT}, used when it is asked for and the key columns are the
-   * primary key or a unique index. Its driver reports major version 1 without the minor version, so
-   * the 1.4 minimum can't be checked; Hop ships a newer driver, which embeds the database. Checked
-   * by {@code DuckDBMergeTest}.
+   * primary key or a unique index, and inserts several rows with one {@code VALUES} list. Its
+   * driver reports major version 1 without the minor version, so the 1.4 minimum can't be checked;
+   * Hop ships a newer driver, which embeds the database. Checked by {@code DuckDBMergeTest} and
+   * {@code DuckDBDmlTest}.
    *
    * <p>Only declared for this dialect itself, not for the ones that extend it.
    */
@@ -379,6 +380,7 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return DmlSyntax.builder()
         .upsert(DmlSyntax.Upsert.of(UpsertForm.MERGE))
         .upsert(DmlSyntax.Upsert.of(UpsertForm.ON_CONFLICT))
+        .insertForm(DmlSyntax.InsertForm.VALUES_LIST)
         .build();
   }
 }

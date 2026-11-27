@@ -1058,9 +1058,20 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   /**
    * SQL Server has MERGE since 2008 (major version 10), and a MERGE must end with a semicolon. The
    * parameters of the MERGE source are cast to the column types, see {@link #getDmlCastType}.
-   * Checked against SQL Server 2022 with mssql-jdbc by {@code MsSqlServerMergeIT} and {@code
-   * MsSqlServerCastIT} in the mssqlnative plugin, through both SQL Server dialects; the jTDS driver
-   * of this plugin was not run.
+   *
+   * <p>An INSERT carries several rows in one {@code VALUES} list, whose parameters are cast to
+   * their columns' types as well: SQL Server types a VALUES list of several rows from its
+   * parameters before it assigns them to the columns, and mssql-jdbc declares a {@code BigDecimal}
+   * as {@code decimal(38, scale)}. Two such rows of different scales need more than 38 digits, so
+   * the scale is cut: 1 and 2.25 are written as 1.00 and 2.00 into a {@code numeric(10,2)} column,
+   * without an error. One row is assigned directly and is not affected. Character values are cast
+   * to {@code nvarchar(max)} there, see {@link #getDmlValuesListCastType}. One statement takes at
+   * most 2098 parameters with mssql-jdbc (the server's 2100 less the two the driver adds), and an
+   * INSERT at most 1000 rows in its VALUES list.
+   *
+   * <p>Checked against SQL Server 2022 with mssql-jdbc by {@code MsSqlServerMergeIT}, {@code
+   * MsSqlServerCastIT} and {@code MsSqlServerDmlIT} in the mssqlnative plugin, through both SQL
+   * Server dialects; the jTDS driver of this plugin was not run.
    *
    * <p>Only declared for this dialect itself and for {@code MsSqlServerNativeDatabaseMeta}, which
    * declares it again: other dialects that extend it talk to other servers.
@@ -1077,8 +1088,12 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   public static final DmlSyntax SQL_SERVER_DML_SYNTAX =
       DmlSyntax.builder()
           .castParameters(true)
+          .castValuesLists(true)
           .upsert(
               DmlSyntax.Upsert.of(UpsertForm.MERGE).withMinimumMajorVersion(10).withTerminator(";"))
+          .insertForm(DmlSyntax.InsertForm.VALUES_LIST)
+          .maxParameters(2098)
+          .maxRowsPerStatement(1000)
           .build();
 
   /** The precision of the widest {@code decimal}. */
@@ -1125,6 +1140,32 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
             + ")";
       }
       default -> type;
+    };
+  }
+
+  /**
+   * In a {@code VALUES} list of several rows, a character type is cast to {@code nvarchar(max)}
+   * instead. A cast to {@code varchar} or {@code text} converts the Unicode parameter to the code
+   * page of the database's default collation, not the column's: text in a column with another
+   * collation (a {@code _UTF8} collation in a Latin1 database, say, or Greek_CI_AS) loses every
+   * character the default code page lacks, written as '?' or as a look-alike without an error. Cast
+   * to {@code nvarchar(max)}, the value reaches the column whole and the column converts it, as it
+   * does the parameter of a one-row INSERT, and still refuses it when it is too long. Checked by
+   * {@code MsSqlServerDmlIT}.
+   */
+  @Override
+  public String getDmlValuesListCastType(String castType) {
+    if (castType == null) {
+      return null;
+    }
+    int parenthesis = castType.indexOf('(');
+    String base =
+        (parenthesis < 0 ? castType : castType.substring(0, parenthesis))
+            .trim()
+            .toLowerCase(Locale.ROOT);
+    return switch (base) {
+      case "varchar", "char", "text" -> "nvarchar(max)";
+      default -> castType;
     };
   }
 
