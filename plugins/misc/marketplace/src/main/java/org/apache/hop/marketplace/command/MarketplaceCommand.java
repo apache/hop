@@ -41,6 +41,7 @@ import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.marketplace.catalog.OptionalPluginCatalog;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 import org.apache.hop.marketplace.catalog.PluginDiscovery;
+import org.apache.hop.marketplace.catalog.PluginUpdates;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.config.MarketplaceRepositoryDefinition;
@@ -50,6 +51,7 @@ import org.apache.hop.marketplace.env.HopInstallSpec;
 import org.apache.hop.marketplace.env.HopInstallSpecLoader;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
+import org.apache.hop.marketplace.install.PendingChanges;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
@@ -69,6 +71,8 @@ import picocli.CommandLine.Parameters;
     subcommands = {
       MarketplaceCommand.InstallCommand.class,
       MarketplaceCommand.UninstallCommand.class,
+      MarketplaceCommand.UpdateCommand.class,
+      MarketplaceCommand.RollbackCommand.class,
       MarketplaceCommand.ListCommand.class,
       MarketplaceCommand.QueryCommand.class,
       MarketplaceCommand.ApplyCommand.class,
@@ -94,6 +98,39 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     this.log = new LogChannel("Marketplace");
     // Wire nested subcommands (including marketplace repo *) with shared context
     wireSubcommands(cmd, log, variables);
+  }
+
+  /**
+   * For a plugin discovery did not find: it is not known to be up to date. Repositories with
+   * browse=false are not searched, and one that does not answer finds nothing.
+   */
+  static String notFoundMessage(InstallReceipt receipt) {
+    return receipt.getArtifactId()
+        + " ("
+        + receipt.getVersion()
+        + ") was not found in any browsable repository, so it may not be up to date."
+        + " Repositories with browse=false are not searched"
+        + (StringUtils.isBlank(receipt.getRepositoryId())
+            ? "."
+            : "; it was installed from '" + receipt.getRepositoryId() + "'.");
+  }
+
+  /** The file changes left for the next Hop start because the files were in use, if any. */
+  static void printPendingChanges(Path hopHome, ILogChannel log) {
+    try {
+      List<String> pending = new PendingChanges(hopHome).describe();
+      if (pending.isEmpty()) {
+        return;
+      }
+      System.out.println("Some files are in use. Hop makes these changes the next time it starts:");
+      for (String line : pending) {
+        System.out.println("  " + line);
+      }
+    } catch (HopException e) {
+      if (log != null) {
+        log.logError("Unable to read the pending marketplace changes", e);
+      }
+    }
   }
 
   private static void wireSubcommands(
@@ -293,6 +330,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                   + hopHome
                   + ". Restart Hop to load them.");
         }
+        printPendingChanges(hopHome, log);
         if (!failed.isEmpty()) {
           throw new CommandLine.ExecutionException(
               new CommandLine(this), "failed to install: " + String.join(", ", failed));
@@ -440,6 +478,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         Path hopHome = HopHome.resolve();
         new PluginUninstaller(log, hopHome).uninstall(artifactId);
         System.out.println("Uninstalled " + artifactId + ". Restart Hop.");
+        printPendingChanges(hopHome, log);
       } catch (Exception e) {
         System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
@@ -450,13 +489,216 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
 
   @Command(
       mixinStandardHelpOptions = true,
+      name = "update",
+      description =
+          "Install the newest version of plugins installed via the marketplace. Discovery finds"
+              + " the newest version, as for query. The version installed now is kept, so"
+              + " 'rollback' can put it back. A plugin that fails to update does not stop the"
+              + " others; the command exits non-zero when any of them failed.")
+  public static class UpdateCommand extends MarketplaceSubCommand {
+    @Parameters(
+        index = "0",
+        arity = "0..*",
+        paramLabel = "ARTIFACT_ID",
+        description = "Plugins to update, e.g. hop-tech-parquet")
+    private List<String> artifactIds;
+
+    @Option(
+        names = {"--all"},
+        description = "Update every plugin installed via the marketplace that has a newer version")
+    private boolean all;
+
+    @Override
+    public void run() {
+      boolean named = artifactIds != null && !artifactIds.isEmpty();
+      if (all == named) {
+        throw new CommandLine.ParameterException(
+            new CommandLine(this), "Pass one or more artifact ids, or --all");
+      }
+      try {
+        if (log == null) {
+          log = new LogChannel("Marketplace");
+        }
+        MarketplaceConfig config = MarketplaceConfig.load();
+        if (!config.isEnabled()) {
+          throw new HopException("Marketplace is disabled in hop-config.json");
+        }
+        Path hopHome = HopHome.resolve();
+        PluginInstaller installer = new PluginInstaller(log, hopHome, config);
+        installer.activateAllPending();
+
+        List<String> failed = new ArrayList<>();
+        List<InstallReceipt> receipts = new ArrayList<>();
+        List<OptionalPluginInfo> discovered = new ArrayList<>();
+        if (all) {
+          for (InstallReceipt receipt : PluginInstaller.readAllReceipts(hopHome, log)) {
+            if (!receipt.isPendingActivation() && !receipt.isUninstallPending()) {
+              receipts.add(receipt);
+            }
+          }
+          if (receipts.isEmpty()) {
+            System.out.println("No marketplace-installed plugins.");
+            return;
+          }
+          discovered.addAll(PluginDiscovery.query(null, null, config, log));
+        } else {
+          for (String artifactId : artifactIds) {
+            InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, artifactId);
+            if (receipt == null || receipt.isUninstallPending()) {
+              System.err.println(
+                  CONST_ERROR
+                      + artifactId
+                      + " is not installed via the marketplace. Use 'install' instead.");
+              failed.add(artifactId);
+            } else if (receipt.isPendingActivation()) {
+              System.err.println(
+                  CONST_ERROR + artifactId + " is staged and not active yet. Restart Hop first.");
+              failed.add(artifactId);
+            } else {
+              receipts.add(receipt);
+              discovered.addAll(PluginDiscovery.query(artifactId, null, config, log));
+            }
+          }
+        }
+
+        List<PluginUpdates.Update> updates = PluginUpdates.outdated(receipts, discovered);
+        Set<String> outdated = new HashSet<>();
+        for (PluginUpdates.Update update : updates) {
+          outdated.add(update.receipt().getArtifactId());
+        }
+        for (InstallReceipt receipt : receipts) {
+          if (outdated.contains(receipt.getArtifactId())) {
+            continue;
+          }
+          if (PluginUpdates.isDiscovered(receipt, discovered)) {
+            System.out.println(
+                receipt.getArtifactId() + " is up to date (" + receipt.getVersion() + ").");
+          } else {
+            System.out.println(notFoundMessage(receipt));
+          }
+        }
+
+        int updated = 0;
+        ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
+        try {
+          for (int i = 0; i < updates.size(); i++) {
+            PluginUpdates.Update update = updates.get(i);
+            InstallReceipt receipt = update.receipt();
+            MavenCoordinates gav = PluginUpdates.coordinates(update, config);
+            progress.item(gav.artifactId(), i, updates.size());
+            try {
+              installer.install(
+                  gav, true, null, PluginUpdates.preferredRepository(update, config), progress);
+              progress.complete();
+              updated++;
+              System.out.println(
+                  "Updated "
+                      + gav.artifactId()
+                      + " from "
+                      + receipt.getVersion()
+                      + " to "
+                      + gav.version()
+                      + ". 'hop marketplace rollback "
+                      + gav.artifactId()
+                      + "' puts "
+                      + receipt.getVersion()
+                      + " back.");
+            } catch (Exception e) {
+              progress.complete();
+              failed.add(gav.artifactId());
+              System.err.println("ERROR: failed to update " + gav.gav() + ": " + e.getMessage());
+              log.logError("Marketplace update failed for " + gav.gav(), e);
+            }
+          }
+        } finally {
+          progress.complete();
+        }
+        if (updated > 0) {
+          System.out.println("Restart Hop to load the new versions.");
+        }
+        printPendingChanges(hopHome, log);
+        if (!failed.isEmpty()) {
+          throw new CommandLine.ExecutionException(
+              new CommandLine(this), "failed to update: " + String.join(", ", failed));
+        }
+      } catch (CommandLine.ExecutionException e) {
+        throw e;
+      } catch (Exception e) {
+        System.err.println(CONST_ERROR + e.getMessage());
+        if (log != null) {
+          log.logError("Marketplace update failed", e);
+        }
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "update failed" : e.getMessage(), e);
+      }
+    }
+  }
+
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "rollback",
+      description =
+          "Put back the version of a plugin that the installed version replaced. The marketplace"
+              + " keeps that version when it installs another one. Run rollback again to return"
+              + " to the newer version.")
+  public static class RollbackCommand extends MarketplaceSubCommand {
+    @Parameters(index = "0", paramLabel = "ARTIFACT_ID", description = "e.g. hop-tech-parquet")
+    private String artifactId;
+
+    @Override
+    public void run() {
+      try {
+        if (log == null) {
+          log = new LogChannel("Marketplace");
+        }
+        Path hopHome = HopHome.resolve();
+        PluginInstaller installer = new PluginInstaller(log, hopHome, MarketplaceConfig.load());
+        installer.activateAllPending();
+        InstallReceipt before = PluginInstaller.readReceipt(hopHome, artifactId);
+        ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
+        InstallReceipt after;
+        try {
+          after = installer.rollback(artifactId, progress);
+        } finally {
+          progress.complete();
+        }
+        System.out.println(
+            "Rolled back "
+                + artifactId
+                + " from "
+                + (before == null ? "?" : before.getVersion())
+                + " to "
+                + after.getVersion()
+                + ". Restart Hop.");
+        printPendingChanges(hopHome, log);
+      } catch (Exception e) {
+        System.err.println(CONST_ERROR + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "rollback failed" : e.getMessage(), e);
+      }
+    }
+  }
+
+  @Command(
+      mixinStandardHelpOptions = true,
       name = "list",
       description = "List marketplace-installed plugins (receipts)")
-  static class ListCommand extends MarketplaceSubCommand {
+  public static class ListCommand extends MarketplaceSubCommand {
+    @Option(
+        names = {"--outdated"},
+        description =
+            "Only list the plugins that have a newer version, and that version. Runs discovery,"
+                + " as query does.")
+    private boolean outdated;
+
     @Override
     public void run() {
       try {
         Path hopHome = HopHome.resolve();
+        if (outdated) {
+          listOutdated(hopHome);
+          return;
+        }
         Path receipts = hopHome.resolve(PluginInstaller.RECEIPTS_DIR);
         if (!Files.isDirectory(receipts)) {
           System.out.println("No marketplace-installed plugins.");
@@ -487,6 +729,53 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "list failed" : e.getMessage(), e);
       }
+    }
+
+    private void listOutdated(Path hopHome) throws HopException {
+      if (log == null) {
+        log = new LogChannel("Marketplace");
+      }
+      MarketplaceConfig config = MarketplaceConfig.load();
+      if (!config.isEnabled()) {
+        throw new HopException("Marketplace is disabled in hop-config.json");
+      }
+      List<InstallReceipt> receipts = new ArrayList<>();
+      for (InstallReceipt receipt : PluginInstaller.readAllReceipts(hopHome, log)) {
+        if (!receipt.isPendingActivation() && !receipt.isUninstallPending()) {
+          receipts.add(receipt);
+        }
+      }
+      if (receipts.isEmpty()) {
+        System.out.println("No marketplace-installed plugins.");
+        return;
+      }
+      List<OptionalPluginInfo> discovered = PluginDiscovery.query(null, null, config, log);
+      List<PluginUpdates.Update> updates = PluginUpdates.outdated(receipts, discovered);
+      List<InstallReceipt> notFound =
+          receipts.stream().filter(r -> !PluginUpdates.isDiscovered(r, discovered)).toList();
+      for (InstallReceipt receipt : notFound) {
+        System.out.println(notFoundMessage(receipt));
+      }
+      if (updates.isEmpty()) {
+        System.out.println(
+            notFound.isEmpty()
+                ? "All marketplace-installed plugins are up to date."
+                : "No newer versions found for the other marketplace-installed plugins.");
+        return;
+      }
+      List<List<String>> rows = new ArrayList<>();
+      for (PluginUpdates.Update update : updates) {
+        rows.add(
+            List.of(
+                update.receipt().getArtifactId(),
+                Const.NVL(update.receipt().getVersion(), ""),
+                update.latest().getVersion(),
+                Const.NVL(update.latest().getSource(), "")));
+      }
+      CliTable.printTable(
+          System.out, List.of("ARTIFACT", "INSTALLED", "AVAILABLE", "SOURCE"), rows);
+      System.out.println(
+          updates.size() + " plugin(s) can be updated with 'hop marketplace update'.");
     }
   }
 
@@ -648,6 +937,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             "Install spec applied from "
                 + envPath
                 + ". Restart Hop (or re-run) so new plugins are loaded.");
+        printPendingChanges(hopHome, log);
       } catch (Exception e) {
         System.err.println(CONST_ERROR + e.getMessage());
         if (log != null) {

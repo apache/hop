@@ -84,21 +84,6 @@ class PluginInstallerTest {
   }
 
   @Test
-  void skipSharedCoreCopyRules() {
-    // Missing target: always install (covers Azure / first-time shared deps, #7666)
-    assertFalse(PluginInstaller.skipSharedCoreCopy(false, null, false));
-    assertFalse(PluginInstaller.skipSharedCoreCopy(false, null, true));
-
-    // Identical content: always skip (Windows classpath locks + unnecessary I/O)
-    assertTrue(PluginInstaller.skipSharedCoreCopy(true, -1L, false));
-    assertTrue(PluginInstaller.skipSharedCoreCopy(true, -1L, true));
-
-    // Different content: skip only on Windows
-    assertFalse(PluginInstaller.skipSharedCoreCopy(true, 0L, false));
-    assertTrue(PluginInstaller.skipSharedCoreCopy(true, 0L, true));
-  }
-
-  @Test
   void installAndUninstallFromLocalHttpRepo() throws Exception {
     byte[] zipBytes = buildPluginZip();
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
@@ -221,10 +206,11 @@ class PluginInstallerTest {
       new PluginInstaller(new LogChannel("test"), hopHome, config)
           .install(new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"), true);
 
-      // Plugin tree always activates; shared core replace depends on OS (#7717).
+      // Plugin tree always activates. Windows replaces the shared jar at the next start (#9615).
       assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
       if (org.apache.hop.core.Const.isWindows()) {
         assertEquals("old-shared-lib", Files.readString(sharedJar));
+        assertFalse(new PendingChanges(hopHome).isEmpty());
       } else {
         assertEquals("shared-lib", Files.readString(sharedJar));
       }
@@ -1382,7 +1368,7 @@ class PluginInstallerTest {
 
   @Test
   void receiptRecordsWhatActivationDidToSharedJars() throws Exception {
-    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    assumeFalse(Const.isWindows(), "Windows replaces an existing lib/core jar at the next start");
     HttpServer server = zipServer(buildPluginZip());
     server.start();
     try {
@@ -1434,7 +1420,7 @@ class PluginInstallerTest {
 
   @Test
   void sharedJarThatCannotBeBackedUpIsKept() throws Exception {
-    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    assumeFalse(Const.isWindows(), "Windows replaces an existing lib/core jar at the next start");
     Path hopHome = tempDir.resolve("hop-shared-kept");
     Files.createDirectories(hopHome.resolve("lib/core"));
     assumeTrue(
@@ -1462,7 +1448,7 @@ class PluginInstallerTest {
 
   @Test
   void unusedBackupLeavesNoEmptyFoldersBehind() throws Exception {
-    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    assumeFalse(Const.isWindows(), "Windows replaces an existing lib/core jar at the next start");
     Path hopHome = tempDir.resolve("hop-unused-backup");
     Path libCore = hopHome.resolve("lib/core");
     Files.createDirectories(libCore);
@@ -1551,7 +1537,7 @@ class PluginInstallerTest {
 
   @Test
   void backupsAreNeverOverwrittenAndTheClientOriginalIsKept() throws Exception {
-    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    assumeFalse(Const.isWindows(), "Windows replaces an existing lib/core jar at the next start");
     Map<String, String> v1 = new LinkedHashMap<>();
     v1.put("plugins/tech/test/plugin.jar", "plugin-1");
     v1.put("lib/core/x.jar", "x-from-1");
@@ -1586,7 +1572,7 @@ class PluginInstallerTest {
 
   @Test
   void keptJarIsRecordedUnchangedOnceItMatchesThePackage() throws Exception {
-    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    assumeFalse(Const.isWindows(), "Windows replaces an existing lib/core jar at the next start");
     Path hopHome = tempDir.resolve("hop-kept-then-fixed");
     Files.createDirectories(hopHome.resolve("lib/core"));
     assumeTrue(
@@ -1859,11 +1845,221 @@ class PluginInstallerTest {
     assertTrue(PluginInstaller.obsoletePaths(null, List.of("a"), Set.of()).isEmpty());
   }
 
-  private static String localUrl(int port) {
+  // Files in use on Windows (#9615). A read-only folder stands in for a locked file, and
+  // setFilesLockedWhileInUse(true) for Windows. The launcher script then makes the change, as it
+  // does before Java starts.
+
+  @Test
+  void windowsSharedJarIsReplacedAtTheNextStart() throws Exception {
+    assumeLauncherScript();
+    Path hopHome = tempDir.resolve("hop-windows-shared");
+    Files.createDirectories(hopHome.resolve("lib/core"));
+    Files.writeString(hopHome.resolve("lib/core/shared.jar"), "old-shared-lib");
+    HttpServer server = zipServer(buildPluginZip());
+    server.start();
+    try {
+      windowsInstaller(hopHome, server)
+          .install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+
+      // Nothing is written to a jar the running Hop keeps locked.
+      assertEquals("old-shared-lib", Files.readString(hopHome.resolve("lib/core/shared.jar")));
+      assertEquals(List.of("Replace lib/core/shared.jar"), new PendingChanges(hopHome).describe());
+      InstallReceipt.SharedFile shared = sharedFile(hopHome, "lib/core/shared.jar");
+      assertEquals(InstallReceipt.SharedFileAction.REPLACED, shared.getAction());
+      assertEquals("old-shared-lib", Files.readString(hopHome.resolve(shared.getBackup())));
+      assertEquals(shared.getBackup(), shared.getOriginalBackup());
+
+      startHop(hopHome);
+      assertEquals("shared-lib", Files.readString(hopHome.resolve("lib/core/shared.jar")));
+      assertTrue(new PendingChanges(hopHome).isEmpty());
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void windowsUpdateReplacesAndRemovesPluginFilesInUseAtTheNextStart() throws Exception {
+    assumeLauncherScript();
+    Path hopHome = tempDir.resolve("hop-windows-update");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumePosix(hopHome);
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path plugin = hopHome.resolve("plugins/tech/test");
+    Path samples = plugin.resolve("samples");
+    try {
+      PluginInstaller installer = windowsInstaller(hopHome, server);
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+
+      // plugin.jar and samples/sample.hpl are in use.
+      lock(plugin, samples);
+      assumeFalse(Files.isWritable(plugin), "running as a user that ignores permissions");
+      InstallReceipt receipt =
+          installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+
+      assertEquals("plugin-1", Files.readString(plugin.resolve("plugin.jar")));
+      assertTrue(Files.isRegularFile(plugin.resolve("lib/dep-2.0.jar")));
+      assertFalse(Files.exists(plugin.resolve("lib/dep-1.0.jar")), "not in use: removed now");
+      assertEquals(
+          List.of(
+              "Replace plugins/tech/test/plugin.jar",
+              "Remove plugins/tech/test/samples/sample.hpl"),
+          new PendingChanges(hopHome).describe());
+      assertEquals(List.of("plugins/tech/test/samples/sample.hpl"), receipt.getObsoletePaths());
+
+      unlock(plugin, samples);
+      startHop(hopHome);
+      assertEquals("plugin-2", Files.readString(plugin.resolve("plugin.jar")));
+      assertFalse(Files.exists(samples.resolve("sample.hpl")));
+
+      // The next marketplace run drops the leftover from the receipt and its empty folder.
+      installer.activateAllPending();
+      assertTrue(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getObsoletePaths().isEmpty());
+      assertFalse(Files.exists(samples));
+    } finally {
+      unlock(plugin, samples);
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void windowsUninstallOfAPluginInUseFinishesAtTheNextStart() throws Exception {
+    assumeLauncherScript();
+    Path hopHome = tempDir.resolve("hop-windows-uninstall");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumePosix(hopHome);
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip()));
+    server.start();
+    Path lib = hopHome.resolve("plugins/tech/test/lib");
+    try {
+      PluginInstaller installer = windowsInstaller(hopHome, server);
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      lock(lib);
+      assumeFalse(Files.isWritable(lib), "running as a user that ignores permissions");
+
+      assertDoesNotThrow(
+          () ->
+              new PluginUninstaller(new LogChannel("test"), hopHome, true).uninstall(TEST_PLUGIN));
+
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertEquals(
+          List.of("Remove plugins/tech/test/lib/dep-1.0.jar"),
+          new PendingChanges(hopHome).describe());
+      InstallReceipt left = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
+      assertTrue(left.isUninstallPending());
+      assertEquals(List.of("plugins/tech/test/lib/dep-1.0.jar"), left.getObsoletePaths());
+
+      unlock(lib);
+      startHop(hopHome);
+      assertFalse(Files.exists(lib.resolve("dep-1.0.jar")));
+
+      installer.activateAllPending();
+      assertNull(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
+    } finally {
+      unlock(lib);
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void windowsReinstallOfAnUnchangedFileInUseLeavesNothingForTheNextStart() throws Exception {
+    Path hopHome = tempDir.resolve("hop-windows-same");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumePosix(hopHome);
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip()));
+    server.start();
+    Path plugin = hopHome.resolve("plugins/tech/test");
+    try {
+      PluginInstaller installer = windowsInstaller(hopHome, server);
+      MavenCoordinates v1 = new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0");
+      installer.install(v1, true);
+      Files.delete(plugin.resolve("lib/dep-1.0.jar"));
+      lock(plugin);
+      assumeFalse(Files.isWritable(plugin), "running as a user that ignores permissions");
+
+      assertFalse(installer.install(v1, true).isAlreadyPresent());
+      assertTrue(Files.isRegularFile(plugin.resolve("lib/dep-1.0.jar")));
+      assertTrue(new PendingChanges(hopHome).isEmpty(), "plugin.jar already has this content");
+    } finally {
+      unlock(plugin);
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void anInstallDropsTheChangesForTheNextStartThatWouldUndoIt() throws Exception {
+    Path hopHome = tempDir.resolve("hop-pending-undo");
+    Files.createDirectories(hopHome.resolve("lib/core"));
+    Files.writeString(hopHome.resolve("lib/core/shared.jar"), "shared-lib");
+    Path older = Files.writeString(tempDir.resolve("older-shared.jar"), "older-shared-lib");
+    PendingChanges pending = new PendingChanges(hopHome);
+    pending.queueCopy(older, hopHome.resolve("lib/core/shared.jar"));
+    pending.queueDelete(hopHome.resolve("plugins/tech/test/plugin.jar"));
+    HttpServer server = zipServer(buildPluginZip());
+    server.start();
+    try {
+      windowsInstaller(hopHome, server)
+          .install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      assertTrue(pending.isEmpty(), pending.describe().toString());
+
+      // Uninstall drops a copy that would put a removed file back.
+      pending.queueCopy(older, hopHome.resolve("plugins/tech/test/version.xml"));
+      new PluginUninstaller(new LogChannel("test"), hopHome, true).uninstall(TEST_PLUGIN);
+      assertTrue(pending.isEmpty(), pending.describe().toString());
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  private static PluginInstaller windowsInstaller(Path hopHome, HttpServer server) {
+    PluginInstaller installer =
+        new PluginInstaller(
+            new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+    installer.setFilesLockedWhileInUse(true);
+    return installer;
+  }
+
+  /** Runs the launcher step that applies the pending changes before Java starts. */
+  static void startHop(Path hopHome) throws Exception {
+    ApplyPendingChangesScriptTest.Result result = ApplyPendingChangesScriptTest.run(hopHome, "");
+    assertEquals(0, result.exitCode(), result.stderr());
+  }
+
+  static void assumeLauncherScript() {
+    assumeFalse(Const.isWindows(), "the shell launcher helper runs on Linux and macOS");
+    assumeTrue(
+        Files.isRegularFile(ApplyPendingChangesScriptTest.SCRIPT),
+        "script not found at " + ApplyPendingChangesScriptTest.SCRIPT);
+  }
+
+  static void assumePosix(Path folder) throws IOException {
+    assumeTrue(
+        Files.getFileStore(folder).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a file operation fail");
+  }
+
+  static void lock(Path... folders) throws IOException {
+    for (Path folder : folders) {
+      Files.setPosixFilePermissions(folder, PosixFilePermissions.fromString("r-xr-xr-x"));
+    }
+  }
+
+  static void unlock(Path... folders) throws IOException {
+    for (Path folder : folders) {
+      if (Files.isDirectory(folder)) {
+        Files.setPosixFilePermissions(folder, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+    }
+  }
+
+  static String localUrl(int port) {
     return "http://127.0.0.1:" + port + "/";
   }
 
-  private static MarketplaceConfig localRepoConfig(int port) {
+  static MarketplaceConfig localRepoConfig(int port) {
     MarketplaceConfig config = new MarketplaceConfig();
     config.getRepositories().clear();
     config.getRepositories().add(new MarketplaceRepository("local", localUrl(port), true));
@@ -1908,10 +2104,10 @@ class PluginInstallerTest {
     return bos.toByteArray();
   }
 
-  private static final String TEST_PLUGIN = "hop-test-plugin";
+  static final String TEST_PLUGIN = "hop-test-plugin";
 
   /** Serves one zip per version of {@code org.apache.hop:<artifactId>}. */
-  private static HttpServer versionServer(String artifactId, Map<String, byte[]> zipsByVersion)
+  static HttpServer versionServer(String artifactId, Map<String, byte[]> zipsByVersion)
       throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
     for (Map.Entry<String, byte[]> entry : zipsByVersion.entrySet()) {
@@ -1941,7 +2137,7 @@ class PluginInstallerTest {
     return PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getSharedFiles().get(path);
   }
 
-  private static byte[] version1Zip() throws IOException {
+  static byte[] version1Zip() throws IOException {
     Map<String, String> entries = new LinkedHashMap<>();
     entries.put("plugins/tech/test/", null);
     entries.put("plugins/tech/test/plugin.jar", "plugin-1");
@@ -1952,7 +2148,7 @@ class PluginInstallerTest {
     return zip(entries);
   }
 
-  private static byte[] version2Zip() throws IOException {
+  static byte[] version2Zip() throws IOException {
     Map<String, String> entries = new LinkedHashMap<>();
     entries.put("plugins/tech/test/", null);
     entries.put("plugins/tech/test/plugin.jar", "plugin-2");
@@ -1961,7 +2157,7 @@ class PluginInstallerTest {
     return zip(entries);
   }
 
-  private static byte[] version3Zip() throws IOException {
+  static byte[] version3Zip() throws IOException {
     Map<String, String> entries = new LinkedHashMap<>();
     entries.put("plugins/tech/test/plugin.jar", "plugin-3");
     entries.put("plugins/tech/test/lib/dep-3.0.jar", "dep-3.0");
@@ -1969,7 +2165,7 @@ class PluginInstallerTest {
   }
 
   /** Builds a zip; a null value makes a directory entry. */
-  private static byte[] zip(Map<String, String> entries) throws IOException {
+  static byte[] zip(Map<String, String> entries) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(bos)) {
       for (Map.Entry<String, String> entry : entries.entrySet()) {

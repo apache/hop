@@ -303,6 +303,9 @@ public class TableView extends Composite {
    */
   private List<TableViewColumnFilter> columnViewFilters = new ArrayList<>();
 
+  /** See {@link #addSelectionChangedListener(Runnable)}. */
+  private final List<Runnable> selectionChangedListeners = new ArrayList<>();
+
   /**
    * The rows the column-view filters took out of the table, kept aside so {@link
    * #resetColumnView()} can put them back. Null while no rows are hidden. Each index is the row's
@@ -827,7 +830,12 @@ public class TableView extends Composite {
 
     // See what is selected in the table.
     //
-    table.addListener(SWT.Selection, e -> enableToolbarButtons());
+    table.addListener(
+        SWT.Selection,
+        e -> {
+          enableToolbarButtons();
+          fireSelectionChanged();
+        });
 
     // Clean up the clipboard
     addDisposeListener(
@@ -1173,6 +1181,7 @@ public class TableView extends Composite {
           setPosition(activeTableRow, activeTableColumn);
           table.deselectAll();
           table.select(activeTableRow);
+          fireSelectionChanged();
           table.showItem(table.getItem(activeTableRow));
           e.doit = false;
           return;
@@ -2208,6 +2217,23 @@ public class TableView extends Composite {
         table.select(from, to);
       }
     }
+    fireSelectionChanged();
+  }
+
+  /**
+   * Run {@code listener} whenever the selected rows may have changed: a click, but also Ctrl-A,
+   * ESC, the arrow keys, Select all, Clear selection and the selection filter. Those select rows
+   * with {@code table.select()}, which sends no {@link SWT#Selection}, so a listener on the table
+   * misses them. For owners that enable their own buttons from the selection.
+   */
+  public void addSelectionChangedListener(Runnable listener) {
+    selectionChangedListeners.add(listener);
+  }
+
+  private void fireSelectionChanged() {
+    for (Runnable listener : List.copyOf(selectionChangedListeners)) {
+      listener.run();
+    }
   }
 
   /**
@@ -3107,6 +3133,7 @@ public class TableView extends Composite {
   public void selectAll() {
     table.selectAll();
     enableToolbarButtons();
+    fireSelectionChanged();
   }
 
   @GuiToolbarElement(
@@ -3117,6 +3144,7 @@ public class TableView extends Composite {
   public void unselectAll() {
     table.deselectAll();
     enableToolbarButtons();
+    fireSelectionChanged();
   }
 
   @GuiToolbarElement(
@@ -4883,6 +4911,7 @@ public class TableView extends Composite {
       }
 
       table.setSelection(sels);
+      fireSelectionChanged();
     }
   }
 
@@ -5043,6 +5072,7 @@ public class TableView extends Composite {
     TableItem item = table.getItem(row);
     table.showItem(item);
     table.setSelection(row);
+    fireSelectionChanged();
     setPosition(row, tableColumnIndex);
     // setPosition already recorded the cell. edit() is a click: it fires a selection adapter and
     // opens the multi-line pop-out, so those cells are only shown.

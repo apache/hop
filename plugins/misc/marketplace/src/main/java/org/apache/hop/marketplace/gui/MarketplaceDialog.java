@@ -20,14 +20,17 @@ package org.apache.hop.marketplace.gui;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
@@ -35,6 +38,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.marketplace.catalog.OptionalPluginCatalog;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 import org.apache.hop.marketplace.catalog.PluginDiscovery;
+import org.apache.hop.marketplace.catalog.PluginUpdates;
 import org.apache.hop.marketplace.command.MarketplaceCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
@@ -42,6 +46,7 @@ import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.env.HopInstallSpecFiles;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
+import org.apache.hop.marketplace.install.PendingChanges;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
@@ -75,12 +80,28 @@ import org.eclipse.swt.widgets.Text;
 
 /** Tools → Marketplace dialog: list optional plugins and install/uninstall from a Maven repo. */
 public class MarketplaceDialog extends Dialog {
+  /** Message key prefix of the install results; rollbacks use their own. */
+  private static final String PREFIX_INSTALL = "MarketplaceDialog.Install";
+
+  /** Row data: true when Install would install a version that is not the installed one. */
+  private static final String DATA_INSTALLABLE = "installable";
+
+  /** Row data: true when the row's plugin was installed via the marketplace. */
+  private static final String DATA_UNINSTALLABLE = "uninstallable";
+
+  /** Row data: the newer version Update would install, or null. */
+  private static final String DATA_UPDATE_VERSION = "updateVersion";
+
+  /** Row data: the earlier version Rollback would put back, or null. */
+  private static final String DATA_ROLLBACK_VERSION = "rollbackVersion";
+
   private static final String CONST_MARKETPLACE_DIALOG_ERROR_HEADER =
       "MarketplaceDialog.Error.Header";
   private static final String CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT =
       "MarketplaceDialog.Status.RestartHint";
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
+  private static final int MAX_PENDING_CHANGES_SHOWN = 15;
 
   /** Why the plugin table is being reloaded, which decides how the wait is presented. */
   private enum RefreshReason {
@@ -100,7 +121,13 @@ public class MarketplaceDialog extends Dialog {
   private Text wSearch;
   private Label wStatus;
   private Button wInstall;
+  private Button wUpdate;
+  private Button wRollback;
   private Button wUninstall;
+
+  /** The plugins the table shows: discovery results, which also tell whether there is an update. */
+  private List<OptionalPluginInfo> shownPlugins = List.of();
+
   private Path hopHome;
   private MarketplaceConfig config;
   private MarketplaceRepositoriesPanel repositoriesPanel;
@@ -233,12 +260,23 @@ public class MarketplaceDialog extends Dialog {
     wInstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install"));
     wInstall.addListener(SWT.Selection, e -> installSelected());
 
+    wUpdate = new Button(comp, SWT.PUSH);
+    wUpdate.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Update"));
+    wUpdate.addListener(SWT.Selection, e -> updateSelected());
+
+    wRollback = new Button(comp, SWT.PUSH);
+    wRollback.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Rollback"));
+    wRollback.addListener(SWT.Selection, e -> rollbackSelected());
+
     Button wRefresh = new Button(comp, SWT.PUSH);
     wRefresh.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Refresh"));
     wRefresh.addListener(SWT.Selection, e -> refreshTable(RefreshReason.USER_REFRESH));
 
     BaseTransformDialog.positionBottomButtons(
-        comp, new Button[] {wInstall, wUninstall, wRefresh}, PropsUi.getMargin(), null);
+        comp,
+        new Button[] {wInstall, wUpdate, wRollback, wUninstall, wRefresh},
+        PropsUi.getMargin(),
+        null);
 
     applyPluginManagePermissions();
 
@@ -315,6 +353,11 @@ public class MarketplaceDialog extends Dialog {
           false,
           true),
       new ColumnInfo(
+          BaseMessages.getString(PKG, "MarketplaceDialog.Column.UpdateAvailable"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
           BaseMessages.getString(PKG, "MarketplaceDialog.Column.Description"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false,
@@ -334,6 +377,8 @@ public class MarketplaceDialog extends Dialog {
             props,
             false);
     PropsUi.setLook(wTable);
+    // Ctrl-A, ESC, Select all and Clear selection send no SWT.Selection.
+    wTable.addSelectionChangedListener(this::updateActionButtons);
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
@@ -524,6 +569,7 @@ public class MarketplaceDialog extends Dialog {
   /** Fill the table from discovery results. UI thread only. */
   private void populateTable(List<OptionalPluginInfo> plugins) {
     wTable.table.removeAll();
+    shownPlugins = List.copyOf(plugins);
     for (OptionalPluginInfo info : plugins) {
       // Column 0 is the (hidden) index column; data columns are 1-based.
       TableItem item = new TableItem(wTable.table, SWT.NONE);
@@ -539,8 +585,21 @@ public class MarketplaceDialog extends Dialog {
       } catch (Exception e) {
         log.logError("Unable to read receipt for " + info.getArtifactId(), e);
       }
+      // A marketplace install is one plugin, whichever row (catalog entry, repository version)
+      // shows
+      // it. Only a catalog entry knows its folder, so only there can a missing folder overrule it.
+      boolean installed =
+          receipt != null
+              && !receipt.isUninstallPending()
+              && (onDisk || info.getInstallPath() == null);
+      // Installing the same version again downloads it when files are missing: a repair.
+      boolean incomplete = installed && !PluginInstaller.receiptFilesPresent(hopHome, receipt);
       String status;
-      if (onDisk && receipt != null && !receipt.isUninstallPending()) {
+      if (incomplete) {
+        status =
+            BaseMessages.getString(
+                PKG, "MarketplaceDialog.Status.Incomplete", receipt.getVersion());
+      } else if (installed) {
         status =
             BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
                 + " ("
@@ -552,10 +611,54 @@ public class MarketplaceDialog extends Dialog {
         status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.NotInstalled");
       }
       item.setText(6, status);
-      item.setText(7, Const.NVL(info.getDescription(), ""));
+      OptionalPluginInfo newer = PluginUpdates.newerVersion(receipt, plugins);
+      item.setText(7, newer == null ? "" : newer.getVersion());
+      item.setText(8, Const.NVL(info.getDescription(), ""));
       item.setData(info);
+      // What the buttons can do for this row.
+      item.setData(
+          DATA_INSTALLABLE,
+          !installed
+              || incomplete
+              || StringUtils.isBlank(info.getVersion())
+              || !info.getVersion().equals(receipt.getVersion()));
+      item.setData(DATA_UNINSTALLABLE, installed);
+      item.setData(DATA_UPDATE_VERSION, newer == null ? null : newer.getVersion());
+      item.setData(DATA_ROLLBACK_VERSION, PluginInstaller.rollbackVersion(hopHome, receipt));
     }
     wTable.optimizeTableView();
+    updateActionButtons();
+  }
+
+  /**
+   * Each button is enabled when a selected row offers what it does (a version that is not the
+   * installed one or an install with missing files, a marketplace install to remove, a newer or an
+   * earlier version) and the user may manage plugins.
+   */
+  private void updateActionButtons() {
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    boolean canInstall = false;
+    boolean canUninstall = false;
+    boolean canUpdate = false;
+    boolean canRollback = false;
+    if (wTable != null && !wTable.isDisposed()) {
+      for (TableItem item : wTable.table.getSelection()) {
+        canInstall |= Boolean.TRUE.equals(item.getData(DATA_INSTALLABLE));
+        canUninstall |= Boolean.TRUE.equals(item.getData(DATA_UNINSTALLABLE));
+        canUpdate |= item.getData(DATA_UPDATE_VERSION) != null;
+        canRollback |= item.getData(DATA_ROLLBACK_VERSION) != null;
+      }
+    }
+    setEnabled(wInstall, canManage && canInstall);
+    setEnabled(wUninstall, canManage && canUninstall);
+    setEnabled(wUpdate, canManage && canUpdate);
+    setEnabled(wRollback, canManage && canRollback);
+  }
+
+  private static void setEnabled(Button button, boolean enabled) {
+    if (button != null && !button.isDisposed()) {
+      button.setEnabled(enabled);
+    }
   }
 
   /**
@@ -692,9 +795,12 @@ public class MarketplaceDialog extends Dialog {
     return source;
   }
 
-  /** One plugin ready to install: where to get it, and what to call it while it downloads. */
+  /**
+   * One plugin ready to install: where to get it, and what to call it while it downloads. A
+   * rollback puts back the version that the installed one replaced instead.
+   */
   private record InstallRequest(
-      MavenCoordinates coordinates, String preferredRepo, String displayName) {}
+      MavenCoordinates coordinates, String preferredRepo, String displayName, boolean rollback) {}
 
   /** What a batch install did: what went in, what didn't, and whether the user stopped it. */
   private record InstallOutcome(
@@ -716,26 +822,41 @@ public class MarketplaceDialog extends Dialog {
         new MavenCoordinates(groupId, info.getArtifactId(), version),
         preferredRepo,
         // Same name the table shows, not the Maven coordinate.
-        displayName(info));
+        displayName(info),
+        false);
   }
 
-  /** Enable Install/Uninstall only when plugin manage permission is allowed. */
+  /**
+   * Install/Update/Rollback/Uninstall tooltips for the plugin manage permission. {@link
+   * #updateActionButtons()} enables the buttons.
+   */
   private void applyPluginManagePermissions() {
     boolean canManage = MarketplaceSecurity.canManagePlugins();
     if (wInstall != null && !wInstall.isDisposed()) {
-      wInstall.setEnabled(canManage);
       wInstall.setToolTipText(
           canManage
               ? ""
               : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin"));
     }
+    for (Button button : new Button[] {wUpdate, wRollback}) {
+      if (button != null && !button.isDisposed()) {
+        button.setToolTipText(
+            BaseMessages.getString(
+                PKG,
+                canManage
+                    ? (button == wUpdate
+                        ? "MarketplaceDialog.Button.Update.Tooltip"
+                        : "MarketplaceDialog.Button.Rollback.Tooltip")
+                    : "MarketplaceDialog.Button.Install.RequiresAdmin"));
+      }
+    }
     if (wUninstall != null && !wUninstall.isDisposed()) {
-      wUninstall.setEnabled(canManage);
       wUninstall.setToolTipText(
           canManage
               ? ""
               : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall.RequiresAdmin"));
     }
+    updateActionButtons();
   }
 
   private void installSelected() {
@@ -749,7 +870,118 @@ public class MarketplaceDialog extends Dialog {
     if (repositoriesPanel != null) {
       config = repositoriesPanel.getConfig();
     }
-    List<InstallRequest> requests = selection.stream().map(this::toInstallRequest).toList();
+    installRequests(selection.stream().map(this::toInstallRequest).toList());
+  }
+
+  /** Install the newest version of the selected plugins that have one. */
+  private void updateSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
+    List<OptionalPluginInfo> selection = selected();
+    if (selection.isEmpty()) {
+      return;
+    }
+    if (repositoriesPanel != null) {
+      config = repositoriesPanel.getConfig();
+    }
+    List<InstallRequest> requests = new ArrayList<>();
+    Set<String> seen = new HashSet<>();
+    for (OptionalPluginInfo info : selection) {
+      InstallReceipt receipt = readReceiptOrLog(info.getArtifactId());
+      OptionalPluginInfo newer = PluginUpdates.newerVersion(receipt, shownPlugins);
+      if (newer == null || !seen.add(receipt.getArtifactId())) {
+        continue;
+      }
+      // The same coordinates and repository as 'hop marketplace update'.
+      PluginUpdates.Update update = new PluginUpdates.Update(receipt, newer);
+      requests.add(
+          new InstallRequest(
+              PluginUpdates.coordinates(update, config),
+              PluginUpdates.preferredRepository(update, config),
+              displayName(newer),
+              false));
+    }
+    if (requests.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Update.None.Header"));
+      box.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.Update.None.Message"));
+      box.open();
+      return;
+    }
+    installRequests(requests);
+  }
+
+  /** Put back the version that the installed version of the selected plugins replaced. */
+  private void rollbackSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
+    List<OptionalPluginInfo> selection = selected();
+    if (selection.isEmpty()) {
+      return;
+    }
+    List<InstallRequest> requests = new ArrayList<>();
+    List<String> versions = new ArrayList<>();
+    Set<String> seen = new HashSet<>();
+    for (OptionalPluginInfo info : selection) {
+      InstallReceipt receipt = readReceiptOrLog(info.getArtifactId());
+      String earlier = PluginInstaller.rollbackVersion(hopHome, receipt);
+      if (earlier == null || !seen.add(receipt.getArtifactId())) {
+        continue;
+      }
+      requests.add(
+          new InstallRequest(
+              new MavenCoordinates(
+                  Const.NVL(receipt.getGroupId(), config.getGroupId()),
+                  receipt.getArtifactId(),
+                  earlier),
+              null,
+              displayName(info),
+              true));
+      versions.add(
+          BaseMessages.getString(
+              PKG,
+              "MarketplaceDialog.Rollback.Confirm.Version",
+              displayName(info),
+              receipt.getVersion(),
+              earlier));
+    }
+    if (requests.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Rollback.None.Header"));
+      box.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.Rollback.None.Message"));
+      box.open();
+      return;
+    }
+    MessageBox confirm = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    confirm.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Rollback.Confirm.Header"));
+    confirm.setMessage(
+        BaseMessages.getString(
+            PKG, "MarketplaceDialog.Rollback.Confirm.Message", nameList(versions)));
+    if (confirm.open() != SWT.YES) {
+      return;
+    }
+    installRequests(requests);
+  }
+
+  /** The receipt of a plugin, or null when there is none or it cannot be read. */
+  private InstallReceipt readReceiptOrLog(String artifactId) {
+    try {
+      return PluginInstaller.readReceipt(hopHome, artifactId);
+    } catch (Exception e) {
+      log.logError("Unable to read receipt for " + artifactId, e);
+      return null;
+    }
+  }
+
+  /**
+   * Install or roll back the requested plugins, then report the outcome. All requests are of one
+   * kind.
+   */
+  private void installRequests(List<InstallRequest> requests) {
+    // The messages say "installed" or "rolled back".
+    String messages = requests.get(0).rollback() ? "MarketplaceDialog.Rollback" : PREFIX_INSTALL;
     InstallOutcome outcome;
     try {
       wStatus.setText(installingStatus(requests));
@@ -757,17 +989,17 @@ public class MarketplaceDialog extends Dialog {
       outcome = runInstall(requests);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      showInstallError(requests, e);
+      showInstallError(requests, e, messages);
       return;
     } catch (Exception e) {
-      showInstallError(requests, e);
+      showInstallError(requests, e, messages);
       return;
     }
 
     // The table reflects what is on disk either way: a batch can be part installed.
     refreshTable(RefreshReason.AFTER_CHANGE);
     if (!outcome.failures().isEmpty()) {
-      showInstallFailures(outcome);
+      showInstallFailures(outcome, messages);
       wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
       return;
     }
@@ -779,34 +1011,33 @@ public class MarketplaceDialog extends Dialog {
     boolean single = outcome.installed().size() == 1;
     MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
     box.setText(
-        BaseMessages.getString(
-            PKG,
-            single
-                ? "MarketplaceDialog.Install.Done.Header"
-                : "MarketplaceDialog.Install.Done.HeaderMultiple"));
+        BaseMessages.getString(PKG, messages + (single ? ".Done.Header" : ".Done.HeaderMultiple")));
     box.setMessage(
-        single
-            ? BaseMessages.getString(
-                PKG, "MarketplaceDialog.Install.Done.Message", outcome.installed().get(0))
-            : BaseMessages.getString(
-                PKG,
-                "MarketplaceDialog.Install.Done.MessageMultiple",
-                Integer.toString(outcome.installed().size()),
-                nameList(outcome.installed())));
+        (single
+                ? BaseMessages.getString(
+                    PKG, messages + ".Done.Message", outcome.installed().get(0))
+                : BaseMessages.getString(
+                    PKG,
+                    messages + ".Done.MessageMultiple",
+                    Integer.toString(outcome.installed().size()),
+                    nameList(outcome.installed())))
+            + pendingChangesNote(hopHome, log));
     box.open();
     wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
   }
 
   private String installingStatus(List<InstallRequest> requests) {
+    String key =
+        requests.get(0).rollback()
+            ? "MarketplaceDialog.Status.RollingBack"
+            : "MarketplaceDialog.Status.Installing";
     return requests.size() == 1
-        ? BaseMessages.getString(
-            PKG, "MarketplaceDialog.Status.Installing", requests.get(0).coordinates().gav())
-        : BaseMessages.getString(
-            PKG, "MarketplaceDialog.Status.InstallingCount", Integer.toString(requests.size()));
+        ? BaseMessages.getString(PKG, key, requests.get(0).coordinates().gav())
+        : BaseMessages.getString(PKG, key + "Count", Integer.toString(requests.size()));
   }
 
   /** The batch never started, or the dialog itself broke down. */
-  private void showInstallError(List<InstallRequest> requests, Exception e) {
+  private void showInstallError(List<InstallRequest> requests, Exception e, String messages) {
     // ProgressMonitorDialog wraps the real failure; unwrap so the dialog shows the cause.
     Throwable cause =
         e instanceof InvocationTargetException ite && ite.getCause() != null ? ite.getCause() : e;
@@ -815,7 +1046,7 @@ public class MarketplaceDialog extends Dialog {
         BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
         BaseMessages.getString(
             PKG,
-            "MarketplaceDialog.Install.Error",
+            messages + ".Error",
             requests.stream().map(InstallRequest::displayName).collect(Collectors.joining(", "))),
         cause);
   }
@@ -825,10 +1056,13 @@ public class MarketplaceDialog extends Dialog {
    * usually takes every plugin down with it, and a popup per plugin would have to be clicked away
    * as many times.
    */
-  private void showInstallFailures(InstallOutcome outcome) {
+  private void showInstallFailures(InstallOutcome outcome, String messages) {
     StringBuilder detail = new StringBuilder();
     for (Map.Entry<String, Exception> failure : outcome.failures().entrySet()) {
-      log.logError("Failed to install " + failure.getKey(), failure.getValue());
+      log.logError(
+          (messages.equals(PREFIX_INSTALL) ? "Failed to install " : "Failed to roll back ")
+              + failure.getKey(),
+          failure.getValue());
       detail
           .append("- ")
           .append(failure.getKey())
@@ -839,20 +1073,23 @@ public class MarketplaceDialog extends Dialog {
     String header =
         outcome.failures().size() == 1
             ? BaseMessages.getString(
-                PKG,
-                "MarketplaceDialog.Install.Error",
-                outcome.failures().keySet().iterator().next())
+                PKG, messages + ".Error", outcome.failures().keySet().iterator().next())
             : BaseMessages.getString(
                 PKG,
-                "MarketplaceDialog.Install.Error.Multiple",
+                messages + ".Error.Multiple",
                 Integer.toString(outcome.failures().size()),
                 Integer.toString(outcome.failures().size() + outcome.installed().size()));
     // The first failure carries the stack trace; the rest are summarised in the message.
     Exception first = outcome.failures().values().iterator().next();
+    // The plugins that did install may still need a restart to finish.
     new ErrorDialog(
         shell,
         BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
-        header + Const.CR + Const.CR + detail,
+        header
+            + Const.CR
+            + Const.CR
+            + detail.toString().stripTrailing()
+            + pendingChangesNote(hopHome, log),
         first);
   }
 
@@ -893,8 +1130,12 @@ public class MarketplaceDialog extends Dialog {
             // Drives the "3 of 12" line and scales the bar across the batch.
             listener.item(request.displayName(), i, requests.size());
             try {
-              installer.install(
-                  request.coordinates(), true, null, request.preferredRepo(), listener);
+              if (request.rollback()) {
+                installer.rollback(request.coordinates().artifactId(), listener);
+              } else {
+                installer.install(
+                    request.coordinates(), true, null, request.preferredRepo(), listener);
+              }
               installed.add(request.coordinates().gav());
             } catch (Exception e) {
               // Catching Exception (not just HopException) is what keeps a RuntimeException from
@@ -915,11 +1156,13 @@ public class MarketplaceDialog extends Dialog {
   }
 
   private String installTaskName(List<InstallRequest> requests) {
+    String key =
+        requests.get(0).rollback()
+            ? "MarketplaceDialog.Progress.RollingBack"
+            : "MarketplaceDialog.Progress.Installing";
     return requests.size() == 1
-        ? BaseMessages.getString(
-            PKG, "MarketplaceDialog.Progress.Installing", requests.get(0).displayName())
-        : BaseMessages.getString(
-            PKG, "MarketplaceDialog.Progress.InstallingCount", Integer.toString(requests.size()));
+        ? BaseMessages.getString(PKG, key, requests.get(0).displayName())
+        : BaseMessages.getString(PKG, key + "Count", Integer.toString(requests.size()));
   }
 
   private void uninstallSelected() {
@@ -1005,6 +1248,48 @@ public class MarketplaceDialog extends Dialog {
       return;
     }
     wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
+    String pending = pendingChangesNote(hopHome, log);
+    if (!pending.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Pending.Header"));
+      box.setMessage(pending.strip());
+      box.open();
+    }
+  }
+
+  /**
+   * For a result message: the file changes Hop makes the next time it starts, because the files
+   * were in use. Empty when there are none.
+   */
+  static String pendingChangesNote(Path hopHome, ILogChannel log) {
+    if (hopHome == null) {
+      return "";
+    }
+    List<PendingChanges.PendingEffect> pending;
+    try {
+      pending = new PendingChanges(hopHome).effects();
+    } catch (HopException e) {
+      log.logError("Unable to read the pending marketplace changes", e);
+      return "";
+    }
+    if (pending.isEmpty()) {
+      return "";
+    }
+    int shown = Math.min(pending.size(), MAX_PENDING_CHANGES_SHOWN);
+    StringBuilder list = new StringBuilder();
+    for (PendingChanges.PendingEffect effect : pending.subList(0, shown)) {
+      list.append("\n- ")
+          .append(
+              BaseMessages.getString(
+                  PKG, "MarketplaceDialog.Pending." + effect.effect().getLabel(), effect.target()));
+    }
+    if (pending.size() > shown) {
+      list.append("\n")
+          .append(
+              BaseMessages.getString(
+                  PKG, "MarketplaceDialog.Pending.More", Integer.toString(pending.size() - shown)));
+    }
+    return "\n\n" + BaseMessages.getString(PKG, "MarketplaceDialog.Pending.Message") + list;
   }
 
   private void showUninstallError(List<String> artifactIds, Exception e) {
@@ -1012,7 +1297,8 @@ public class MarketplaceDialog extends Dialog {
         shell,
         BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
         BaseMessages.getString(
-            PKG, "MarketplaceDialog.Uninstall.Error", String.join(", ", artifactIds)),
+                PKG, "MarketplaceDialog.Uninstall.Error", String.join(", ", artifactIds))
+            + pendingChangesNote(hopHome, log),
         e);
   }
 }

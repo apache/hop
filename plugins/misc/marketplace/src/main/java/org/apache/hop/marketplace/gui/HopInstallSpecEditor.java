@@ -1276,7 +1276,8 @@ public class HopInstallSpecEditor extends Dialog {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Done.Header"));
       box.setMessage(
-          BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Done.Message", currentFilename));
+          BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Done.Message", currentFilename)
+              + MarketplaceDialog.pendingChangesNote(hopHome, log));
       box.open();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();

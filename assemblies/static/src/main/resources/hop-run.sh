@@ -64,6 +64,12 @@ fi
 if [ -n "${HOP_PLUGIN_BASE_FOLDERS}" ]; then
   HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLUGIN_BASE_FOLDERS=${HOP_PLUGIN_BASE_FOLDERS}"
 fi
+
+# Apply the plugin changes the marketplace could not make while Hop was running (files in use).
+if [ -f lib/apply-pending-changes.sh ]; then
+  sh lib/apply-pending-changes.sh "${HOP_PLUGIN_BASE_FOLDERS:-}"
+fi
+
 if [ -n "${HOP_PASSWORD_ENCODER_PLUGIN}" ]; then
   HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PASSWORD_ENCODER_PLUGIN=${HOP_PASSWORD_ENCODER_PLUGIN}"
 fi

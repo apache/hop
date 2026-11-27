@@ -95,6 +95,10 @@ if not "%HOP_SHARED_JDBC_FOLDERS%"=="" (
 if not "%HOP_PLUGIN_BASE_FOLDERS%"=="" (
   set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_PLUGIN_BASE_FOLDERS="%HOP_PLUGIN_BASE_FOLDERS%"
 )
+
+REM Apply the plugin changes the marketplace could not make while Hop was running (files in use).
+if exist "lib\apply-pending-changes.cmd" call "lib\apply-pending-changes.cmd"
+
 if not "%HOP_PASSWORD_ENCODER_PLUGIN%"=="" (
   set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_PASSWORD_ENCODER_PLUGIN=%HOP_PASSWORD_ENCODER_PLUGIN%
 )
