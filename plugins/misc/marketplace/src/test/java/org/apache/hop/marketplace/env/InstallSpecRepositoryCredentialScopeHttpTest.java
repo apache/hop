@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
@@ -81,6 +82,7 @@ class InstallSpecRepositoryCredentialScopeHttpTest {
   void stopServers() {
     configured.stop(0);
     foreign.stop(0);
+    MarketplaceRepository.setEnvironmentForTesting(null);
   }
 
   private static HttpServer start(List<String> authorizations) throws IOException {
@@ -123,10 +125,33 @@ class InstallSpecRepositoryCredentialScopeHttpTest {
     return spec;
   }
 
+  /**
+   * hop-config with one private repository on the {@link #configured} server whose secrets are only
+   * in its repository-scoped variables, the setup the docs recommend for several repositories.
+   */
+  private MarketplaceConfig operatorConfigWithScopedVariables() {
+    MarketplaceRepository.setEnvironmentForTesting(
+        Map.of(
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "operator",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "operator-secret")
+            ::get);
+    MarketplaceConfig config = new MarketplaceConfig();
+    config.getRepositories().clear();
+    MarketplaceRepository repo =
+        new MarketplaceRepository("nexus", url(configured, "/repository/hop/"));
+    repo.setPrimary(true);
+    config.getRepositories().add(repo);
+    return config;
+  }
+
   private void downloadUsing(HopInstallSpec spec) throws Exception {
+    downloadUsing(spec, operatorConfig());
+  }
+
+  private void downloadUsing(HopInstallSpec spec, MarketplaceConfig operatorConfig)
+      throws Exception {
     MarketplaceConfig applied =
-        new EnvironmentApplier(new LogChannel("test"), tempDir, operatorConfig())
-            .configFromEnv(spec);
+        new EnvironmentApplier(new LogChannel("test"), tempDir, operatorConfig).configFromEnv(spec);
     Path target = Files.createTempDirectory(tempDir, "dl").resolve("plugin.zip");
     new MavenRepositoryClient(new LogChannel("test"))
         .downloadZip(applied.primaryRepository(), COORDS, target);
@@ -168,5 +193,98 @@ class InstallSpecRepositoryCredentialScopeHttpTest {
             + Base64.getEncoder()
                 .encodeToString("project-user:project-secret".getBytes(StandardCharsets.UTF_8)),
         foreignAuth.get(0));
+  }
+
+  @Test
+  void aSpecReusingAConfiguredIdOnAnotherHostGetsNoAuthorizationHeader() throws Exception {
+    HopInstallSpec spec = specPointingAt(url(foreign, "/repository/hop/"));
+    spec.getRepositories().get(0).setId("nexus");
+
+    downloadUsing(spec, operatorConfigWithScopedVariables());
+
+    assertEquals(1, foreignAuth.size(), "the foreign server must have served the download");
+    assertNull(
+        foreignAuth.get(0),
+        "HOP_MARKETPLACE_NEXUS_* must not reach a host other than the configured nexus");
+    assertTrue(configuredAuth.isEmpty());
+  }
+
+  @Test
+  void scopedVariablesStillAuthenticateOnTheConfiguredHost() throws Exception {
+    downloadUsing(
+        specPointingAt(url(configured, "/repository/hop-extra/")),
+        operatorConfigWithScopedVariables());
+
+    assertEquals(1, configuredAuth.size());
+    assertEquals(
+        "Basic "
+            + Base64.getEncoder()
+                .encodeToString("operator:operator-secret".getBytes(StandardCharsets.UTF_8)),
+        configuredAuth.get(0),
+        "a second path on the operator's host keeps the credentials kept in the environment");
+  }
+
+  @Test
+  void theGlobalPairDoesNotReachAHostWhoseRepositoryHasAuthTypeNone() throws Exception {
+    // The operator's private primary uses the global pair; the repository on the other server is
+    // public and opts out of it with authType none, as Maven Central would.
+    MarketplaceRepository.setEnvironmentForTesting(
+        Map.of("HOP_MARKETPLACE_USERNAME", "op-user", "HOP_MARKETPLACE_PASSWORD", "op-pass")::get);
+    MarketplaceConfig config = new MarketplaceConfig();
+    config.getRepositories().clear();
+    MarketplaceRepository nexus =
+        new MarketplaceRepository("nexus", url(configured, "/repository/hop/"));
+    nexus.setPrimary(true);
+    MarketplaceRepository central = new MarketplaceRepository("central", url(foreign, "/maven2/"));
+    central.setAuthType(MarketplaceRepository.AUTH_NONE);
+    config.getRepositories().add(nexus);
+    config.getRepositories().add(central);
+
+    HopInstallSpec spec = specPointingAt(url(foreign, "/maven2/"));
+    spec.getRepositories().get(0).setId("mirror");
+    downloadUsing(spec, config);
+
+    assertEquals(1, foreignAuth.size());
+    assertNull(foreignAuth.get(0), "authType none on the configured repository must hold");
+  }
+
+  @Test
+  void aTokenRepositorysCredentialsAreReusedAsABearerToken() throws Exception {
+    MarketplaceRepository.setEnvironmentForTesting(
+        Map.of(
+                "HOP_MARKETPLACE_ARTIFACTORY_TOKEN", "the-token",
+                "HOP_MARKETPLACE_USERNAME", "global-user")
+            ::get);
+    MarketplaceConfig config = new MarketplaceConfig();
+    config.getRepositories().clear();
+    MarketplaceRepository artifactory =
+        new MarketplaceRepository("artifactory", url(configured, "/artifactory/hop/"));
+    artifactory.setAuthType(MarketplaceRepository.AUTH_TOKEN);
+    artifactory.setPrimary(true);
+    config.getRepositories().add(artifactory);
+
+    downloadUsing(specPointingAt(url(configured, "/artifactory/hop-extra/")), config);
+
+    assertEquals(1, configuredAuth.size());
+    assertEquals("Bearer the-token", configuredAuth.get(0));
+  }
+
+  @Test
+  void theDockerRepositoryIdOnAnotherHostGetsNoAuthorizationHeader() throws Exception {
+    // HOP_MARKETPLACE_CORPORATE_REPO_* belongs to HOP_PLUGINS_MAVEN_REPO, which is never saved to
+    // hop-config.
+    MarketplaceRepository.setEnvironmentForTesting(
+        Map.of(
+                "HOP_PLUGINS_MAVEN_REPO", url(configured, "/repository/hop/"),
+                "HOP_MARKETPLACE_CORPORATE_REPO_USERNAME", "corp-user",
+                "HOP_MARKETPLACE_CORPORATE_REPO_PASSWORD", "corp-secret")
+            ::get);
+    HopInstallSpec spec = specPointingAt(url(foreign, "/repository/hop/"));
+    spec.getRepositories().get(0).setId("corporate-repo");
+
+    downloadUsing(spec, new MarketplaceConfig());
+
+    assertEquals(1, foreignAuth.size());
+    assertNull(foreignAuth.get(0));
   }
 }

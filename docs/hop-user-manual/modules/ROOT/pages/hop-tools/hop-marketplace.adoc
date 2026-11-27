@@ -544,11 +544,18 @@ Username and password are resolved separately, so the two can come from differen
 [[marketplace-spec-repository-credentials]]
 === Repositories declared by an install spec
 
-An install spec carried by a project can declare its own `repositories`. Because that URL comes from the project rather than from the operator, the configured credentials are only reused for it when the project points at the *same* repository manager they belong to — the same scheme, host and port as a repository in `hop-config`. The path may differ, so a second repository on the same Nexus or Artifactory keeps working.
+An install spec carried by a project can declare its own `repositories`. Because that URL comes from the project rather than from the operator, the configured credentials are only reused for it when the project points at the *same* repository manager they belong to — the same scheme, host and port as a repository in `hop-config`. The path may differ, so a second repository on the same Nexus or Artifactory keeps working. That repository's credentials are reused wherever they are kept: on its entry, in its `HOP_MARKETPLACE_<ID>_*` variables, or in the global pair.
 
 A spec repository on any other host gets only what the spec itself declares. Neither the `username` / `password` stored on a configured repository nor the global `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD` pair is sent to it, so enabling a project cannot make Hop hand the operator's repository credentials to an address of the project's choosing. The log says so at basic level when credentials are withheld this way.
 
-To give such a repository credentials, set `username` / `password` on its entry in the spec (prefer a variable over a literal secret), or set the repository-scoped `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD` variables for the `id` the spec uses — those name one repository, so they still apply.
+To give such a repository credentials, set `username` / `password` on its entry in the spec (prefer a variable over a literal secret), or set the repository-scoped `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD` variables for the `id` the spec uses. Use an `id` that is not already the operator's. The variables of these ids are only sent to their own host, because they are the operator's credentials for it:
+
+* the id of a repository in `hop-config`, including the built-in `asf` and `central` when `hop-config` has no repositories of its own;
+* `corporate-repo`, or the id in `HOP_PLUGINS_REPO_ID`: the repository that `hop marketplace install --repo-url` and the Docker image's `HOP_PLUGINS_MAVEN_REPO` use. Its variables only go to the `HOP_PLUGINS_MAVEN_REPO` host.
+
+If the marketplace section of `hop-config` cannot be loaded, a spec repository gets no `HOP_MARKETPLACE_<ID>_*` variables at all. The log says so at basic level when variables are withheld this way.
+
+A spec repository without an `id` gets `spec`, the next one `spec-2`, and so on, so its variables are `HOP_MARKETPLACE_SPEC_*`, `HOP_MARKETPLACE_SPEC_2_*`, and so on. When the spec repository reuses the credentials of a configured repository on the same host, it also uses that repository's `authType`, so a token stays a bearer token. A configured repository with `authType: none` has no credentials to reuse.
 
 === Authentication type
 

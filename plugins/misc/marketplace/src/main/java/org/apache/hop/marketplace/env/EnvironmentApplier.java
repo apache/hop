@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,9 @@ public class EnvironmentApplier {
   private final ILogChannel log;
   private final Path hopHome;
   private final MarketplaceConfig baseConfig;
+
+  /** Id of a spec repository that has none; a second one gets {@code spec-2}, and so on. */
+  static final String DEFAULT_SPEC_REPOSITORY_ID = "spec";
 
   public EnvironmentApplier(ILogChannel log, Path hopHome, MarketplaceConfig baseConfig) {
     this.log = log;
@@ -234,10 +238,12 @@ public class EnvironmentApplier {
             : MarketplaceCommand.resolveDefaultVersion(baseConfig));
     config.getRepositories().clear();
     if (env.getRepositories() != null && !env.getRepositories().isEmpty()) {
+      List<String> ids = repositoryIds(env.getRepositories());
       boolean first = true;
-      for (HopInstallSpec.RepositoryRef ref : env.getRepositories()) {
-        if (StringUtils.isNotBlank(ref.getUrl())) {
-          config.getRepositories().add(repositoryFromRef(ref, first));
+      for (int i = 0; i < env.getRepositories().size(); i++) {
+        HopInstallSpec.RepositoryRef ref = env.getRepositories().get(i);
+        if (ids.get(i) != null) {
+          config.getRepositories().add(repositoryFromRef(ref, ids.get(i), first));
           first = false;
         }
       }
@@ -253,16 +259,63 @@ public class EnvironmentApplier {
   }
 
   /**
+   * The id of each spec repository, {@code null} for one without a URL. A repository without an id
+   * gets {@code spec}, then {@code spec-2}, {@code spec-3} and so on: the install fallback chain
+   * drops a repository with the primary's id, so one shared default id would silently lose every
+   * fallback after the first.
+   */
+  private List<String> repositoryIds(List<HopInstallSpec.RepositoryRef> refs) {
+    Set<String> taken = new HashSet<>();
+    for (HopInstallSpec.RepositoryRef ref : refs) {
+      if (ref != null
+          && StringUtils.isNotBlank(ref.getUrl())
+          && StringUtils.isNotBlank(ref.getId())) {
+        if (!taken.add(MarketplaceRepository.environmentIdPrefix(ref.getId()))) {
+          log.logBasic(
+              "Install spec lists repository id '"
+                  + ref.getId().trim()
+                  + "' more than once. Give each repository its own id: a repository with the"
+                  + " primary's id is not tried as a fallback.");
+        }
+      }
+    }
+    List<String> ids = new ArrayList<>();
+    int next = 1;
+    for (HopInstallSpec.RepositoryRef ref : refs) {
+      if (ref == null || StringUtils.isBlank(ref.getUrl())) {
+        ids.add(null);
+      } else if (StringUtils.isNotBlank(ref.getId())) {
+        ids.add(ref.getId());
+      } else {
+        String id;
+        do {
+          id = next == 1 ? DEFAULT_SPEC_REPOSITORY_ID : DEFAULT_SPEC_REPOSITORY_ID + "-" + next;
+          next++;
+        } while (!taken.add(MarketplaceRepository.environmentIdPrefix(id)));
+        ids.add(id);
+      }
+    }
+    return ids;
+  }
+
+  /**
    * Turn a repository the install spec declares into a marketplace repository. The URL is the
    * project's, so the configured credentials are only reused when the project points at the same
    * repository they belong to — same scheme, host and port. A project naming a host the operator
    * never configured gets what the project itself declared, or nothing.
+   *
+   * <p>The spec also chooses the id, and with it the {@code HOP_MARKETPLACE_<ID>_*} variables. A
+   * new id may be given credentials that way; an id that is the operator's (see {@link
+   * #scopedVariablesWithheld}) only gets its variables on that repository's host.
    */
-  private MarketplaceRepository repositoryFromRef(HopInstallSpec.RepositoryRef ref, boolean first) {
-    MarketplaceRepository source = configuredCredentialSource(ref.getUrl());
+  private MarketplaceRepository repositoryFromRef(
+      HopInstallSpec.RepositoryRef ref, String id, boolean first) {
+    MarketplaceRepository source = configuredCredentialSource(id, ref.getUrl());
+    boolean specCredentials =
+        StringUtils.isNotBlank(ref.getUsername()) || StringUtils.isNotBlank(ref.getPassword());
     MarketplaceRepository repo =
         new MarketplaceRepository(
-            StringUtils.defaultIfBlank(ref.getId(), "spec"),
+            id,
             ref.getUrl(),
             StringUtils.isNotBlank(ref.getUsername())
                 ? ref.getUsername()
@@ -270,38 +323,131 @@ public class EnvironmentApplier {
             StringUtils.isNotBlank(ref.getPassword())
                 ? ref.getPassword()
                 : (source == null ? null : source.getPassword()));
+    if (source != null && !specCredentials) {
+      // Reusing the source's credentials includes how they are sent: a token stays a bearer token.
+      repo.setAuthType(source.getAuthType());
+    }
+
+    List<String> environmentIds = new ArrayList<>();
+    String withheld = scopedVariablesWithheld(id, ref.getUrl());
+    if (withheld == null) {
+      environmentIds.add(id);
+    } else if (MarketplaceRepository.hasScopedEnvironmentVariables(id)) {
+      log.logBasic(
+          "Install spec repository '"
+              + id
+              + "' at "
+              + ref.getUrl()
+              + " "
+              + withheld
+              + ": HOP_MARKETPLACE_"
+              + repo.environmentIdPrefix()
+              + "_* is not sent to it");
+    }
     if (source == null) {
       // The global HOP_MARKETPLACE_USERNAME / _PASSWORD pair belongs to the operator's own
-      // repositories for the same reason; the repository-scoped variables stay available so a
-      // project repository can still be given credentials without putting them in the spec file.
+      // repositories for the same reason.
       repo.setGlobalEnvironmentCredentials(false);
+    } else if (!environmentIds.contains(source.getId())) {
+      // Same host as a configured repository: its own scoped variables apply too.
+      environmentIds.add(source.getId());
     }
+    repo.setEnvironmentCredentialIds(environmentIds);
     repo.setPrimary(first);
     repo.setEnabled(true);
     return repo;
   }
 
   /**
-   * The configured repository whose credentials may be reused for {@code url}, or null when none of
-   * them belongs to that origin. Install order, so the primary wins a tie.
+   * Why the {@code HOP_MARKETPLACE_<ID>_*} variables of {@code id} must not go to {@code url}, or
+   * {@code null} when they may. They are withheld when the id is the operator's for another host:
+   *
+   * <ul>
+   *   <li>a repository in hop-config with that id is on another origin (disabled ones count: their
+   *       variables are still set), including the built-in {@code asf} and {@code central} when
+   *       hop-config has no repositories of its own;
+   *   <li>the id is the one {@code hop marketplace install --repo-url} and the Docker image use,
+   *       {@code corporate-repo} or {@code HOP_PLUGINS_REPO_ID}, which is never saved to
+   *       hop-config. Its variables only go to the {@code HOP_PLUGINS_MAVEN_REPO} host;
+   *   <li>hop-config could not be loaded, so which ids are the operator's is unknown.
+   * </ul>
    */
-  private MarketplaceRepository configuredCredentialSource(String url) {
-    boolean anyStoredCredentials = false;
-    for (MarketplaceRepository repo : baseConfig.orderedRepositories()) {
-      if (StringUtils.isAllBlank(repo.getUsername(), repo.getPassword())) {
-        continue;
-      }
-      anyStoredCredentials = true;
-      if (repo.sameOriginAs(url)) {
-        return repo;
+  private String scopedVariablesWithheld(String id, String url) {
+    if (baseConfig.isDefaultsAfterLoadError()) {
+      return "cannot be checked against hop-config, whose marketplace section did not load";
+    }
+    String prefix = MarketplaceRepository.environmentIdPrefix(id);
+    boolean configured = false;
+    for (MarketplaceRepository repo : nullSafe(baseConfig.getRepositories())) {
+      if (repo != null && prefix.equals(repo.environmentIdPrefix())) {
+        if (!repo.sameOriginAs(url)) {
+          return "reuses the id of a configured repository on another host";
+        }
+        configured = true;
       }
     }
-    if (anyStoredCredentials) {
-      log.logBasic(
-          "Install spec repository "
-              + url
-              + " is not a configured marketplace repository: the configured credentials are not"
-              + " sent to it");
+    if (configured || !isAdHocRepositoryId(prefix)) {
+      return null;
+    }
+    String adHocUrl = MarketplaceRepository.environmentVariable("HOP_PLUGINS_MAVEN_REPO");
+    String adHocOrigin = MarketplaceRepository.originOf(adHocUrl);
+    if (adHocOrigin != null && adHocOrigin.equals(MarketplaceRepository.originOf(url))) {
+      return null;
+    }
+    return "uses the id of the repository given with --repo-url or HOP_PLUGINS_MAVEN_REPO";
+  }
+
+  private static boolean isAdHocRepositoryId(String prefix) {
+    return prefix.equals(
+            MarketplaceRepository.environmentIdPrefix(
+                MarketplaceCommand.DEFAULT_AD_HOC_REPOSITORY_ID))
+        || prefix.equals(
+            MarketplaceRepository.environmentIdPrefix(
+                MarketplaceRepository.environmentVariable("HOP_PLUGINS_REPO_ID")));
+  }
+
+  /**
+   * The configured repository whose credentials are reused for {@code url}, or null when no
+   * repository on that origin has any. Credentials kept only in the environment count, so the check
+   * resolves them, but only for repositories on that origin. Of several, the one with the spec's id
+   * wins, then the first in install order. A repository with authType {@code none} has none to
+   * give, which keeps the global pair off a host the operator opted out of.
+   */
+  private MarketplaceRepository configuredCredentialSource(String id, String url) {
+    List<MarketplaceRepository> sameOrigin = new ArrayList<>();
+    boolean anyCredentials = false;
+    for (MarketplaceRepository repo : baseConfig.orderedRepositories()) {
+      if (repo.sameOriginAs(url)) {
+        sameOrigin.add(repo);
+      } else {
+        anyCredentials |= repo.hasCredentialsConfigured();
+      }
+    }
+    if (sameOrigin.isEmpty()) {
+      if (anyCredentials) {
+        log.logBasic(
+            "Install spec repository "
+                + url
+                + " is not a configured marketplace repository: the configured credentials are"
+                + " not sent to it");
+      }
+      return null;
+    }
+    String prefix = MarketplaceRepository.environmentIdPrefix(id);
+    MarketplaceRepository idMatch = null;
+    for (MarketplaceRepository repo : sameOrigin) {
+      if (prefix.equals(repo.environmentIdPrefix())) {
+        idMatch = repo;
+        break;
+      }
+    }
+    if (idMatch != null && idMatch.hasCredentials()) {
+      return idMatch;
+    }
+    for (MarketplaceRepository repo : sameOrigin) {
+      if (repo != idMatch && repo.hasCredentials()) {
+        return repo;
+      }
     }
     return null;
   }

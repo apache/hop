@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -116,11 +117,48 @@ class RepositoryOriginTest {
   }
 
   @Test
+  void scopedVariablesComeOnlyFromTheListedIds() {
+    MarketplaceRepository.setEnvironmentForTesting(
+        Map.of(
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "nexus-user",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "nexus-pass")
+            ::get);
+
+    MarketplaceRepository repo = new MarketplaceRepository("nexus", "https://other.example.org/");
+    repo.setGlobalEnvironmentCredentials(false);
+    repo.setEnvironmentCredentialIds(List.of());
+    assertNull(repo.effectiveUsername());
+    assertNull(repo.effectivePassword());
+    assertFalse(repo.hasCredentials());
+
+    repo.setEnvironmentCredentialIds(List.of("project", "nexus"));
+    assertEquals("nexus-user", repo.effectiveUsername());
+    assertEquals("nexus-pass", repo.effectivePassword());
+  }
+
+  @Test
+  void usernameAndPasswordComeFromOneId() {
+    MarketplaceRepository.setEnvironmentForTesting(
+        Map.of(
+                "HOP_MARKETPLACE_PROJECT_USERNAME", "project-user",
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "nexus-user",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "nexus-pass")
+            ::get);
+
+    MarketplaceRepository repo = new MarketplaceRepository("project", "https://other.example.org/");
+    repo.setEnvironmentCredentialIds(List.of("project", "nexus"));
+    assertEquals("project-user", repo.effectiveUsername());
+    assertNull(repo.effectivePassword(), "the nexus password must not be paired with another user");
+  }
+
+  @Test
   void suppressionIsNotPersisted() throws Exception {
     MarketplaceRepository repo = new MarketplaceRepository("spec", "https://other.example.org/");
     repo.setGlobalEnvironmentCredentials(false);
+    repo.setEnvironmentCredentialIds(List.of());
     String json = org.apache.hop.core.json.HopJson.newMapper().writeValueAsString(repo);
     assertFalse(json.contains("globalEnvironmentCredentials"));
+    assertFalse(json.contains("environmentCredentialIds"));
     assertTrue(
         org.apache.hop.core.json.HopJson.newMapper()
             .readValue(json, MarketplaceRepository.class)
