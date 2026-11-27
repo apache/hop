@@ -51,7 +51,10 @@ public class PipelineSvgDiagramExporter extends BaseDiagramExporter<PipelineMeta
     float magnification = options != null ? options.getMagnification() : 1.0f;
     String svgXml =
         PipelineSvgPainter.generatePipelineSvg(
-            pipelineMeta, magnification, context != null ? context.getVariables() : null);
+            DiagramExportPreparation.prepare(
+                pipelineMeta, options, context != null ? context.getVariables() : null),
+            magnification,
+            context != null ? context.getVariables() : null);
 
     if (options != null && options.getTargetFilename() != null) {
       writeToTarget(options.getTargetFilename(), svgXml, context);

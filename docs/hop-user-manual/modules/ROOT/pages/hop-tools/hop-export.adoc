@@ -33,6 +33,10 @@ hop export -f pipelines/load-orders.hpl -o diagrams/load-orders.svg
 # One file as Mermaid
 hop export -f workflows/main.hwf --format mermaid -o diagrams/main.mmd
 
+# Generate positions for an SVG diagram
+hop export -f pipelines/load-orders.hpl -o diagrams/load-orders.svg --layout-policy ALWAYS --layout-algorithm LAYERED
+
+
 # Every pipeline and workflow in a folder and its subfolders
 hop export -s /path/to/project -t /path/to/diagrams --recursive
 
@@ -52,7 +56,9 @@ hop export --list-exporters
 |`-t`, `--target-folder <folder>`|The folder to write the diagrams to, for `-s`. Required with `-s`. See <<_exporting_a_folder,Exporting a folder>>.
 |`-r`, `--recursive`|With `-s`, also export the subfolders.
 |`-m`, `--magnification <factor>`|Scale an SVG diagram, for example `2` for twice the size. The default is `1.0`. Mermaid diagrams are not scaled.
-|`-in`, `--include-notes`|Notes are included by default. Use `-in=false` to leave them out of a Mermaid diagram. Giving `-in` without a value also leaves them out. SVG diagrams always show the notes.
+|`--layout-policy <policy>`|Automatic layout for SVG: `NONE` (default), `ALWAYS` or `ON_MISSING`. See <<_automatic_layout,Automatic layout>>.
+|`--layout-algorithm <algorithm>`|`LAYERED` (default) or `GRID`. Ignored when the layout policy is `NONE`.
+|`-in`, `--include-notes`|Notes are included by default. Use `-in=false` to leave them out of the diagram. Giving `-in` without a value also leaves them out.
 |`--list-exporters`|List the exporters in this installation, with their format and file extension.
 |`-j`, `--project <name>`|Enable a project first, so that variables such as `+${PROJECT_HOME}+` can be used in the file names.
 |`-e`, `--environment <name>`|Enable an environment, and its project, first.
@@ -69,7 +75,7 @@ Run `hop export --help` for the full list, which also has `-pl`, `--environments
 
 == Formats
 
-Hop has an SVG and a Mermaid exporter for both pipelines and workflows.
+Hop has SVG and Mermaid exporters for both pipelines and workflows.
 Plugins can add more; `--list-exporters` shows what your installation has.
 
 [source,bash]
@@ -89,6 +95,34 @@ Available Diagram Exporters (4):
 
 * *SVG* draws the diagram as it looks in Hop Gui, with the transform and action icons and the notes.
 * *Mermaid* writes a text flowchart (`.mmd`) with a node per transform or action and an arrow per hop. You can keep it next to the project in version control, or paste it into a page that renders Mermaid.
+
+== Automatic layout
+
+SVG exports can generate positions instead of relying on the saved diagram coordinates.
+The same options apply to single-file and batch exports, and are available in *File > Export diagram* in Hop Gui.
+Use the uppercase enum codes shown below on the command line.
+
+[options="header", cols="1,3"]
+|===
+|Policy|Behavior
+|`NONE`|Keep saved positions; do not generate a layout. This is the default, preserving existing export behavior.
+|`ALWAYS`|Generate a layout regardless of saved positions.
+|`ON_MISSING`|Lay out the whole graph when any node lacks valid explicit coordinates; otherwise keep saved positions. An explicitly saved `(0,0)` is not missing.
+|===
+
+`LAYERED`, the default algorithm, arranges nodes in layers following the graph connections.
+`GRID` arranges nodes in a grid.
+Both algorithms are deterministic for the same ordered input and options; changing the input order can change the generated positions.
+Export uses a detached drawing model when changes are needed and does not change the original pipeline or workflow.
+SVG layout accounts for measured node labels, decorations, and note sizes including their text and borders.
+`GRID` packs included notes after the executable nodes in the same grid.
+`LAYERED` repacks included notes in a separate annotation band above the execution graph.
+Saved note positions do not affect generated layouts, and missing note positions alone do not trigger `ON_MISSING`.
+Hops are not routed around obstacles.
+Font availability can affect measured footprints, so output is not guaranteed to be identical across machines.
+The algorithm is ignored with policy `NONE`, and the GUI disables its selector until another policy is selected.
+Mermaid uses its own renderer for layout and does not use these options.
+
 
 == Exporting a folder
 

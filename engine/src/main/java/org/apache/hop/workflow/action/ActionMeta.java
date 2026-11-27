@@ -19,6 +19,7 @@ package org.apache.hop.workflow.action;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
@@ -70,6 +71,11 @@ public class ActionMeta
 
   @HopMetadataProperty(inline = true)
   private Point location;
+
+  /**
+   * Whether both coordinates were supplied, rather than defaulted during construction or loading.
+   */
+  @Getter private boolean locationExplicit;
 
   /** Flag to indicate that the actions following this one are launched in parallel */
   @HopMetadataProperty(key = "parallel")
@@ -168,9 +174,23 @@ public class ActionMeta
         // Handle GUI information: location?
         setLaunchingInParallel(
             "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, "parallel")));
-        int x = Const.toInt(XmlHandler.getTagValue(actionNode, "xloc"), 0);
-        int y = Const.toInt(XmlHandler.getTagValue(actionNode, "yloc"), 0);
+        boolean explicit = true;
+        int x;
+        try {
+          x = Integer.parseInt(XmlHandler.getTagValue(actionNode, "xloc"));
+        } catch (NumberFormatException e) {
+          x = 0;
+          explicit = false;
+        }
+        int y;
+        try {
+          y = Integer.parseInt(XmlHandler.getTagValue(actionNode, "yloc"));
+        } catch (NumberFormatException e) {
+          y = 0;
+          explicit = false;
+        }
         setLocation(x, y);
+        locationExplicit = explicit;
 
         Node actionCopyAttributesNode =
             XmlHandler.getSubNode(actionNode, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY);
@@ -197,6 +217,7 @@ public class ActionMeta
 
   public void clear() {
     location = new Point(0, 0);
+    locationExplicit = false;
     action = null;
     launchingInParallel = false;
     attributesMap = new HashMap<>();
@@ -223,6 +244,7 @@ public class ActionMeta
     if (actionCopy.location != null) {
       location = new Point(actionCopy.location.x, actionCopy.location.y);
     }
+    locationExplicit = actionCopy.locationExplicit;
     launchingInParallel = actionCopy.launchingInParallel;
 
     setChanged();
@@ -290,6 +312,7 @@ public class ActionMeta
       setWrapperChanged();
     }
     location = loc;
+    locationExplicit = true;
   }
 
   @Override
@@ -298,6 +321,7 @@ public class ActionMeta
       setWrapperChanged();
     }
     location = loc;
+    locationExplicit = loc != null;
   }
 
   @Override

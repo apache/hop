@@ -20,6 +20,7 @@ package org.apache.hop.pipeline;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
@@ -68,36 +69,12 @@ public class PipelineSvgPainter {
       Point area = new Point(1, 1);
       SvgGc gc = new SvgGc(graphics2D, area, SvgExportCanvas.ICON_SIZE, 0, 0);
       PipelinePainter pipelinePainter =
-          new PipelinePainter(
-              gc,
-              variables,
-              pipelineMeta,
-              area,
-              new DPoint(0, 0),
-              null,
-              null,
-              new ArrayList<>(),
-              SvgExportCanvas.ICON_SIZE,
-              1,
-              0,
-              "Arial",
-              10,
-              zoomFactor,
-              false,
-              null,
-              new HashMap<>());
+          createPainter(pipelineMeta, gc, area, variables, zoomFactor);
       pipelinePainter.setMagnification(mag);
 
       SvgExportCanvas.Bounds bounds = new SvgExportCanvas.Bounds();
       for (TransformMeta transform : pipelineMeta.getTransforms()) {
-        SvgExportCanvas.includeNode(
-            bounds,
-            gc,
-            transform.getLocation(),
-            transform.getName(),
-            !Utils.isEmpty(transform.getDescription()),
-            SvgExportCanvas.ICON_SIZE);
-        includeTransformDecorations(bounds, gc, transform);
+        includeTransformBounds(bounds, gc, transform);
       }
       for (NotePadMeta note : pipelineMeta.getNotes()) {
         SvgExportCanvas.includeNote(
@@ -121,6 +98,58 @@ public class PipelineSvgPainter {
     } catch (Exception e) {
       throw new HopException("Unable to generate SVG for pipeline " + pipelineMeta.getName(), e);
     }
+  }
+
+  /** Measures notes with the same fonts, wrapping, and image context used by SVG rendering. */
+  public static List<Point> getNoteDrawnSizes(
+      final PipelineMeta pipelineMeta, final SvgGc gc, final IVariables variables) {
+    final var painter = createPainter(pipelineMeta, gc, new Point(1, 1), variables, 1f);
+    return pipelineMeta.getNotes().stream().map(painter::getNoteDrawnSize).toList();
+  }
+
+  private static PipelinePainter createPainter(
+      final PipelineMeta pipelineMeta,
+      final SvgGc gc,
+      final Point area,
+      final IVariables variables,
+      final float zoomFactor) {
+    return new PipelinePainter(
+        gc,
+        variables,
+        pipelineMeta,
+        area,
+        new DPoint(0, 0),
+        null,
+        null,
+        new ArrayList<>(),
+        SvgExportCanvas.ICON_SIZE,
+        1,
+        0,
+        "Arial",
+        10,
+        zoomFactor,
+        false,
+        null,
+        new HashMap<>()) {
+      @Override
+      protected void drawNote(final NotePadMeta note) {
+        // GUI painting caches resize measurements on notes; export must be read-only.
+        super.drawNote(note.clone());
+      }
+    };
+  }
+
+  /** Includes the complete painted transform footprint, also used by export layout. */
+  public static void includeTransformBounds(
+      final SvgExportCanvas.Bounds bounds, final IGc gc, final TransformMeta transform) {
+    SvgExportCanvas.includeNode(
+        bounds,
+        gc,
+        transform.getLocation(),
+        transform.getName(),
+        !Utils.isEmpty(transform.getDescription()),
+        SvgExportCanvas.ICON_SIZE);
+    includeTransformDecorations(bounds, gc, transform);
   }
 
   /**

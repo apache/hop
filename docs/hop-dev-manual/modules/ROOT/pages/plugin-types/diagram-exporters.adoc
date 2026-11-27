@@ -159,8 +159,21 @@ Honour the options you understand:
 `targetFilename`:: where to write; may be `null` when the caller only wants the bytes (Hop Web).
 `magnification`:: scale for SVG and similar vector output.
 `includeNotes`:: whether canvas notes belong in the diagram.
+`layoutPolicy`:: `DiagramLayoutPolicy.NONE` (default) keeps saved positions, `ALWAYS` generates a layout regardless of saved positions, and `ON_MISSING` generates a layout when positions are missing.
+`layoutAlgorithm`:: `DiagramLayoutAlgorithm.LAYERED` (default) arranges nodes in graph layers; `GRID` arranges nodes in a grid. Ignored when `layoutPolicy` is `NONE`.
 `direction` / `theme` / `extraOptions`:: optional; Mermaid uses `direction` (`LR` / `TD`).
 Put plugin-specific keys in `extraOptions` rather than subclassing the options bean unless you have to.
+The built-in SVG exporters support the layout options; Mermaid delegates layout to its renderer.
+Generated positions are deterministic for the same ordered input and options, not necessarily for a reordered graph.
+The exporters prepare detached drawing models when changes are needed, otherwise rendering the source directly without changing the original metadata.
+Layout uses measured node footprints including labels and decorations, with fixed export defaults independent of GUI layout preferences.
+Included notes use measured painted sizes and borders: `GRID` packs them after executable nodes, while `LAYERED` repacks them in an annotation band above the execution graph.
+Missing note positions alone do not trigger `ON_MISSING`, and excluded notes do not affect layout.
+Node layout does not route hops around obstacles.
+Font availability can affect measured footprints, so identical output across machines or font installations is not guaranteed.
+Both layout enums implement `IEnumHasCodeAndDescription`: their codes are stable enum names and their GUI descriptions come from localized resource bundles.
+Keep these codes independent of translated labels.
+
 
 === Classloading
 
@@ -183,7 +196,8 @@ If that returns your model object, and your exporter's `supportedSubjectTypes` i
 A custom file type that returns `null` from `getSubject()`, or that returns a wrapper the exporter does not recognise, is invisible to *File → Export diagram*.
 
 The dialog itself is a `@GuiPlugin` options bean (`DiagramExportDialogModel`) built with `GuiCompositeWidgets`.
-It shows format, target file, magnification and include-notes for every exporter.
+It shows format, target file, magnification, include-notes, layout policy and layout algorithm for every exporter.
+The algorithm combo is disabled when the policy is `NONE`.
 It does not currently instantiate `getOptionsClass()`; keep extra settings in `DiagramExportOptions.extraOptions` or accept the shared fields.
 
 Hop Web still downloads SVG for the active pipeline or workflow rather than opening the dialog.
@@ -275,7 +289,8 @@ hop export -s pipelines/ -t diagrams/ --format svg --recursive
 hop export --list-exporters
 ----
 
-Useful flags: `-f` / `--file`, `-o` / `--output-file`, `--format`, `-s` / `--source-folder`, `-t` / `--target-folder`, `-r` / `--recursive`, `-m` / `--magnification`, `-in` / `--include-notes`.
+Useful flags: `-f` / `--file`, `-o` / `--output-file`, `--format`, `-s` / `--source-folder`, `-t` / `--target-folder`, `-r` / `--recursive`, `-m` / `--magnification`, `-in` / `--include-notes`, `--layout-policy`, `--layout-algorithm`.
+The CLI accepts the uppercase layout enum codes, with defaults `NONE` and `LAYERED`, and passes both options to single-file and batch exporters.
 
 Project and environment options (`-j`, `-e`) are mixed in from `@ConfigPlugin` beans with `category = ConfigPlugin.CATEGORY_EXPORT`.
 The projects plugin already contributes `ProjectsExportOptionPlugin` on that category.
