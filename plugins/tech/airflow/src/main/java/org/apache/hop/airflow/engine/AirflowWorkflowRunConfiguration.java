@@ -118,6 +118,19 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
   private String dagIdPrefix;
 
   @GuiWidgetElement(
+      id = "tasks",
+      order = "065",
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::AirflowWorkflowRunConfiguration.Tasks.Label",
+      toolTip = "i18n::AirflowWorkflowRunConfiguration.Tasks.Tooltip")
+  @HopMetadataProperty(key = "tasks", storeWithCode = true)
+  private AirflowDagTasks tasks = AirflowDagTasks.PER_ACTION;
+
+  @GuiWidgetElement(
       id = "unpausingDag",
       order = "070",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -166,6 +179,7 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
     this.workerRunConfiguration = config.workerRunConfiguration;
     this.environmentFiles = config.environmentFiles;
     this.dagIdPrefix = config.dagIdPrefix;
+    this.tasks = config.tasks;
     this.unpausingDag = config.unpausingDag;
     this.dagWaitSeconds = config.dagWaitSeconds;
     this.pollSeconds = config.pollSeconds;

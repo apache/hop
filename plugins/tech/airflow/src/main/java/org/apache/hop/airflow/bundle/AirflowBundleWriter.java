@@ -47,6 +47,7 @@ import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.airflow.engine.AirflowDagIds;
+import org.apache.hop.airflow.engine.AirflowDagTasks;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.ActionPluginType;
@@ -84,6 +85,10 @@ public class AirflowBundleWriter {
   private List<String> workflowPatterns = new ArrayList<>();
   private List<String> environmentFiles = new ArrayList<>();
   private String dagIdPrefix;
+
+  /** The tasks of the DAGs; null for {@link AirflowDagTasks#PER_ACTION}. */
+  private AirflowDagTasks tasks;
+
   private String hopVersion;
 
   /** The supervisor schema version for the stub; read from the installed launcher when null. */
@@ -168,6 +173,9 @@ public class AirflowBundleWriter {
       attributes.putValue(
           HopAirflowBundle.ATTRIBUTE_ENVIRONMENT_FILES, String.join(";", environmentFiles));
     }
+    attributes.putValue(
+        HopAirflowBundle.ATTRIBUTE_TASKS,
+        (tasks == null ? AirflowDagTasks.PER_ACTION : tasks).getCode());
     List<String> notEvaluating =
         notEvaluatingActions != null ? notEvaluatingActions : registeredNotEvaluatingActions();
     if (notEvaluating != null) {

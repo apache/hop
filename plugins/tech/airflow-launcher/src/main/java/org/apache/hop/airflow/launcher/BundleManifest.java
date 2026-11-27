@@ -43,6 +43,8 @@ import org.apache.airflow.sdk.Server;
  * @param environmentFiles environment configuration files, relative to the project
  * @param dagIdPrefix the start of every DAG id
  * @param notEvaluatingActions the plugin ids of the actions that don't evaluate their result
+ * @param tasks {@link HopAirflowBundle#TASKS_PER_ACTION} or {@link
+ *     HopAirflowBundle#TASKS_WHOLE_WORKFLOW}
  */
 public record BundleManifest(
     Path folder,
@@ -54,7 +56,8 @@ public record BundleManifest(
     List<String> workflowPatterns,
     List<String> environmentFiles,
     String dagIdPrefix,
-    Set<String> notEvaluatingActions) {
+    Set<String> notEvaluatingActions,
+    String tasks) {
 
   /** A stub without a list of the actions that don't evaluate their result. */
   public BundleManifest(
@@ -77,7 +80,13 @@ public record BundleManifest(
         workflowPatterns,
         environmentFiles,
         dagIdPrefix,
-        ActionTasks.NOT_EVALUATING);
+        ActionTasks.NOT_EVALUATING,
+        HopAirflowBundle.TASKS_PER_ACTION);
+  }
+
+  /** True when every workflow runs as one task, {@link HopBundleMain#TASK_ID}. */
+  public boolean wholeWorkflowTasks() {
+    return HopAirflowBundle.TASKS_WHOLE_WORKFLOW.equals(tasks);
   }
 
   /** Points to the stub jar or the project folder, instead of looking on the class path. */
@@ -155,7 +164,36 @@ public record BundleManifest(
         split(value(attributes, HopAirflowBundle.ATTRIBUTE_ENVIRONMENT_FILES, ""), ";"),
         value(
             attributes, HopAirflowBundle.ATTRIBUTE_DAG_ID_PREFIX, defaultDagIdPrefix(projectName)),
-        notEvaluatingActions(attributes));
+        notEvaluatingActions(attributes),
+        tasks(folder, attributes));
+  }
+
+  /**
+   * A value this launcher does not know comes from a newer Hop: running the DAGs in another way
+   * than the stub asks would go unnoticed, so the DAGs show an import error instead.
+   */
+  private static String tasks(Path folder, Attributes attributes) throws IOException {
+    String tasks =
+        value(attributes, HopAirflowBundle.ATTRIBUTE_TASKS, HopAirflowBundle.TASKS_PER_ACTION);
+    if (!List.of(HopAirflowBundle.TASKS_PER_ACTION, HopAirflowBundle.TASKS_WHOLE_WORKFLOW)
+        .contains(tasks)) {
+      throw new IOException(
+          "The "
+              + HopAirflowBundle.STUB_FILE_NAME
+              + " in "
+              + folder
+              + " asks for "
+              + HopAirflowBundle.ATTRIBUTE_TASKS
+              + " '"
+              + tasks
+              + "', which the Hop installation on this worker does not know. Use "
+              + HopAirflowBundle.TASKS_PER_ACTION
+              + " or "
+              + HopAirflowBundle.TASKS_WHOLE_WORKFLOW
+              + ", or write the stub again with 'hop airflow-bundle' from the Hop version on the"
+              + " worker.");
+    }
+    return tasks;
   }
 
   /** The list in the stub, or Hop's own actions that don't evaluate for a stub without one. */

@@ -83,6 +83,11 @@ The runs then use an environment called `airflow` with these files.
 |`--dag-id-prefix`
 |The start of every DAG id.
 Default: the project name and two underscores.
+
+|`--tasks`
+|The tasks of the DAGs: `PER_ACTION`, one task per action, or `WHOLE_WORKFLOW`, one task that runs the whole workflow.
+See <<_one_task_for_the_whole_workflow,One task for the whole workflow>>.
+Default: `PER_ACTION`.
 |===
 
 The stub is tied to the Hop version that wrote it.
@@ -167,6 +172,32 @@ A workflow runs as one task, `run_workflow`, when its hops don't fit Airflow:
 * no Start action, or more than one.
 
 The DAG processor's log says why.
+
+[[_one_task_for_the_whole_workflow]]
+=== One task for the whole workflow
+
+With `--tasks WHOLE_WORKFLOW`, or *Tasks* in the xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow run configuration], every workflow of the bundle runs as one task, `run_workflow`.
+The task runs the workflow as `hop run` does.
+The DAG processor and the workers need Hop 2.21 or later: an older Hop ignores the setting and makes one task per action.
+
+[options="header",cols="1,2,2"]
+|===
+| |One task per action (default) |One task for the whole workflow
+|In Airflow |Each action is a task, with its own state and log. |One task, with the log of the whole workflow.
+|A retry, or clearing a task |Runs that action again, and the actions after it. |Runs the whole workflow again.
+|Starting Hop |Every task starts Hop, which takes a few seconds per action. |Hop starts once.
+|More than one worker (Celery or Kubernetes executor) |Tasks can run on different machines: a file that one action writes to a local disk is not there for the next action. |All actions run on the same machine.
+|What actions pass on |Result rows, files, counters and variables, through XCom: at most 1 MB, readable in Airflow. |Everything, as in Hop, including JVM-scope variables.
+|===
+
+Choose one task for the whole workflow when:
+
+* the workflow has many short actions, and starting Hop for each of them takes longer than the actions themselves.
+* actions pass files on a local disk to each other, and Airflow has more than one worker.
+* actions pass more on than fits in XCom, or values that should not show in Airflow.
+
+Keep one task per action to see, retry and clear the actions one by one in Airflow.
+Either way, the Apache Airflow run configuration shows the actions on the canvas of Hop GUI as they run.
 
 == Set up Airflow
 

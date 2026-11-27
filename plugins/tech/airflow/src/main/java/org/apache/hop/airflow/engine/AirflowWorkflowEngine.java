@@ -137,7 +137,7 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     String bundleFolder = publish(projectName, projectHome);
     checkNotStopped();
     publishedVersion = workflowVersion(bundleFolder, relativePath);
-    AirflowDag dag = waitForDag(publishedVersion);
+    AirflowDag dag = waitForDag(publishedVersion, publishedTasks());
     checkNotStopped();
     if (dag.paused()) {
       if (!config.isUnpausingDag()) {
@@ -237,6 +237,7 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
                   .toList()));
     }
     writer.setDagIdPrefix(resolve(airflowRunConfiguration.getDagIdPrefix()));
+    writer.setTasks(airflowRunConfiguration.getTasks());
     writer.setHopVersion(HopEnvironment.class.getPackage().getImplementationVersion());
     AirflowBundleWriter.Result written = writer.write();
     logChannel.logBasic(
@@ -260,6 +261,31 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     }
   }
 
+  /** The code of the tasks the bundle was published with, as the stub has it. */
+  private String publishedTasks() {
+    AirflowDagTasks tasks = airflowRunConfiguration.getTasks();
+    return (tasks == null ? AirflowDagTasks.PER_ACTION : tasks).getCode();
+  }
+
+  /**
+   * The tasks a DAG's documentation names after {@link HopAirflowBundle#DAG_DOC_TASKS}. A launcher
+   * from before that line, in an older Hop on the Airflow side, writes none and always makes one
+   * task per action: {@link HopAirflowBundle#TASKS_PER_ACTION}.
+   */
+  static String docTasks(String docMd) {
+    int start = docMd.indexOf(HopAirflowBundle.DAG_DOC_TASKS);
+    if (start < 0) {
+      return HopAirflowBundle.TASKS_PER_ACTION;
+    }
+    start += HopAirflowBundle.DAG_DOC_TASKS.length();
+    int end = start;
+    while (end < docMd.length()
+        && (Character.isLetterOrDigit(docMd.charAt(end)) || docMd.charAt(end) == '_')) {
+      end++;
+    }
+    return docMd.substring(start, end);
+  }
+
   /** The writer of the bundle. Tests override it, to write without an installed launcher. */
   protected AirflowBundleWriter newBundleWriter() {
     return new AirflowBundleWriter();
@@ -271,9 +297,10 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
    * published.
    *
    * @param version the version of the published workflow
+   * @param tasks the tasks of the published bundle, see {@link HopAirflowBundle#DAG_DOC_TASKS}
    * @return the DAG
    */
-  private AirflowDag waitForDag(String version) throws HopException {
+  private AirflowDag waitForDag(String version, String tasks) throws HopException {
     long waitMillis =
         Const.toLong(
                 resolve(airflowRunConfiguration.getDagWaitSeconds()),
@@ -283,18 +310,27 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     boolean logged = false;
     while (true) {
       AirflowDag dag = client.findDag(dagId);
-      boolean current =
+      boolean versionShown =
           dag != null
               && dag.docMd() != null
               && dag.docMd().contains(HopAirflowBundle.DAG_DOC_VERSION + version);
-      if (current) {
+      if (versionShown && tasks.equals(docTasks(dag.docMd()))) {
         return dag;
       }
       if (stopped) {
         throw new HopException(
             BaseMessages.getString(PKG, "AirflowWorkflowEngine.Error.StoppedBeforeStart", dagId));
       }
-      String what = dag == null ? "NoDag" : "OldDag";
+      String what;
+      if (dag == null) {
+        what = "NoDag";
+      } else if (versionShown && !dag.docMd().contains(HopAirflowBundle.DAG_DOC_TASKS)) {
+        // The Hop on the Airflow side is older and ignores the Tasks of the stub. Keep waiting
+        // all the same: the DAG may still be the one that Hop listed before it was upgraded.
+        what = "TasksUnknown";
+      } else {
+        what = "OldDag";
+      }
       if (System.currentTimeMillis() >= deadline) {
         throw new HopException(
             BaseMessages.getString(

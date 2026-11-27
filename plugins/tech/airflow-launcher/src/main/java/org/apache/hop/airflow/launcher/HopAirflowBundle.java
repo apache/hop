@@ -72,6 +72,17 @@ public final class HopAirflowBundle {
    */
   public static final String ATTRIBUTE_NOT_EVALUATING_ACTIONS = "Hop-Not-Evaluating-Actions";
 
+  /**
+   * The tasks of the DAGs: {@value #TASKS_PER_ACTION} (default) or {@value #TASKS_WHOLE_WORKFLOW}.
+   */
+  public static final String ATTRIBUTE_TASKS = "Hop-Tasks";
+
+  /** One task per action, where the hops of the workflow fit Airflow. */
+  public static final String TASKS_PER_ACTION = "PER_ACTION";
+
+  /** One task, {@code run_workflow}, that runs the whole workflow. */
+  public static final String TASKS_WHOLE_WORKFLOW = "WHOLE_WORKFLOW";
+
   public static final String DEFAULT_RUN_CONFIGURATION = "local";
   public static final String DEFAULT_LOG_LEVEL = "Basic";
 
@@ -81,6 +92,13 @@ public final class HopAirflowBundle {
    * shows the version it published.
    */
   public static final String DAG_DOC_VERSION = "Workflow version: ";
+
+  /**
+   * Starts the line of a DAG's documentation that names the {@link #ATTRIBUTE_TASKS} of the stub. A
+   * change of the tasks alone leaves the workflow version as it was: the Airflow run configuration
+   * also waits until Airflow shows the DAG with the tasks it published.
+   */
+  public static final String DAG_DOC_TASKS = "Tasks: ";
 
   /**
    * The key of the run conf that holds the version of the workflow the run was started for. The

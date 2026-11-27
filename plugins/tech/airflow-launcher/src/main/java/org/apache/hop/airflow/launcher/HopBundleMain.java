@@ -36,7 +36,7 @@ import org.apache.airflow.sdk.TaskRef;
  * What the Airflow Java coordinator runs for a Hop DAG bundle: to list the DAGs (DAG processor) and
  * to run a task (worker). Every workflow of the project becomes a DAG with one task per action, or
  * with one task that runs the whole workflow when its hops don't fit Airflow (see {@link
- * ActionTasks}).
+ * ActionTasks}) or when the bundle asks for it ({@link HopAirflowBundle#ATTRIBUTE_TASKS}).
  */
 public final class HopBundleMain {
 
@@ -93,6 +93,9 @@ public final class HopBundleMain {
             manifest.workflowPatterns(),
             manifest.dagIdPrefix(),
             manifest.notEvaluatingActions());
+    if (manifest.wholeWorkflowTasks()) {
+      workflows = workflows.stream().map(HopBundleMain::asOneTask).toList();
+    }
     Bundle dags = new Bundle();
     Map<String, HopWorkflowFile> listed = new LinkedHashMap<>();
     for (HopWorkflowFile workflow : workflows) {
@@ -114,7 +117,7 @@ public final class HopBundleMain {
               .config("queue", QUEUE)
               .config("description", workflow.description())
               .config("tags", List.of("hop", manifest.projectName()))
-              .config("doc_md", dagDoc(workflow));
+              .config("doc_md", dagDoc(workflow, manifest.tasks()));
       if (workflow.tasks().isEmpty()) {
         // stdout: Airflow shows a task's stderr as errors
         System.out.println(
@@ -141,6 +144,28 @@ public final class HopBundleMain {
             + (System.currentTimeMillis() - start)
             + " ms");
     server(args).serve(dags);
+  }
+
+  /**
+   * The workflow as one task, {@link #TASK_ID}, as the bundle asks ({@link
+   * HopAirflowBundle#TASKS_WHOLE_WORKFLOW}). A workflow that already runs as one task keeps its
+   * reason, such as a file Hop could not read.
+   */
+  static HopWorkflowFile asOneTask(HopWorkflowFile workflow) {
+    if (workflow.tasks().isEmpty()) {
+      return workflow;
+    }
+    return new HopWorkflowFile(
+        workflow.relativePath(),
+        workflow.dagId(),
+        workflow.description(),
+        List.of(),
+        "the bundle runs every workflow as one task ("
+            + HopAirflowBundle.ATTRIBUTE_TASKS
+            + ": "
+            + HopAirflowBundle.TASKS_WHOLE_WORKFLOW
+            + ")",
+        workflow.version());
   }
 
   /** One task per action, plus the gates; see {@link ActionTasks}. */
@@ -193,13 +218,16 @@ public final class HopBundleMain {
     }
   }
 
-  /** Names the workflow, and its version for the Airflow run configuration. */
-  static String dagDoc(HopWorkflowFile workflow) {
+  /**
+   * Names the workflow, and its version and the tasks of the bundle for the Airflow run
+   * configuration.
+   */
+  static String dagDoc(HopWorkflowFile workflow, String tasks) {
     String doc = "Hop workflow `" + workflow.relativePath() + "`";
     if (workflow.version() != null) {
       doc += "\n\n" + HopAirflowBundle.DAG_DOC_VERSION + workflow.version();
     }
-    return doc;
+    return doc + "\n\n" + HopAirflowBundle.DAG_DOC_TASKS + tasks;
   }
 
   private static String doc(ActionTasks.ActionTask task, HopWorkflowFile workflow) {

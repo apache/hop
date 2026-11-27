@@ -48,6 +48,48 @@ class HopBundleMainTest {
         () -> HopBundleMain.server(new String[] {"--comm=127.0.0.1:4000"}));
   }
 
+  /** With TASKS_WHOLE_WORKFLOW a workflow whose hops fit Airflow still runs as one task. */
+  @Test
+  void runsAWorkflowAsOneTaskWhenTheBundleAsks() throws Exception {
+    Path file = folder.resolve("two.hwf");
+    Files.writeString(
+        file,
+        "<workflow><name>w</name><description>Two actions</description><actions>"
+            + "<action><name>Start</name><type>SPECIAL</type></action>"
+            + "<action><name>Log</name><type>WRITE_TO_LOG</type></action>"
+            + "</actions><hops>"
+            + "<hop><from>Start</from><to>Log</to><enabled>Y</enabled><evaluation>Y</evaluation>"
+            + "<unconditional>Y</unconditional></hop>"
+            + "</hops></workflow>");
+    HopWorkflowFile perAction = HopWorkflowFile.read(file, "two.hwf", "p__");
+    assertEquals(1, perAction.tasks().size());
+
+    HopWorkflowFile whole = HopBundleMain.asOneTask(perAction);
+
+    assertTrue(whole.tasks().isEmpty());
+    assertTrue(
+        whole.singleTaskReason().contains(HopAirflowBundle.TASKS_WHOLE_WORKFLOW),
+        whole.singleTaskReason());
+    assertEquals(perAction.dagId(), whole.dagId());
+    assertEquals(perAction.relativePath(), whole.relativePath());
+    assertEquals("Two actions", whole.description());
+    assertEquals(perAction.version(), whole.version());
+    assertEquals(
+        "Hop workflow `two.hwf`\n\n"
+            + HopAirflowBundle.DAG_DOC_VERSION
+            + perAction.version()
+            + "\n\n"
+            + HopAirflowBundle.DAG_DOC_TASKS
+            + HopAirflowBundle.TASKS_WHOLE_WORKFLOW,
+        HopBundleMain.dagDoc(whole, HopAirflowBundle.TASKS_WHOLE_WORKFLOW));
+
+    // A workflow that already runs as one task keeps its reason
+    Path broken = folder.resolve("broken.hwf");
+    Files.writeString(broken, "<workflow>");
+    HopWorkflowFile unreadable = HopWorkflowFile.read(broken, "broken.hwf", "p__");
+    assertEquals(unreadable, HopBundleMain.asOneTask(unreadable));
+  }
+
   @Test
   void hasNoKotlinArgparser() {
     assertThrows(
