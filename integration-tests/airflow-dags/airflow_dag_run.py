@@ -79,6 +79,8 @@ def main():
     parser.add_argument("--task-state", action="append", default=[], help="TASK=STATE of one task of the run")
     parser.add_argument("--task-ids", help="the run has exactly these tasks, separated by commas")
     parser.add_argument("--schedule", help="the expected cron schedule of the DAG, or None")
+    parser.add_argument("--detail", action="append", default=[], help="KEY=JSON value in the details of the DAG")
+    parser.add_argument("--tag", action="append", default=[], help="a tag the DAG has")
     parser.add_argument("--stop-after", type=int, help="mark the run failed this many seconds after the task starts")
     parser.add_argument("--timeout", type=int, default=300)
     args = parser.parse_args()
@@ -99,6 +101,19 @@ def main():
         print("Schedule of %s: %s" % (args.dag, schedule), flush=True)
         if schedule != args.schedule:
             fail("schedule %r, expected %r" % (schedule, args.schedule))
+    if args.detail or args.tag:
+        s, dag_details = call(args.url, "GET", "/api/v2/dags/%s/details" % dag, token)
+        if s != 200:
+            fail("DAG details: HTTP %s %s" % (s, dag_details))
+        for detail in args.detail:
+            key, value = detail.split("=", 1)
+            print("%s of %s: %r" % (key, args.dag, dag_details.get(key)), flush=True)
+            if dag_details.get(key) != json.loads(value):
+                fail("%s %r, expected %s" % (key, dag_details.get(key), value))
+        tags = [t.get("name") if isinstance(t, dict) else t for t in dag_details.get("tags") or []]
+        for tag in args.tag:
+            if tag not in tags:
+                fail("tag %s not in %s" % (tag, tags))
     if details.get("is_paused"):
         fail("DAG %s is paused" % args.dag)
 

@@ -69,7 +69,14 @@ Default: the project name followed by two underscores.
 |Tasks
 |One task per action, or one task for the whole workflow: see xref:hop-tools/hop-airflow-bundle.adoc#_one_task_for_the_whole_workflow[One task for the whole workflow].
 The setting applies to every workflow in the bundle: a publish with another setting changes the DAGs of all of them.
+An xref:metadata-types/airflow-dag.adoc[Airflow DAG] sets its own tasks.
 Default: one task per action.
+
+|Airflow DAG
+|The xref:metadata-types/airflow-dag.adoc[Airflow DAG] to run, for a workflow that has more than one.
+A workflow with one Airflow DAG runs that one, and a workflow without one runs the DAG it gets from the bundle.
+For any other workflow this field is not used.
+Parameter values you set for the run win over those of the Airflow DAG; a parameter you leave empty gets the value of the Airflow DAG.
 
 |Unpause a paused DAG?
 |Airflow can pause new DAGs, and a run of a paused DAG stays queued.

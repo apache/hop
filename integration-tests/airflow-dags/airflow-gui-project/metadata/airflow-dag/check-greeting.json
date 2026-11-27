@@ -1,0 +1,15 @@
+{
+  "name": "check-greeting",
+  "workflow": "${PROJECT_HOME}/check-greeting.hwf",
+  "tasks": "PER_ACTION",
+  "tags": "gui",
+  "catchup": "AIRFLOW_DEFAULT",
+  "paused_on_creation": "AIRFLOW_DEFAULT",
+  "fail_fast": false,
+  "parameters": [
+    {
+      "name": "PRM_GREETING",
+      "value": "hello, airflow"
+    }
+  ]
+}

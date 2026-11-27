@@ -1,0 +1,116 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Airflow DAG metadata: one Apache Airflow DAG of a workflow, with its schedule, limits and parameter values
+
+= Airflow DAG
+
+== Description
+
+An *Airflow DAG* describes one DAG of a workflow in Apache Airflow: when it runs, how many runs and tasks Airflow allows, what Airflow shows, and the parameter values of its runs.
+
+Without an Airflow DAG, every workflow of a bundle is one DAG without a schedule (see xref:hop-tools/hop-airflow-bundle.adoc#_what_airflow_gets[What Airflow gets]).
+With one or more Airflow DAGs, the workflow becomes exactly those DAGs.
+Give each its own DAG id to run the same workflow on another schedule or with other parameter values, without copying the `.hwf` file.
+
+xref:hop-tools/hop-airflow-bundle.adoc[hop airflow-bundle] and the xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow run configuration] publish the Airflow DAGs with the project.
+For a Git bundle, commit them with the project.
+Airflow lists the DAGs with Hop's launcher, which reads the objects from the bundle without starting Hop: the values are used as they are, and variables are not resolved.
+
+Airflow DAGs need Hop 2.21 or later on the Airflow DAG processor and workers.
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Name
+|The name of the Airflow DAG.
+The Apache Airflow run configuration refers to it.
+
+|Workflow
+|The workflow the DAG runs, in the project: `${PROJECT_HOME}/flows/load.hwf`, or a path relative to the project.
+
+|DAG id
+|The DAG id, after the DAG id prefix of the bundle.
+Leave it empty to keep the DAG id the workflow has without an Airflow DAG: the prefix and the path of the workflow.
+Its runs and history in Airflow then stay with the DAG.
+A second Airflow DAG of the same workflow needs its own DAG id: two DAGs with the same id are an import error.
+
+|Display name
+|The name Airflow shows instead of the DAG id.
+
+|Tags
+|Tags, separated by commas.
+The DAG also gets the tags `hop` and the project name.
+
+|Tasks
+|One task per action, or one task for the whole workflow (see xref:hop-tools/hop-airflow-bundle.adoc#_one_task_for_the_whole_workflow[One task for the whole workflow]).
+This replaces the tasks setting of the bundle for this DAG.
+
+|Documentation
+|Markdown that Airflow shows with the DAG, above the name and version of the workflow.
+
+|Schedule
+|A cron expression, such as `0 6 * * *`, or an Airflow preset, such as `@daily`.
+Leave it empty to start the DAG only from Airflow, its REST API or Hop.
+
+|Start date (UTC), End date (UTC)
+|The first and last date the schedule runs for, as `2026-01-31` or `2026-01-31 06:00`.
+
+|Catch up
+|*Yes*: after a pause, or with a start date in the past, Airflow runs every missed interval.
+*No*: only the latest one.
+*Airflow default*: the `catchup_by_default` setting of Airflow.
+
+|Paused when created
+|Whether a new DAG starts paused.
+*Airflow default*: the `dags_are_paused_at_creation` setting of Airflow.
+
+|Max active runs, Max active tasks
+|How many runs of the DAG, and how many of its tasks, can run at the same time.
+Empty: the Airflow default.
+
+|Run timeout (seconds)
+|Airflow fails a run that takes longer.
+
+|Max consecutive failed runs
+|Airflow pauses the DAG after this many failed runs in a row.
+Empty or 0: the Airflow default.
+
+|Fail fast
+|When a task fails, Airflow stops the other running tasks of the run.
+Airflow allows this only when every task waits for all tasks before it to succeed: a workflow with failure hops or joins needs one task for the whole workflow.
+Otherwise the DAG fails, with the reason.
+
+|Parameters
+|Parameter values that every run of the DAG gets.
+A key in the conf of a run wins, and so does a value you set when you run the workflow with the Apache Airflow run configuration.
+|===
+
+== Schedules run in UTC
+
+The Airflow Java SDK cannot give a DAG a time zone, so Airflow reads the schedule, the start date and the end date in UTC.
+`0 6 * * *` runs at 06:00 UTC, which is 07:00 or 08:00 in Brussels depending on the time of year.
+
+== When something is wrong
+
+An Airflow DAG that Hop can't use still becomes a DAG, so that you see it in Airflow: a date it can't read, a number that is not a whole number, a workflow that is not in the project, or fail fast with failure hops.
+Its description says what is wrong, and every run fails with that message.
+
+An Airflow DAG whose workflow is not one of the workflows of the bundle (`--workflows`) is left out.

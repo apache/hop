@@ -50,6 +50,8 @@ import org.w3c.dom.Node;
  * @param tasks one task per action, or an empty list for one task that runs the whole workflow
  * @param singleTaskReason why the workflow runs as one task, or null
  * @param version the version of the file, see {@link HopAirflowBundle#DAG_DOC_VERSION}, or null
+ * @param settings the {@value HopAirflowBundle#DAG_METADATA_KEY} object of the DAG, or null for the
+ *     DAG a workflow gets without one
  */
 public record HopWorkflowFile(
     String relativePath,
@@ -57,11 +59,29 @@ public record HopWorkflowFile(
     String description,
     List<ActionTasks.ActionTask> tasks,
     String singleTaskReason,
-    String version) {
+    String version,
+    HopDagSettings settings) {
 
   /** A workflow that runs as one task. */
   public HopWorkflowFile(String relativePath, String dagId, String description) {
-    this(relativePath, dagId, description, List.of(), null, null);
+    this(relativePath, dagId, description, List.of(), null, null, null);
+  }
+
+  /** A workflow without settings. */
+  public HopWorkflowFile(
+      String relativePath,
+      String dagId,
+      String description,
+      List<ActionTasks.ActionTask> tasks,
+      String singleTaskReason,
+      String version) {
+    this(relativePath, dagId, description, tasks, singleTaskReason, version, null);
+  }
+
+  /** The DAG of these settings: another DAG id, and the parameters and schedule of the object. */
+  public HopWorkflowFile withSettings(String newDagId, HopDagSettings newSettings) {
+    return new HopWorkflowFile(
+        relativePath, newDagId, description, tasks, singleTaskReason, version, newSettings);
   }
 
   /**
@@ -167,6 +187,14 @@ public record HopWorkflowFile(
   static String version(byte[] content) throws NoSuchAlgorithmException {
     byte[] hash = MessageDigest.getInstance("SHA-256").digest(content);
     return HexFormat.of().formatHex(hash).substring(0, HopAirflowBundle.VERSION_LENGTH);
+  }
+
+  /**
+   * The DAG id of an Airflow DAG object with a DAG id of its own: the prefix and that id, with the
+   * characters Airflow does not allow replaced.
+   */
+  public static String objectDagId(String prefix, String id) {
+    return prefix + id.replaceAll("[^A-Za-z0-9_.-]", "_");
   }
 
   /** The prefix and the path without .hwf; folders become two underscores. */

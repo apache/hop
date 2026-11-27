@@ -101,6 +101,21 @@ public final class HopAirflowBundle {
   public static final String DAG_DOC_TASKS = "Tasks: ";
 
   /**
+   * Starts the line of a DAG's documentation that names the version of its {@link
+   * #DAG_METADATA_KEY} object: the first 12 hex digits of the SHA-256 of its .json file. A change
+   * of the settings alone leaves the workflow version as it was: the Airflow run configuration also
+   * waits until Airflow shows the DAG with the settings it published. A DAG without an object has
+   * no such line.
+   */
+  public static final String DAG_DOC_SETTINGS = "Settings: ";
+
+  /**
+   * The key of the Hop metadata type that describes a DAG of a workflow, and the folder of its
+   * objects in the metadata folder of the project.
+   */
+  public static final String DAG_METADATA_KEY = "airflow-dag";
+
+  /**
    * The key of the run conf that holds the version of the workflow the run was started for. The
    * Apache Airflow run configuration sets it; it is not passed on to Hop as a parameter.
    */

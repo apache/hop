@@ -76,6 +76,12 @@ fi
 run_on_airflow check-greeting.hwf 1 "PRM_GREETING=hello, somebody else"
 contains "PRM_GREETING is 'hello, somebody else', not 'hello, airflow'"
 
+# Without a value for the run, the parameter value of the Airflow DAG object applies, not the
+# empty default of the workflow
+run_on_airflow check-greeting.hwf 0
+contains "Runs Airflow DAG check-greeting, DAG id airflowgui__check-greeting"
+contains "check-greeting - Finished action [Check the greeting] (result=[true])"
+
 run_on_airflow fails-on-airflow.hwf 1
 contains "This workflow fails on purpose"
 contains "The run of DAG airflowgui__fails-on-airflow ended: failed"

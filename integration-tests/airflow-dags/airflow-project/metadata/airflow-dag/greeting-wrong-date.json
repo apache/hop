@@ -1,0 +1,10 @@
+{
+  "name": "greeting-wrong-date",
+  "workflow": "greeting.hwf",
+  "dag_id": "greeting_wrong_date",
+  "tasks": "PER_ACTION",
+  "start_date": "soon",
+  "paused_on_creation": "NO",
+  "fail_fast": false,
+  "parameters": []
+}

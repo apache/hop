@@ -87,6 +87,9 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
   private AirflowActionLog actionLog;
   private String publishedVersion;
 
+  /** The Airflow DAG object the run is for, or null for the DAG of the workflow. */
+  private AirflowDagFiles.PublishedDag publishedDag;
+
   /** Makes a Stop and the start of the DAG run see each other: see {@link #stopExecution()}. */
   private final Object stopLock = new Object();
 
@@ -131,13 +134,28 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
       throw new HopException(BaseMessages.getString(PKG, "AirflowWorkflowEngine.Error.NoProject"));
     }
     String relativePath = relativeWorkflowPath(projectHome, workflowMeta.getFilename());
-    dagId = AirflowDagIds.dagId(resolve(config.getDagIdPrefix()), projectName, relativePath);
+    String dagIdPrefix = resolve(config.getDagIdPrefix());
+    dagId = AirflowDagIds.dagId(dagIdPrefix, projectName, relativePath);
     actionLog = new AirflowActionLog(workflowMeta.getName());
 
     String bundleFolder = publish(projectName, projectHome);
     checkNotStopped();
     publishedVersion = workflowVersion(bundleFolder, relativePath);
-    AirflowDag dag = waitForDag(publishedVersion, publishedTasks());
+    publishedDag =
+        chooseDag(AirflowDagFiles.read(bundleFolder), relativePath, resolve(config.getDagName()));
+    if (publishedDag != null) {
+      if (publishedDag.dagId() != null) {
+        dagId = AirflowDagIds.objectDagId(dagIdPrefix, projectName, publishedDag.dagId());
+      }
+      logChannel.logBasic(
+          BaseMessages.getString(
+              PKG, "AirflowWorkflowEngine.Log.AirflowDag", publishedDag.name(), dagId));
+    }
+    AirflowDag dag =
+        waitForDag(
+            publishedVersion,
+            publishedTasks(),
+            publishedDag == null ? null : publishedDag.version());
     checkNotStopped();
     if (dag.paused()) {
       if (!config.isUnpausingDag()) {
@@ -261,8 +279,48 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     }
   }
 
-  /** The code of the tasks the bundle was published with, as the stub has it. */
+  /**
+   * The Airflow DAG object of the workflow that the run is for: the one the run configuration
+   * names, or the only one.
+   *
+   * @return the object, or null when the workflow has none and keeps its own DAG
+   * @throws HopException when the workflow has several and the run configuration names none of them
+   */
+  static AirflowDagFiles.PublishedDag chooseDag(
+      List<AirflowDagFiles.PublishedDag> published, String relativePath, String dagName)
+      throws HopException {
+    List<AirflowDagFiles.PublishedDag> ofWorkflow =
+        published.stream().filter(dag -> relativePath.equals(dag.workflow())).toList();
+    if (ofWorkflow.isEmpty()) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(dagName)) {
+      for (AirflowDagFiles.PublishedDag dag : ofWorkflow) {
+        if (dag.name().equals(dagName)) {
+          return dag;
+        }
+      }
+    }
+    if (ofWorkflow.size() == 1) {
+      return ofWorkflow.get(0);
+    }
+    throw new HopException(
+        BaseMessages.getString(
+            PKG,
+            "AirflowWorkflowEngine.Error.ChooseDag",
+            relativePath,
+            String.join(
+                ", ", ofWorkflow.stream().map(AirflowDagFiles.PublishedDag::name).toList())));
+  }
+
+  /**
+   * The code of the tasks the DAG was published with: those of its Airflow DAG object, else those
+   * of the stub.
+   */
   private String publishedTasks() {
+    if (publishedDag != null && publishedDag.tasks() != null) {
+      return publishedDag.tasks();
+    }
     AirflowDagTasks tasks = airflowRunConfiguration.getTasks();
     return (tasks == null ? AirflowDagTasks.PER_ACTION : tasks).getCode();
   }
@@ -286,6 +344,16 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     return docMd.substring(start, end);
   }
 
+  /**
+   * True when a DAG's documentation names the version of its Airflow DAG object, or names none for
+   * a DAG without one.
+   */
+  static boolean settingsShown(String docMd, String settings) {
+    return settings == null
+        ? !docMd.contains(HopAirflowBundle.DAG_DOC_SETTINGS)
+        : docMd.contains(HopAirflowBundle.DAG_DOC_SETTINGS + settings + " ");
+  }
+
   /** The writer of the bundle. Tests override it, to write without an installed launcher. */
   protected AirflowBundleWriter newBundleWriter() {
     return new AirflowBundleWriter();
@@ -297,10 +365,12 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
    * published.
    *
    * @param version the version of the published workflow
-   * @param tasks the tasks of the published bundle, see {@link HopAirflowBundle#DAG_DOC_TASKS}
+   * @param tasks the tasks of the published DAG, see {@link HopAirflowBundle#DAG_DOC_TASKS}
+   * @param settings the version of its Airflow DAG object, see {@link
+   *     HopAirflowBundle#DAG_DOC_SETTINGS}, or null for a DAG without one
    * @return the DAG
    */
-  private AirflowDag waitForDag(String version, String tasks) throws HopException {
+  private AirflowDag waitForDag(String version, String tasks, String settings) throws HopException {
     long waitMillis =
         Const.toLong(
                 resolve(airflowRunConfiguration.getDagWaitSeconds()),
@@ -314,7 +384,9 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
           dag != null
               && dag.docMd() != null
               && dag.docMd().contains(HopAirflowBundle.DAG_DOC_VERSION + version);
-      if (versionShown && tasks.equals(docTasks(dag.docMd()))) {
+      if (versionShown
+          && tasks.equals(docTasks(dag.docMd()))
+          && settingsShown(dag.docMd(), settings)) {
         return dag;
       }
       if (stopped) {
@@ -324,6 +396,11 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
       String what;
       if (dag == null) {
         what = "NoDag";
+      } else if (versionShown
+          && settings != null
+          && !dag.docMd().contains(HopAirflowBundle.DAG_DOC_TASKS)) {
+        // Older than Tasks, so older than the Airflow DAG objects too
+        what = "SettingsUnknown";
       } else if (versionShown && !dag.docMd().contains(HopAirflowBundle.DAG_DOC_TASKS)) {
         // The Hop on the Airflow side is older and ignores the Tasks of the stub. Keep waiting
         // all the same: the DAG may still be the one that Hop listed before it was upgraded.
@@ -351,12 +428,21 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     }
   }
 
-  /** The workflow parameters become the DAG run conf, which the launcher passes on to Hop. */
-  private Map<String, Object> parameters() {
+  /**
+   * The workflow parameters become the DAG run conf, which the launcher passes on to Hop. A
+   * parameter that the Airflow DAG object gives a value goes in only when the run sets one: else
+   * the default of the workflow would win over the value of the object.
+   */
+  private Map<String, Object> parameters() throws HopException {
     Map<String, Object> conf = new LinkedHashMap<>();
     // Tasks of another version of the workflow fail instead of running it
     conf.put(HopAirflowBundle.CONF_WORKFLOW_VERSION, publishedVersion);
     for (String parameter : listParameters()) {
+      if (publishedDag != null
+          && publishedDag.parameters().contains(parameter)
+          && StringUtils.isEmpty(getParameterValue(parameter))) {
+        continue;
+      }
       String value = getVariable(parameter);
       if (value != null) {
         conf.put(parameter, value);

@@ -1,0 +1,9 @@
+{
+  "name": "greeting-whole",
+  "workflow": "greeting.hwf",
+  "tasks": "WHOLE_WORKFLOW",
+  "catchup": "AIRFLOW_DEFAULT",
+  "paused_on_creation": "NO",
+  "fail_fast": false,
+  "parameters": []
+}

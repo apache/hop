@@ -455,6 +455,154 @@ class AirflowWorkflowEngineTest {
     server.verify(1, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
   }
 
+  /** Writes an Airflow DAG object of flows/hello.hwf, and returns its version. */
+  private String airflowDag(String json) throws Exception {
+    Path folder = Files.createDirectories(project.resolve("metadata/airflow-dag"));
+    Files.writeString(folder.resolve("daily.json"), json);
+    return sha(json);
+  }
+
+  private static String withSettings(String doc, String version) {
+    return doc + "\\n\\nSettings: " + version + " (`metadata/airflow-dag/daily.json`)";
+  }
+
+  /**
+   * The object's parameter value wins over the workflow default: the run conf only has the version,
+   * and the launcher adds the value of the object.
+   */
+  @Test
+  void runsTheDagOfItsAirflowDagObject() throws Exception {
+    String version =
+        airflowDag(
+            "{\"name\":\"daily\",\"workflow\":\"${PROJECT_HOME}/flows/hello.hwf\","
+                + "\"tasks\":\"PER_ACTION\","
+                + "\"parameters\":[{\"name\":\"PRM_DAY\",\"value\":\"today\"}]}");
+    stubNewPausedDag(withSettings(DOC, version));
+    stubTrigger();
+    stubRunStates("success");
+    stubTask("success", "Starting action [Start]", "Finished action [Start] (result=[true])");
+    stubOutcome("{\"success\":true}");
+
+    Result result = engine().startExecution();
+
+    assertTrue(result.isResult());
+    assertTrue(Files.isRegularFile(bundle.resolve("metadata/airflow-dag/daily.json")));
+    server.verify(
+        1,
+        postRequestedFor(urlEqualTo(DAG + "/dagRuns"))
+            .withRequestBody(
+                equalToJson(
+                    "{\"logical_date\":null,\"conf\":{\"hop_workflow_version\":\""
+                        + sha("<workflow/>")
+                        + "\"}}")));
+  }
+
+  /** A value set for the run wins over the value of the object. */
+  @Test
+  void passesOnTheParameterValueOfTheRun() throws Exception {
+    String version =
+        airflowDag(
+            "{\"name\":\"daily\",\"workflow\":\"flows/hello.hwf\",\"tasks\":\"PER_ACTION\","
+                + "\"parameters\":[{\"name\":\"PRM_DAY\",\"value\":\"today\"}]}");
+    stubNewPausedDag(withSettings(DOC, version));
+    stubTrigger();
+    stubRunStates("success");
+    stubTask("success", "Starting action [Start]", "Finished action [Start] (result=[true])");
+    stubOutcome("{\"success\":true}");
+    AirflowWorkflowEngine engine = engine();
+    engine.setParameterValue("PRM_DAY", "2026-11-22");
+
+    engine.startExecution();
+
+    server.verify(
+        1,
+        postRequestedFor(urlEqualTo(DAG + "/dagRuns"))
+            .withRequestBody(
+                equalToJson(
+                    "{\"logical_date\":null,\"conf\":{\"hop_workflow_version\":\""
+                        + sha("<workflow/>")
+                        + "\",\"PRM_DAY\":\"2026-11-22\"}}")));
+  }
+
+  /**
+   * A change of the object alone leaves the workflow version as it was: Airflow still shows the DAG
+   * with the earlier settings until it parses the bundle again.
+   */
+  @Test
+  void waitsForTheDagWithTheSettingsOfItsObject() throws Exception {
+    String version =
+        airflowDag(
+            "{\"name\":\"daily\",\"workflow\":\"flows/hello.hwf\",\"tasks\":\"PER_ACTION\","
+                + "\"schedule\":\"@daily\"}");
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .inScenario("settings")
+            .whenScenarioStateIs(Scenario.STARTED)
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + withSettings(DOC, "0123456789ab")
+                            + "\"}"))
+            .willSetStateTo("parsed"));
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .inScenario("settings")
+            .whenScenarioStateIs("parsed")
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + withSettings(DOC, version)
+                            + "\"}")));
+    stubTrigger();
+    stubRunStates("success");
+    stubTask("success", "Starting action [Start]", "Finished action [Start] (result=[true])");
+    stubOutcome("{\"success\":true}");
+
+    engine().startExecution();
+
+    server.verify(2, getRequestedFor(urlEqualTo(DAG + "/details")));
+    server.verify(1, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  /** A DAG listed before the object was removed still has its settings. */
+  @Test
+  void waitsForTheDagWithoutSettingsOnceTheObjectIsGone() throws Exception {
+    config.setDagWaitSeconds("1");
+    stubNewPausedDag(withSettings(DOC, "0123456789ab"));
+
+    HopException e = assertThrows(HopException.class, () -> engine().submitToRemoteServer());
+
+    assertTrue(e.getMessage().contains("earlier version"), e.getMessage());
+    server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  @Test
+  void namesTheOlderHopOnTheWorkersWhenItIgnoresTheObject() throws Exception {
+    airflowDag("{\"name\":\"daily\",\"workflow\":\"flows/hello.hwf\"}");
+    config.setDagWaitSeconds("1");
+    stubNewPausedDag(DOC.replace("\\n\\nTasks: PER_ACTION", ""));
+
+    HopException e = assertThrows(HopException.class, () -> engine().submitToRemoteServer());
+
+    assertTrue(e.getMessage().contains("ignores Airflow DAG objects"), e.getMessage());
+  }
+
+  @Test
+  void waitsForTheDagIdOfItsObject() throws Exception {
+    airflowDag("{\"name\":\"daily\",\"workflow\":\"flows/hello.hwf\",\"dag_id\":\"hello daily\"}");
+    config.setDagWaitSeconds("0");
+    server.stubFor(
+        get(urlEqualTo("/api/v2/dags/demo__hello_daily/details"))
+            .willReturn(aResponse().withStatus(404).withBody("{\"detail\":\"not found\"}")));
+
+    HopException e = assertThrows(HopException.class, () -> engine().submitToRemoteServer());
+
+    assertTrue(e.getMessage().contains("demo__hello_daily"), e.getMessage());
+    server.verify(1, getRequestedFor(urlEqualTo("/api/v2/dags/demo__hello_daily/details")));
+  }
+
   @Test
   void failsWhenAirflowKeepsTheEarlierVersion() throws Exception {
     server.stubFor(

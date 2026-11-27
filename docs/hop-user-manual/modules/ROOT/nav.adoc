@@ -542,6 +542,7 @@ under the License.
 * xref:metadata-types/index.adoc[Metadata Types]
 ** xref:metadata-types/ai-provider.adoc[AI Provider]
 ** xref:metadata-types/airflow-connection.adoc[Airflow Connection]
+** xref:metadata-types/airflow-dag.adoc[Airflow DAG]
 ** xref:metadata-types/async-web-service.adoc[]
 ** xref:metadata-types/azure-authentication.adoc[Azure Connection]
 ** xref:metadata-types/beam-file-definition.adoc[Beam File Definition]
