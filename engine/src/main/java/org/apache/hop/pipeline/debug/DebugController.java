@@ -596,7 +596,7 @@ public class DebugController {
       if (!visited.add(current.getName())) {
         continue;
       }
-      for (TransformMeta previous : meta.findPreviousTransforms(current, false)) {
+      for (TransformMeta previous : meta.findPreviousTransforms(current, true)) {
         names.add(previous.getName());
         pending.add(previous);
       }
