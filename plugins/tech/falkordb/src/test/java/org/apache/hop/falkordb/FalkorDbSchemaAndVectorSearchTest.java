@@ -164,7 +164,9 @@ class FalkorDbSchemaAndVectorSearchTest {
           }
 
           @Override
-          public void close() {}
+          public void close() {
+            // Not used by this test
+          }
         };
 
     GraphSchema schema = falkordb.getSchema(connection, 50);

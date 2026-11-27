@@ -18,15 +18,12 @@
 package org.apache.hop.vfs.googledrive.ui;
 
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.vfs.googledrive.util.CustomLocalServerReceiver;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -36,9 +33,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -93,9 +88,7 @@ public class GoogleAuthorizationDialog extends Dialog {
     try {
 
       Label helpButton = new Label(dialog, SWT.NONE);
-      helpButton.setImage(
-          new Image(
-              display, GoogleAuthorizationDialog.class.getResourceAsStream("/images/help.png")));
+      helpButton.setImage(GuiResource.getInstance().getImageHelp());
       FormData helpButtonFormData = new FormData();
       helpButtonFormData.left = new FormAttachment(0, 15);
       helpButtonFormData.bottom = new FormAttachment(100, -24);
@@ -114,28 +107,21 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpLabel.setLayoutData(helpLabelFormData);
 
       helpLabel.addListener(SWT.MouseUp, event -> {});
+      helpLabel.setCursor(display.getSystemCursor(SWT.CURSOR_HAND));
 
       helpLabel.addListener(
           SWT.MouseEnter,
-          event -> {
-            helpLabel.setForeground(
-                new Color(display, PropsUi.getInstance().contrastColor(0, 0, 0)));
-            helpLabel.setCursor(new Cursor(display, SWT.CURSOR_HAND));
-          });
+          event ->
+              helpLabel.setForeground(
+                  new Color(display, PropsUi.getInstance().contrastColor(0, 0, 0))));
 
       helpLabel.addListener(
           SWT.MouseExit,
           event -> helpLabel.setForeground(new Color(display, props.contrastColor(0, 94, 170))));
 
       Label cancelButton = new Label(dialog, SWT.NONE);
-      Image closeImage =
-          SwtSvgImageUtil.getImage(
-              display,
-              getClass().getClassLoader(),
-              "/ui/images/close.svg",
-              ConstUi.SMALL_ICON_SIZE,
-              ConstUi.SMALL_ICON_SIZE);
-      cancelButton.setImage(closeImage);
+      cancelButton.setImage(GuiResource.getInstance().getImageClose());
+      cancelButton.setCursor(display.getSystemCursor(SWT.CURSOR_HAND));
       FormData cancelButtonFormData = new FormData();
       cancelButtonFormData.right = new FormAttachment(100, -15);
       cancelButtonFormData.bottom = new FormAttachment(100, -15);
@@ -148,37 +134,6 @@ public class GoogleAuthorizationDialog extends Dialog {
             dialog.close();
             dialog.dispose();
           });
-
-      cancelButton.addListener(
-          SWT.MouseEnter,
-          new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-              Image closeImage =
-                  SwtSvgImageUtil.getImage(
-                      display,
-                      getClass().getClassLoader(),
-                      "/ui/images/close.svg",
-                      ConstUi.SMALL_ICON_SIZE,
-                      ConstUi.SMALL_ICON_SIZE);
-
-              cancelButton.setImage(
-                  new Image(
-                      display,
-                      GoogleAuthorizationDialog.class.getResourceAsStream(
-                          "/images/close-button-hover.png")));
-              cancelButton.setCursor(new Cursor(display, SWT.CURSOR_HAND));
-            }
-          });
-
-      cancelButton.addListener(
-          SWT.MouseExit,
-          event ->
-              cancelButton.setImage(
-                  new Image(
-                      display,
-                      GoogleAuthorizationDialog.class.getResourceAsStream(
-                          "/images/close-button.png"))));
 
       Label separator = new Label(dialog, SWT.HORIZONTAL | SWT.SEPARATOR);
       FormData separatorFormData = new FormData();

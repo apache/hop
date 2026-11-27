@@ -253,6 +253,7 @@ public class GlobalMessageUtil {
    *     and @code bundleName} (the first valid combination of {@code packageName} + @code
    *     bundleName} wins), sing the provided {@code resourceClass}'s class loader
    */
+  @SuppressWarnings("java:S106") // can run before Hop logging is initialized
   public static String calculateString(
       final String[] pkgNames,
       final String key,
@@ -328,6 +329,7 @@ public class GlobalMessageUtil {
   }
 
   @VisibleForTesting
+  @SuppressWarnings("java:S106") // can run before Hop logging is initialized
   static String calculateString(
       final String packageName,
       final Locale locale,
@@ -366,6 +368,7 @@ public class GlobalMessageUtil {
    * @return The resource bundle
    * @throws MissingResourceException in case both resource bundles couldn't be found.
    */
+  @SuppressWarnings("java:S106") // can run before Hop logging is initialized
   public static ResourceBundle getBundle(final String packagePath, final Class<?> resourceClass)
       throws MissingResourceException {
     final Set<Locale> activeLocales = getActiveLocales();

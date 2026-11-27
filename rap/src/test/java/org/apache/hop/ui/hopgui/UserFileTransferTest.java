@@ -644,6 +644,8 @@ class UserFileTransferTest {
     }
 
     @Override
-    public void setWriteListener(WriteListener listener) {}
+    public void setWriteListener(WriteListener listener) {
+      // Not used by this test
+    }
   }
 }

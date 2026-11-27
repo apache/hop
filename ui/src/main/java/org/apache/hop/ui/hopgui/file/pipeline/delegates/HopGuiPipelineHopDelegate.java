@@ -334,11 +334,11 @@ public class HopGuiPipelineHopDelegate {
     if (hd.open() != null) {
       // Backup situation for redo/undo:
       PipelineHopMeta after = (PipelineHopMeta) pipelineHopMeta.clone();
-      /* TODO: Create new Undo/Redo system
-
-           addUndoChange( pipelineMeta, new PipelineHopMeta[] { before }, new PipelineHopMeta[] { after }, new int[] { pipelineMeta
-             .indexOfPipelineHop( pipelineHopMeta ) } );
-      */
+      hopGui.undoDelegate.addUndoChange(
+          pipelineMeta,
+          new Object[] {before},
+          new Object[] {after},
+          new int[] {pipelineMeta.indexOfPipelineHop(pipelineHopMeta)});
 
       String newName = pipelineHopMeta.toString();
       if (!name.equalsIgnoreCase(newName)) {

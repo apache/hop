@@ -1369,13 +1369,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     java.util.List<Point> bestCoordinates = generateRandomPoints(bounds, nrNodes);
     Scoring bestScore = calculateGraphScore(bestCoordinates, bounds, optDistance, nodesizes);
 
-    System.out.println(
-        ">>>>>>>>>>> optDistance="
-            + optDistance
-            + ", nrNodes="
-            + nrNodes
-            + ", startscore="
-            + bestScore);
     for (int iteration = 0; iteration < 10000; iteration++) {
 
       // Change one random point
@@ -1396,8 +1389,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       presentation.setX(point.x);
       presentation.setY(point.y);
     }
-
-    System.out.println("<<<<<<<<<<<<< Best score found : " + bestScore);
 
     wCanvas.redraw();
   }

@@ -80,6 +80,7 @@ import picocli.CommandLine.Parameters;
             + "reaches the --fail-on threshold (ERROR by default) or warnings exceed "
             + "--max-warnings.")
 @HopCommand(id = "lint", description = "Check Hop files against the lint rules")
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetadataProvider {
   private static final String CONST_PROJECT_HOME = "PROJECT_HOME";
 

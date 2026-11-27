@@ -72,6 +72,7 @@ public final class SharedMetadata {
     }
   }
 
+  @SuppressWarnings("java:S106") // stderr until Hop logging is initialized
   private static void log(String message, Exception e) {
     if (HopLogStore.isInitialized()) {
       LogChannel.GENERAL.logError(message, e);

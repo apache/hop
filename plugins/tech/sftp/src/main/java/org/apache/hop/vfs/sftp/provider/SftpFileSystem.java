@@ -157,6 +157,7 @@ public class SftpFileSystem extends AbstractFileSystem {
    * @throws FileSystemException if a session cannot be created.
    * @throws IOException if an I/O error is detected.
    */
+  @SuppressWarnings("java:S106") // the SSH channel's stderr, as in Commons VFS
   private int executeCommand(final String command, final StringBuilder output)
       throws JSchException, IOException {
     final ChannelExec channel = (ChannelExec) openChannel("exec");

@@ -464,5 +464,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
   }
 
   @Override
-  public void dispose() {}
+  public void dispose() {
+    // The editor holds no resources of its own
+  }
 }

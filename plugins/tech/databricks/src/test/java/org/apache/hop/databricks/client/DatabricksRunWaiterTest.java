@@ -60,10 +60,14 @@ class DatabricksRunWaiterTest {
               }
 
               @Override
-              public void logDetailed(String message) {}
+              public void logDetailed(String message) {
+                // Not used by this test
+              }
 
               @Override
-              public void logError(String message) {}
+              public void logError(String message) {
+                // Not used by this test
+              }
             });
 
     assertTrue(status.isSuccess());
@@ -95,13 +99,19 @@ class DatabricksRunWaiterTest {
                   }
 
                   @Override
-                  public void onStatus(DatabricksRunStatus status) {}
+                  public void onStatus(DatabricksRunStatus status) {
+                    // Not used by this test
+                  }
 
                   @Override
-                  public void logDetailed(String message) {}
+                  public void logDetailed(String message) {
+                    // Not used by this test
+                  }
 
                   @Override
-                  public void logError(String message) {}
+                  public void logError(String message) {
+                    // Not used by this test
+                  }
                 }));
   }
 }

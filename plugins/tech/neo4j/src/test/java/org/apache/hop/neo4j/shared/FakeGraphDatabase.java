@@ -96,13 +96,19 @@ public class FakeGraphDatabase extends BaseGraphDatabase {
             }
 
             @Override
-            public void commit() {}
+            public void commit() {
+              // Not used by this test
+            }
 
             @Override
-            public void rollback() {}
+            public void rollback() {
+              // Not used by this test
+            }
 
             @Override
-            public void close() {}
+            public void close() {
+              // Not used by this test
+            }
           });
     }
 
@@ -112,6 +118,8 @@ public class FakeGraphDatabase extends BaseGraphDatabase {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 }

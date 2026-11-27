@@ -77,6 +77,7 @@ public abstract class ConfigFile implements IConfigFile {
     serializer = new ConfigNoFileSerializer();
   }
 
+  @SuppressWarnings("java:S106") // can run before Hop logging is initialized
   public void readFromFile() throws HopException {
     try {
       boolean inMemoryMode = isInMemory();

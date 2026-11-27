@@ -3383,7 +3383,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     boolean isMetadataSelected = false;
     boolean isFolderSelected = false;
     boolean isUnknownSelected = false;
-    boolean canCreateHere = false;
 
     if (tree.getSelectionCount() > 0) {
       TreeItem treeItem = tree.getSelection()[0];
@@ -3392,9 +3391,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       isFolderSelected = FOLDER.equals(nodeType);
       // An element we can't load can only be deleted.
       isUnknownSelected = UNKNOWN_FILE.equals(nodeType);
-      // The context "New" applies to a type, folder or file (all resolve to a type key), but not
-      // to a category header or a plain label.
-      canCreateHere = getObjectKey(treeItem) != null;
     }
 
     boolean canWriteMeta = HopSecurity.allows(Permission.METADATA_WRITE);
@@ -3404,9 +3400,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected && canReadMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected && canWriteMeta);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(
         TOOLBAR_ITEM_DELETE,
         (isMetadataSelected || isFolderSelected || isUnknownSelected) && canWriteMeta);

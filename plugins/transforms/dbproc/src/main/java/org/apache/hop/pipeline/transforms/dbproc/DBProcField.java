@@ -45,7 +45,9 @@ public class DBProcField {
   @HopMetadataProperty(key = "precision")
   private int precision = -1;
 
-  public DBProcField() {}
+  public DBProcField() {
+    // The metadata serializer creates the field before it sets the values
+  }
 
   public IValueMeta toValueMeta(String origin, IVariables variables) throws HopPluginException {
     int hopType = ValueMetaFactory.getIdForValueMeta(type);

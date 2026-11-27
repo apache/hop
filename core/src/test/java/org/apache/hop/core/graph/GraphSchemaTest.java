@@ -73,7 +73,9 @@ class GraphSchemaTest {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 
   private static Map<String, Object> row(Object... keyValues) {

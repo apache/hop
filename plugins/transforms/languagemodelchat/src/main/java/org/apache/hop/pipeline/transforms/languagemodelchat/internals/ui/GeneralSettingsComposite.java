@@ -124,7 +124,9 @@ public class GeneralSettingsComposite implements IDialogComposite {
     inputFieldInput.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Nothing to do when the field loses focus
+          }
 
           @Override
           public void focusGained(FocusEvent e) {

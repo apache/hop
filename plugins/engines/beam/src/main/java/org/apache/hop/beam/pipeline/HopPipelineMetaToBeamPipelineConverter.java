@@ -17,7 +17,6 @@
 
 package org.apache.hop.beam.pipeline;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,7 +60,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -71,9 +69,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.IndexView;
 
 public class HopPipelineMetaToBeamPipelineConverter {
 
@@ -327,44 +322,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
     transformHandlers.put(
         BeamConst.STRING_PARQUET_FILE_OUTPUT_PLUGIN_ID, new BeamParquetOutputTransformHandler());
     genericTransformHandler = new BeamGenericTransformHandler();
-  }
-
-  public static List<String> findAnnotatedClasses(String folder, String annotationClassName)
-      throws HopException {
-    JarCache jarCache = JarCache.getInstance();
-    List<String> classNames = new ArrayList<>();
-
-    // Scan only jar files with @Transform and @ExtensionPointPlugin annotations
-    //
-    File pluginFolder = new File("plugins/" + folder);
-
-    try {
-      // Get all the jar files in the plugin folder...
-      //
-      Set<File> files = jarCache.findJarFiles(pluginFolder);
-      if (!files.isEmpty())
-        for (File file : files) {
-
-          // These are the jar files : find annotations in it...
-          //
-          IndexView index = jarCache.getIndex(file);
-
-          // find annotations annotated with this meta-annotation
-          for (AnnotationInstance instance : index.getAnnotations(annotationClassName)) {
-            if (instance.target() instanceof ClassInfo) {
-              ClassInfo classInfo = instance.target().asClass();
-              classNames.add(classInfo.name().toString());
-            }
-          }
-        }
-      else {
-        System.out.println("No jar files found in plugin folder " + pluginFolder);
-      }
-    } catch (Exception e) {
-      throw new HopException("Unable to find annotated classes of class " + annotationClassName, e);
-    }
-
-    return classNames;
   }
 
   public void setAdditionalPipelineOption() throws Exception {

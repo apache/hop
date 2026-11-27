@@ -55,10 +55,14 @@ public class BeamDebeziumInputDialog extends BaseTransformDialog {
     widgets.setCompositeWidgetsListener(
         new IGuiPluginCompositeWidgetsListener() {
           @Override
-          public void widgetsCreated(GuiCompositeWidgets widgets) {}
+          public void widgetsCreated(GuiCompositeWidgets widgets) {
+            // Nothing to add to the generated widgets
+          }
 
           @Override
-          public void widgetsPopulated(GuiCompositeWidgets widgets) {}
+          public void widgetsPopulated(GuiCompositeWidgets widgets) {
+            // Nothing to adjust once the widgets are filled in
+          }
 
           @Override
           public void widgetModified(GuiCompositeWidgets widgets, Control control, String id) {
@@ -66,7 +70,9 @@ public class BeamDebeziumInputDialog extends BaseTransformDialog {
           }
 
           @Override
-          public void persistContents(GuiCompositeWidgets widgets) {}
+          public void persistContents(GuiCompositeWidgets widgets) {
+            // ok() copies the widget contents into the transform
+          }
         });
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());

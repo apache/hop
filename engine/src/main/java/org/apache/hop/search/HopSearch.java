@@ -66,6 +66,7 @@ import picocli.CommandLine.Parameters;
 @Setter
 @Command(versionProvider = HopVersionProvider.class, description = "Search in Hop metadata")
 @HopCommand(id = "search", description = "Search in Hop metadata")
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand {
   @Option(
       names = {"-h", "--help"},

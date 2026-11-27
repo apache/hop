@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
@@ -49,5 +50,8 @@ class ModPartitionerTest {
     String xml = XmlHandler.aroundTag("p", XmlMetadataUtil.serializeObjectToXml(test));
 
     Node node = XmlHandler.loadXmlString(xml, "p");
+    ModPartitioner copy = XmlMetadataUtil.deSerializeFromXml(node, ModPartitioner.class, null);
+
+    assertEquals("field1", copy.getFieldName());
   }
 }

@@ -119,6 +119,7 @@ public class PGPEncryptStreamMeta
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.GPGLocationOK");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      remarks.add(cr);
     }
     if (!isKeyNameInField()) {
       if (Utils.isEmpty(keyName)) {
@@ -129,6 +130,7 @@ public class PGPEncryptStreamMeta
       } else {
         errorMessage = BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.KeyNameOK");
         cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+        remarks.add(cr);
       }
     }
     if (Utils.isEmpty(resultFieldName)) {

@@ -94,7 +94,9 @@ class OpenLineageAsyncDispatcherTest {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 
   @Test
@@ -229,7 +231,9 @@ class OpenLineageAsyncDispatcherTest {
           }
 
           @Override
-          public void close() {}
+          public void close() {
+            // Not used by this test
+          }
         };
     OpenLineageAsyncDispatcher dispatcher =
         new OpenLineageAsyncDispatcher(
@@ -254,7 +258,9 @@ class OpenLineageAsyncDispatcherTest {
           }
 
           @Override
-          public void close() {}
+          public void close() {
+            // Not used by this test
+          }
         };
     OpenLineageAsyncDispatcher dispatcher =
         new OpenLineageAsyncDispatcher(
@@ -427,7 +433,9 @@ class OpenLineageAsyncDispatcherTest {
           }
 
           @Override
-          public void close() {}
+          public void close() {
+            // Not used by this test
+          }
         };
     OpenLineageAsyncDispatcher dispatcher =
         new OpenLineageAsyncDispatcher(
@@ -457,7 +465,9 @@ class OpenLineageAsyncDispatcherTest {
           }
 
           @Override
-          public void close() {}
+          public void close() {
+            // Not used by this test
+          }
         };
     OpenLineageAsyncDispatcher dispatcher =
         new OpenLineageAsyncDispatcher(
@@ -495,7 +505,9 @@ class OpenLineageAsyncDispatcherTest {
             }
 
             @Override
-            public void close() {}
+            public void close() {
+              // Not used by this test
+            }
           };
       OpenLineageAsyncDispatcher dispatcher =
           new OpenLineageAsyncDispatcher(
@@ -622,7 +634,9 @@ class OpenLineageAsyncDispatcherTest {
           }
 
           @Override
-          public void close() {}
+          public void close() {
+            // Not used by this test
+          }
         };
     OpenLineageSpool spool = spool();
     OpenLineageAsyncDispatcher dispatcher =
@@ -655,6 +669,8 @@ class OpenLineageAsyncDispatcherTest {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 }

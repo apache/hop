@@ -260,7 +260,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
           SerializableMetadataProvider exportedProvider = new SerializableMetadataProvider(json);
           metadataProvider.getProviders().add(exportedProvider);
 
-          System.out.println("===> Metadata provider is now: " + metadataProvider.getDescription());
+          log.logBasic("Metadata provider is now: " + metadataProvider.getDescription());
         }
       }
 

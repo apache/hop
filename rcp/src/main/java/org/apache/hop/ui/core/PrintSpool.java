@@ -175,36 +175,6 @@ public class PrintSpool {
                 (int) printx,
                 (int) printy);
 
-            System.out.println("img dept = " + img.getImageData().depth);
-            System.out.println("prn dept = " + printer.getDepth());
-            System.out.println(
-                "img size = ("
-                    + img.getBounds().x
-                    + ","
-                    + img.getBounds().y
-                    + ") : ("
-                    + img.getBounds().width
-                    + ","
-                    + img.getBounds().height
-                    + ")");
-            System.out.println(
-                "fromx="
-                    + fromx
-                    + ", fromy="
-                    + fromy
-                    + ", imx="
-                    + imx
-                    + ", imy="
-                    + imy
-                    + ", pageLeft="
-                    + (int) pageLeft
-                    + ", page_top="
-                    + (int) pageTop
-                    + ", printx="
-                    + (int) printx
-                    + ", printy="
-                    + (int) printy);
-
             printer.endPage();
             gcPrinter.dispose();
           }

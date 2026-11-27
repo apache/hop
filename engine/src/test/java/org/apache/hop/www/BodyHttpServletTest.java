@@ -93,7 +93,9 @@ class BodyHttpServletTest {
           }
 
           @Override
-          public void setWriteListener(WriteListener writeListener) {}
+          public void setWriteListener(WriteListener writeListener) {
+            // Not used by this test
+          }
 
           @Override
           public void write(int b) throws IOException {
@@ -129,7 +131,9 @@ class BodyHttpServletTest {
           }
 
           @Override
-          public void setWriteListener(WriteListener writeListener) {}
+          public void setWriteListener(WriteListener writeListener) {
+            // Not used by this test
+          }
 
           @Override
           public void write(int b) throws IOException {

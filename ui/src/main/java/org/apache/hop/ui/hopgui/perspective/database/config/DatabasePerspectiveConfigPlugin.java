@@ -114,7 +114,9 @@ public class DatabasePerspectiveConfigPlugin
     return instance;
   }
 
-  public DatabasePerspectiveConfigPlugin() {}
+  public DatabasePerspectiveConfigPlugin() {
+    // The config plugin registry creates the plugin through this constructor
+  }
 
   @Override
   public boolean handleOption(

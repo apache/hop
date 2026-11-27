@@ -144,14 +144,18 @@ class LocalPipelineEngineExecutionIdTest {
     }
 
     @Override
-    protected void deleteCacheEntry(CacheEntry cacheEntry) {}
+    protected void deleteCacheEntry(CacheEntry cacheEntry) {
+      // Not used by this test
+    }
 
     @Override
     protected void retrieveIds(
         boolean includeChildren,
         java.util.Set<DatedId> ids,
         int limit,
-        IExecutionSelector selector) {}
+        IExecutionSelector selector) {
+      // Not used by this test
+    }
 
     @Override
     public String getPluginId() {
@@ -159,7 +163,9 @@ class LocalPipelineEngineExecutionIdTest {
     }
 
     @Override
-    public void setPluginId(String pluginId) {}
+    public void setPluginId(String pluginId) {
+      // Not used by this test
+    }
 
     @Override
     public String getPluginName() {
@@ -167,6 +173,8 @@ class LocalPipelineEngineExecutionIdTest {
     }
 
     @Override
-    public void setPluginName(String pluginName) {}
+    public void setPluginName(String pluginName) {
+      // Not used by this test
+    }
   }
 }

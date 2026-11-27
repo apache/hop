@@ -171,6 +171,8 @@ class ExecutionPerspectiveActiveViewerTest extends SwtBotTestBase {
     }
 
     @Override
-    public void refresh() {}
+    public void refresh() {
+      // Not used by this test
+    }
   }
 }

@@ -21,7 +21,7 @@ package org.apache.hop.ui.core.widget.svg;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
-import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.xml.XmlHandler;
@@ -96,9 +96,9 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
       label.setData(DATA_KEY_ENABLED, Boolean.TRUE);
       label.setData(DATA_KEY_SHADED, Boolean.FALSE);
     } catch (Exception e) {
-      System.err.println(
-          "Error setting internal data on tool-item " + id + " label for filename: " + imageFile);
-      System.err.println(Const.getSimpleStackTrace(e));
+      LogChannel.UI.logError(
+          "Error setting internal data on tool-item " + id + " label for filename: " + imageFile,
+          e);
     }
   }
 
@@ -174,13 +174,8 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
       String escaped = src.replace("\\", "\\\\").replace("'", "\\'");
       exec(CONST_VAR_EL_DOCUMENT_GET_ELEMENT_BY_ID, id, "'); if (el) { el.src='", escaped, "'; }");
     } catch (Exception e) {
-      System.err.println(
-          "Error updating image source for tool-item "
-              + id
-              + " for filename: "
-              + imagePath
-              + " - "
-              + Const.getSimpleStackTrace(e));
+      LogChannel.UI.logError(
+          "Error updating image source for tool-item " + id + " for filename: " + imagePath, e);
     }
   }
 

@@ -46,7 +46,9 @@ public class DbImpactInputMeta extends BaseTransformMeta<DbImpactInput, DbImpact
       injectionKeyDescription = "DbImpactInputMeta.FileNameField.Label")
   private String fileNameField;
 
-  public DbImpactInputMeta() {}
+  public DbImpactInputMeta() {
+    // The plugin registry creates the transform metadata through this constructor
+  }
 
   @Override
   public void getFields(

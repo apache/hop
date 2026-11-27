@@ -53,7 +53,9 @@ public class DummyDialog extends BaseTransformDialog {
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
-  public void getData() {}
+  public void getData() {
+    // This transform has no settings besides its name
+  }
 
   private void cancel() {
     transformName = null;

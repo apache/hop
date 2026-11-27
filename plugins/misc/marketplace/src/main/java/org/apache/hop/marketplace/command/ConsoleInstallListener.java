@@ -84,6 +84,7 @@ public class ConsoleInstallListener implements IInstallListener {
    * <p>{@code System.console()} returns null when output is redirected to a file or pipe — the same
    * check {@code ConsoleLoggingEventListener} uses to decide on colour.
    */
+  @SuppressWarnings("java:S106") // command line tool: the console is its user interface
   public static ConsoleInstallListener forStdOut() {
     return new ConsoleInstallListener(
         System.out, System.console() != null, glyphsFor(System.out), System::currentTimeMillis);

@@ -28,6 +28,8 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 
 public class BeamConst {
 
@@ -255,7 +257,7 @@ public class BeamConst {
           }
         }
       } else {
-        System.out.println("Warning: couldn't find plugins folder: " + pluginsFolder);
+        warn("Warning: couldn't find plugins folder: " + pluginsFolder);
       }
     }
 
@@ -278,10 +280,22 @@ public class BeamConst {
           }
         }
       } else {
-        System.out.println("Warning: couldn't find hop lib folder: " + libFolder);
+        warn("Warning: couldn't find hop lib folder: " + libFolder);
       }
     }
 
     return libraries;
+  }
+
+  /**
+   * Logs to the Hop log, or to stderr when the libraries are looked up before Hop logging is up.
+   */
+  @SuppressWarnings("java:S106")
+  private static void warn(String message) {
+    if (HopLogStore.isInitialized()) {
+      LogChannel.GENERAL.logBasic(message);
+    } else {
+      System.err.println(message);
+    }
   }
 }

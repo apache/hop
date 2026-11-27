@@ -37,7 +37,9 @@ public class HopVfsFileIO implements FileIO {
 
   private Map<String, String> properties = Map.of();
 
-  public HopVfsFileIO() {}
+  public HopVfsFileIO() {
+    // Iceberg creates a FileIO by class name; initialize() passes the properties
+  }
 
   @Override
   public void initialize(Map<String, String> properties) {

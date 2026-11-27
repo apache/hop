@@ -38,6 +38,7 @@ import org.apache.airflow.sdk.TaskRef;
  * with one task that runs the whole workflow when its hops don't fit Airflow (see {@link
  * ActionTasks}) or when the bundle asks for it ({@link HopAirflowBundle#ATTRIBUTE_TASKS}).
  */
+@SuppressWarnings("java:S106") // no Hop logging here: Airflow keeps stdout as the task log
 public final class HopBundleMain {
 
   /** The name of the one task of a workflow DAG. */

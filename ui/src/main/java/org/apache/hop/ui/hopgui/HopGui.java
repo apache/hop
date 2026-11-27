@@ -407,7 +407,10 @@ public class HopGui
     refreshBottomToolbarItems();
   }
 
+  @SuppressWarnings("java:S106") // keeps the real stdout before the tee
   private static final PrintStream originalSystemOut = System.out;
+
+  @SuppressWarnings("java:S106") // keeps the real stderr before the tee
   private static final PrintStream originalSystemErr = System.err;
 
   public MetadataManager<DatabaseMeta> databaseMetaManager;
@@ -915,11 +918,7 @@ public class HopGui
         }
         retry = false;
       } catch (Throwable throwable) {
-        System.err.println(
-            "Error in the Hop GUI : "
-                + throwable.getMessage()
-                + Const.CR
-                + Const.getClassicStackTrace(throwable));
+        log.logError("Error in the Hop GUI", throwable);
       }
     }
     display.dispose();
@@ -1344,7 +1343,8 @@ public class HopGui
     return display;
   }
 
-  @SuppressWarnings("java:S2095") // the stream backs System.out/err for the lifetime of the process
+  // the stream backs System.out/err for the lifetime of the process
+  @SuppressWarnings({"java:S106", "java:S2095"})
   private static void setupConsoleLogging() {
     boolean doConsoleRedirect = !Boolean.getBoolean("HopUi.Console.Redirect.Disabled");
     if (doConsoleRedirect) {

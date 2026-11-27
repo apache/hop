@@ -58,6 +58,7 @@ import org.jboss.jandex.IndexReader;
  * build writes into every module and the message bundles next to the classes, and instantiates only
  * the plain configuration objects, never Hop itself.
  */
+@SuppressWarnings("java:S106") // build tool: reports to the build output
 public class ConfigDocGenerator {
   private static final String CONST_DESCRIPTION = "description";
 

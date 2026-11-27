@@ -127,7 +127,9 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public void close() throws HopException {}
+  public void close() throws HopException {
+    // Nothing to close: every call builds its own HTTP client
+  }
 
   @Override
   public void clearCaches() {
@@ -135,7 +137,9 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public void unBuffer(String executionId) throws HopException {}
+  public void unBuffer(String executionId) throws HopException {
+    // Nothing is buffered locally
+  }
 
   private String getJson(Object object) throws JsonProcessingException {
     return HopJson.newMapper().writeValueAsString(object);

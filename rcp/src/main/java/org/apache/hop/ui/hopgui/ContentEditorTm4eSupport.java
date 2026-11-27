@@ -260,6 +260,7 @@ final class ContentEditorTm4eSupport {
     return style;
   }
 
+  @SuppressWarnings("java:S106") // opt-in developer trace, -Dhop.contenteditor.trace.scopes
   private RGB scopeToRgb(String scope) {
     if (scope.isEmpty()) {
       return isDark() ? D_DEFAULT : L_DEFAULT;
@@ -465,6 +466,7 @@ final class ContentEditorTm4eSupport {
   private static final int MAX_LINE_LENGTH = 100_000;
 
   /** The scoped ranges the grammar produces, line by line, clipped to the requested range. */
+  @SuppressWarnings("java:S106") // opt-in developer trace, -Dhop.contenteditor.trace.scopes
   private static List<ScopedRange> tokenizeLines(
       IGrammar grammar, String text, int rangeOffset, int rangeEnd) {
     List<ScopedRange> result = new java.util.ArrayList<>();

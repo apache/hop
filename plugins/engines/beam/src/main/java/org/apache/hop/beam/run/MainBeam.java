@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
+@SuppressWarnings("java:S106") // cluster entry point: progress goes to the driver log
 public class MainBeam {
 
   // Safe: the stack trace goes to the local stderr only, never to a remote client

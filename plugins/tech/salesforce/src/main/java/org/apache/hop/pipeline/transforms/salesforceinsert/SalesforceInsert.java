@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -90,22 +91,7 @@ public class SalesforceInsert
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Build the mapping of input position to field name
-      data.fieldnrs = new int[data.nrFields];
-      for (int i = 0; i < meta.getFields().size(); i++) {
-        String streamFieldName = meta.getFields().get(i).getUpdateStream();
-        if (StringUtils.isEmpty(streamFieldName)) {
-          streamFieldName = meta.getFields().get(i).getUpdateLookup();
-        }
-        data.fieldnrs[i] =
-            getInputRowMeta().indexOfValue(meta.getFields().get(i).getUpdateStream());
-        if (data.fieldnrs[i] < 0) {
-          throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  "SalesforceInsert.CanNotFindField",
-                  meta.getFields().get(i).getUpdateStream()));
-        }
-      }
+      data.fieldnrs = findStreamFieldIndexes(getInputRowMeta());
     }
 
     try {
@@ -116,6 +102,28 @@ public class SalesforceInsert
           BaseMessages.getString(PKG, "SalesforceInsert.log.Exception", e));
     }
     return true;
+  }
+
+  /**
+   * The input row position of every field. A field without a stream field name takes the value of
+   * the input field named like its Salesforce field.
+   */
+  @VisibleForTesting
+  int[] findStreamFieldIndexes(IRowMeta inputRowMeta) throws HopException {
+    int[] indexes = new int[meta.getFields().size()];
+    for (int i = 0; i < indexes.length; i++) {
+      SalesforceInsertField field = meta.getFields().get(i);
+      String streamFieldName = field.getUpdateStream();
+      if (StringUtils.isEmpty(streamFieldName)) {
+        streamFieldName = field.getUpdateLookup();
+      }
+      indexes[i] = inputRowMeta.indexOfValue(streamFieldName);
+      if (indexes[i] < 0) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceInsert.CanNotFindField", streamFieldName));
+      }
+    }
+    return indexes;
   }
 
   @VisibleForTesting

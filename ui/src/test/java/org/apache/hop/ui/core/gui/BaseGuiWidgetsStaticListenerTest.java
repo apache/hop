@@ -91,16 +91,22 @@ class BaseGuiWidgetsStaticListenerTest {
 
   /** Toolbar methods live on the base widget. A subclass still has to find them. */
   public static class SelectionLine {
-    public void edit() {}
+    public void edit() {
+      // Only needs to exist for this test
+    }
 
-    public void edit(String event) {}
+    public void edit(String event) {
+      // Only needs to exist for this test
+    }
   }
 
   public static class ConnectionSelectionLine extends SelectionLine {}
 
   public static class OverridingSelectionLine extends SelectionLine {
     @Override
-    public void edit() {}
+    public void edit() {
+      // Not used by this test
+    }
   }
 
   @Test

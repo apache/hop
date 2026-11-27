@@ -113,7 +113,9 @@ class GuiActionLambdaBuilderTest {
       return null;
     }
 
-    public void mark(Marker marker) {}
+    public void mark(Marker marker) {
+      // Only needs to exist for this test
+    }
   }
 
   public static final class Plugin {

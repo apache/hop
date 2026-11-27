@@ -75,6 +75,7 @@ import org.apache.hop.spark.util.SparkConst;
  *   --HopRunConfigurationName=spark-cluster
  * </pre>
  */
+@SuppressWarnings("java:S106") // cluster entry point: progress goes to the driver log
 public class MainSpark {
 
   public static void main(String[] args) {

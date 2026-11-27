@@ -80,6 +80,7 @@ import picocli.CommandLine.Parameters;
       MarketplaceCommand.RepoCommand.class
     })
 @HopCommand(id = "marketplace", description = "Hop plugin marketplace")
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
   private static final String CONST_ERROR = "ERROR: ";
 

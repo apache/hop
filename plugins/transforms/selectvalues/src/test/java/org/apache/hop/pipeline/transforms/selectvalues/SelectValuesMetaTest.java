@@ -21,6 +21,7 @@ import static org.apache.hop.pipeline.transforms.selectvalues.SelectValueMetaTes
 import static org.apache.hop.pipeline.transforms.selectvalues.SelectValueMetaTestFactory.getSelectFieldsWithRename;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.util.List;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -206,5 +207,8 @@ class SelectValuesMetaTest {
             "/select-values-transform.xml", SelectValuesMeta.class);
 
     SelectValuesMeta clone = (SelectValuesMeta) meta.clone();
+
+    assertNotSame(meta, clone);
+    assertEquals(meta.getXml(), clone.getXml());
   }
 }

@@ -103,7 +103,9 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty
   private boolean removeMarkdown = false;
 
-  public ActionDoc() {}
+  public ActionDoc() {
+    // The plugin registry creates the action through this constructor
+  }
 
   /**
    * Execute this action and return the result. In this case it means, just set the result boolean

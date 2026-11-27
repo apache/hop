@@ -1808,6 +1808,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   }
 
   // Prints Line to the actual System.out
+  @SuppressWarnings("java:S106")
   public static void println(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     print(actualContext, actualObject, argList, functionContext);

@@ -52,12 +52,16 @@ class HopServerPluginPermissionsTest {
     IHopServerPlugin plugin =
         new IHopServerPlugin() {
           @Override
-          public void setup(PipelineMap pipelineMap, WorkflowMap workflowMap) {}
+          public void setup(PipelineMap pipelineMap, WorkflowMap workflowMap) {
+            // Not used by this test
+          }
 
           @Override
           public void doGet(
               jakarta.servlet.http.HttpServletRequest request,
-              jakarta.servlet.http.HttpServletResponse response) {}
+              jakarta.servlet.http.HttpServletResponse response) {
+            // Not used by this test
+          }
 
           @Override
           public String getContextPath() {
@@ -65,7 +69,9 @@ class HopServerPluginPermissionsTest {
           }
 
           @Override
-          public void setJettyMode(boolean jettyMode) {}
+          public void setJettyMode(boolean jettyMode) {
+            // Not used by this test
+          }
 
           @Override
           public boolean isJettyMode() {

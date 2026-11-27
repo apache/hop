@@ -185,7 +185,7 @@ public class Encr {
    * @param args the password to encrypt
    */
   // Safe: the stack trace goes to the local stderr only, never to a remote client
-  @SuppressWarnings("java:S4507")
+  @SuppressWarnings({"java:S106", "java:S4507"})
   public static void main(String[] args) throws HopException {
     HopClientEnvironment.init();
     if (args.length != 2) {
@@ -225,6 +225,7 @@ public class Encr {
     }
   }
 
+  @SuppressWarnings("java:S106") // command line usage
   private static void printOptions() {
     System.err.println("encr usage:\n");
     System.err.println("  encr <-hop|-server> <password>");
