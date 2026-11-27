@@ -27,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,9 +47,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.JarCache;
+import org.apache.hop.core.plugins.PluginAnnotationType;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.jboss.jandex.ClassSummary;
+import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexWriter;
 import org.jboss.jandex.Indexer;
 
@@ -92,6 +99,12 @@ public class FatJarBuilder {
   @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient Set<String> fileSet;
 
+  /**
+   * The plugin types whose annotations put a class in the index, when they are outside {@code
+   * org.apache.hop}. Empty: the plugin types registered in this JVM.
+   */
+  private List<Class<? extends IPluginType>> pluginTypes = new ArrayList<>();
+
   public FatJarBuilder() {
     jarFiles = new ArrayList<>();
     extraTransformPluginClasses = null;
@@ -118,6 +131,12 @@ public class FatJarBuilder {
     String realTargetJarFile = variables.resolve(targetJarFile);
 
     Indexer indexer = new Indexer();
+    IndexFilter indexFilter =
+        new IndexFilter(
+            pluginAnnotations(
+                pluginTypes.isEmpty()
+                    ? PluginRegistry.getInstance().getPluginTypes()
+                    : pluginTypes));
     boolean canceled = false;
     if (progressMonitor != null) {
       progressMonitor.beginTask(
@@ -285,7 +304,10 @@ public class FatJarBuilder {
                   }
 
                   if (index) {
-                    indexer.index(new ByteArrayInputStream(baos.toByteArray()));
+                    byte[] classBytes = baos.toByteArray();
+                    if (indexFilter.isIndexed(classBytes)) {
+                      indexer.index(new ByteArrayInputStream(classBytes));
+                    }
                   }
                 }
 
@@ -321,6 +343,92 @@ public class FatJarBuilder {
       new File(realTargetJarFile).delete();
       throw new HopException(CANCELED_MESSAGE);
     }
+  }
+
+  private static final String HOP_PACKAGE = "org.apache.hop.";
+
+  /** The descriptor prefix every type of an org.apache.hop package has in a class file. */
+  private static final byte[] HOP_TYPE_DESCRIPTOR =
+      "Lorg/apache/hop/".getBytes(StandardCharsets.US_ASCII);
+
+  /**
+   * The annotations of the given plugin types that are outside {@code org.apache.hop}: those of
+   * plugin types that external plugins define.
+   */
+  static Set<String> pluginAnnotations(Collection<Class<? extends IPluginType>> pluginTypes) {
+    Set<String> annotations = new HashSet<>();
+    for (Class<? extends IPluginType> pluginType : pluginTypes) {
+      PluginAnnotationType annotationType = pluginType.getAnnotation(PluginAnnotationType.class);
+      if (annotationType != null && !annotationType.value().getName().startsWith(HOP_PACKAGE)) {
+        annotations.add(annotationType.value().getName());
+      }
+    }
+    return annotations;
+  }
+
+  /**
+   * Which classes go into the fat jar's annotation index: a class with an annotation from an {@code
+   * org.apache.hop} package or of a registered plugin type, on the class or on one of its fields or
+   * methods. That is all the plugin registry and the variable registry look for. A class's own
+   * package doesn't matter. Every other class of the jar (nearly all of them) would only make the
+   * index bigger: a worker JVM reads the whole index at start-up and keeps it in memory.
+   *
+   * <p>A class without one of those type descriptors in its bytes is skipped without parsing it.
+   */
+  static final class IndexFilter {
+    private final Set<String> pluginAnnotations;
+    private final List<byte[]> pluginAnnotationDescriptors = new ArrayList<>();
+
+    /**
+     * @param pluginAnnotations the class names of plugin type annotations outside {@code
+     *     org.apache.hop}
+     */
+    IndexFilter(Set<String> pluginAnnotations) {
+      this.pluginAnnotations = pluginAnnotations;
+      for (String annotation : pluginAnnotations) {
+        pluginAnnotationDescriptors.add(
+            ("L" + annotation.replace('.', '/') + ";").getBytes(StandardCharsets.UTF_8));
+      }
+    }
+
+    /**
+     * @param classBytes the class file
+     * @return true when the class goes into the index
+     */
+    boolean isIndexed(byte[] classBytes) throws IOException {
+      if (!mayCarryAnnotation(classBytes)) {
+        return false;
+      }
+      ClassSummary summary = new Indexer().indexWithSummary(new ByteArrayInputStream(classBytes));
+      for (DotName annotation : summary.annotations()) {
+        String name = annotation.toString();
+        if (name.startsWith(HOP_PACKAGE) || pluginAnnotations.contains(name)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private boolean mayCarryAnnotation(byte[] classBytes) {
+      if (contains(classBytes, HOP_TYPE_DESCRIPTOR)) {
+        return true;
+      }
+      for (byte[] descriptor : pluginAnnotationDescriptors) {
+        if (contains(classBytes, descriptor)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  private static boolean contains(byte[] bytes, byte[] part) {
+    for (int i = 0; i <= bytes.length - part.length; i++) {
+      if (bytes[i] == part[0] && Arrays.equals(bytes, i, i + part.length, part, 0, part.length)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void addIndexAndMetaInf(JarOutputStream zipOutputStream, Indexer indexer)
