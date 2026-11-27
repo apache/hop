@@ -32,6 +32,7 @@ import static org.apache.hop.marketplace.install.PluginInstallerTest.versionServ
 import static org.apache.hop.marketplace.install.PluginInstallerTest.zip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -197,6 +198,9 @@ class PluginRollbackTest {
     Map<String, String> broken = new LinkedHashMap<>();
     broken.put("plugins/tech/test/plugin.jar", "plugin-2");
     broken.put("plugins/tech/test/lib/dep-2.0.jar", "dep-2.0");
+    // Replaces the shared jar version 1 created, and creates one.
+    broken.put("lib/core/shared-1.0.jar", "shared-1.0, changed");
+    broken.put("lib/core/created-2.0.jar", "created-2.0");
     broken.put("plugins/tech/test/conf/settings.xml", "<settings/>");
     HttpServer server =
         versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", zip(broken)));
@@ -223,6 +227,22 @@ class PluginRollbackTest {
       assertFalse(
           Files.exists(PluginInstaller.rollbackDir(hopHome, TEST_PLUGIN, "2.0.0")),
           "version 1 is installed again, so its backup for the failed install is gone");
+
+      // The shared jars: version 1's is back, and the receipt records what happened to both.
+      assertEquals("shared-1.0", Files.readString(hopHome.resolve("lib/core/shared-1.0.jar")));
+      InstallReceipt.SharedFile restored = receipt.getSharedFiles().get("lib/core/shared-1.0.jar");
+      assertNotNull(restored, receipt.getSharedFiles().toString());
+      assertTrue(restored.isCreatedByMarketplace());
+      assertEquals(InstallReceipt.SharedFileAction.REPLACED, restored.getAction());
+      assertEquals(
+          "shared-1.0, changed",
+          Files.readString(hopHome.resolve(restored.getBackup())),
+          "the failed version's copy is backed up where the receipt says");
+      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/created-2.0.jar")));
+      InstallReceipt.SharedFile created = receipt.getSharedFiles().get("lib/core/created-2.0.jar");
+      assertNotNull(created, receipt.getSharedFiles().toString());
+      assertTrue(created.isCreatedByMarketplace(), "the marketplace created it, not the client");
+      assertEquals(InstallReceipt.SharedFileAction.NOT_SHIPPED, created.getAction());
     } finally {
       server.stop(0);
     }
@@ -332,6 +352,71 @@ class PluginRollbackTest {
     }
   }
 
+  /**
+   * Windows: an update whose jars were in use waits for the next start, and a rollback before that
+   * start backs up the version it replaces from the queued files, not from the jars on disk, which
+   * still belong to the version before.
+   */
+  @Test
+  void windowsRollbackBeforeTheRestartKeepsTheQueuedVersion() throws Exception {
+    assumeLauncherScript();
+    Path hopHome = hopHome("hop-windows-rollback-before-restart");
+    assumePosix(hopHome);
+    Path plugin = hopHome.resolve("plugins/tech/test");
+    Path lib = plugin.resolve("lib");
+    HttpServer server =
+        versionServer(
+            TEST_PLUGIN,
+            Map.of(
+                "1.0.0",
+                zip(
+                    Map.of(
+                        "plugins/tech/test/plugin.jar",
+                        "plugin-1",
+                        "plugins/tech/test/lib/dep.jar",
+                        "dep-1")),
+                "2.0.0",
+                zip(
+                    Map.of(
+                        "plugins/tech/test/plugin.jar",
+                        "plugin-2",
+                        "plugins/tech/test/lib/dep.jar",
+                        "dep-2"))));
+    server.start();
+    PluginInstaller installer = installer(hopHome, server);
+    installer.setFilesLockedWhileInUse(true);
+    try {
+      installer.install(version("1.0.0"), true);
+      // Hop runs version 1: its jars are in use while it updates to 2.
+      lock(plugin, lib);
+      assumeFalse(Files.isWritable(plugin), "running as a user that ignores permissions");
+      installer.install(version("2.0.0"), true);
+      assertEquals("plugin-1", Files.readString(plugin.resolve("plugin.jar")));
+      assertEquals(2, new PendingChanges(hopHome).read().size());
+    } finally {
+      server.stop(0);
+    }
+    try {
+      // Rolled back before Hop restarted: version 1 is what is on disk, nothing is left to do.
+      InstallReceipt rolledBack = installer.rollback(TEST_PLUGIN, IInstallListener.NONE);
+      assertEquals("1.0.0", rolledBack.getVersion());
+      assertTrue(new PendingChanges(hopHome).read().isEmpty());
+
+      unlock(plugin, lib);
+      startHop(hopHome);
+      assertEquals("plugin-1", Files.readString(plugin.resolve("plugin.jar")));
+      assertEquals("dep-1", Files.readString(lib.resolve("dep.jar")));
+
+      // Rolling back again returns to version 2, with version 2's jars.
+      InstallReceipt again = installer.rollback(TEST_PLUGIN, IInstallListener.NONE);
+      assertEquals("2.0.0", again.getVersion());
+      assertEquals("plugin-2", Files.readString(plugin.resolve("plugin.jar")));
+      assertEquals("dep-2", Files.readString(lib.resolve("dep.jar")));
+    } finally {
+      unlock(plugin, lib);
+    }
+  }
+
   @Test
   void updateListAndRollbackCommands() throws Exception {
     Path hopHome = hopHome("hop-update-commands");
@@ -357,6 +442,13 @@ class PluginRollbackTest {
     String userDir = System.getProperty("user.dir");
     try {
       installer(hopHome, server).install(version("1.0.0"), true);
+      // Installed from a repository that cannot be browsed: discovery does not find it.
+      InstallReceipt hidden = new InstallReceipt();
+      hidden.setGroupId("com.example");
+      hidden.setArtifactId("hop-hidden");
+      hidden.setVersion("1.0.0");
+      hidden.setRepositoryId("corp");
+      PluginInstaller.writeReceipt(hopHome, hidden);
       System.setProperty("user.dir", hopHome.toAbsolutePath().toString());
       withMarketplaceRepository(
           localUrl(server.getAddress().getPort()),
@@ -365,15 +457,30 @@ class PluginRollbackTest {
             String outdated = run(new MarketplaceCommand.ListCommand(), "--outdated");
             assertTrue(outdated.contains(TEST_PLUGIN), outdated);
             assertTrue(outdated.matches("(?s).*1\\.0\\.0\\s*\\|?\\s*2\\.0\\.0.*"), outdated);
+            assertTrue(
+                outdated.contains("hop-hidden (1.0.0) was not found in any browsable repository"),
+                outdated);
 
-            run(new MarketplaceCommand.UpdateCommand(), TEST_PLUGIN);
+            // One named plugin is not installed: the other is updated, and the hint still shows.
+            String updated =
+                runFailing(
+                    new MarketplaceCommand.UpdateCommand(), "hop-not-installed", TEST_PLUGIN);
+            assertTrue(updated.contains("Restart Hop to load the new versions."), updated);
             assertEquals("2.0.0", PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getVersion());
             assertEquals("plugin-2", Files.readString(plugin.resolve("plugin.jar")));
 
             String upToDate = run(new MarketplaceCommand.UpdateCommand(), "--all");
             assertTrue(upToDate.contains(TEST_PLUGIN + " is up to date (2.0.0)"), upToDate);
+            assertTrue(upToDate.contains("hop-hidden (1.0.0) was not found"), upToDate);
+            assertFalse(upToDate.contains("hop-hidden is up to date"), upToDate);
             String none = run(new MarketplaceCommand.ListCommand(), "--outdated");
-            assertTrue(none.contains("up to date"), none);
+            assertTrue(
+                none.contains(
+                    "No newer versions found for the other marketplace-installed plugins"),
+                none);
+            Files.delete(hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-hidden.json"));
+            none = run(new MarketplaceCommand.ListCommand(), "--outdated");
+            assertTrue(none.contains("All marketplace-installed plugins are up to date."), none);
 
             String rolledBack = run(new MarketplaceCommand.RollbackCommand(), TEST_PLUGIN);
             assertTrue(rolledBack.contains("from 2.0.0 to 1.0.0"), rolledBack);
@@ -405,6 +512,20 @@ class PluginRollbackTest {
     try {
       System.setOut(new PrintStream(captured, true, StandardCharsets.UTF_8));
       command.run();
+    } finally {
+      System.setOut(out);
+    }
+    return captured.toString(StandardCharsets.UTF_8);
+  }
+
+  /** Run a command that fails, and return what it printed before it did. */
+  private static String runFailing(Runnable command, String... args) {
+    new CommandLine(command).parseArgs(args);
+    PrintStream out = System.out;
+    ByteArrayOutputStream captured = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(captured, true, StandardCharsets.UTF_8));
+      assertThrows(CommandLine.ExecutionException.class, command::run);
     } finally {
       System.setOut(out);
     }

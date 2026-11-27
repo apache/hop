@@ -62,7 +62,12 @@ exit /b 0
 REM A HOP_PLUGIN_BASE_FOLDERS entry: the parent of a folder named plugins, or the folder itself.
 :folder_home
 for /f "tokens=*" %%f in ("%_hp_folder%") do set "_hp_folder=%%f"
+REM D:\x\plugins\ names the plugins folder too, as it does for Hop: drop the trailing slash so
+REM the name of the last folder is plugins, not empty.
+:folder_home_trim
 if not defined _hp_folder exit /b 0
+if "%_hp_folder:~-1%"=="\" (set "_hp_folder=%_hp_folder:~0,-1%" & goto :folder_home_trim)
+if "%_hp_folder:~-1%"=="/" (set "_hp_folder=%_hp_folder:~0,-1%" & goto :folder_home_trim)
 for %%f in ("%_hp_folder%") do (
   if /i "%%~nxf"=="plugins" (
     call :apply_home "%%~dpf."

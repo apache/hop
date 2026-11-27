@@ -100,6 +100,21 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     wireSubcommands(cmd, log, variables);
   }
 
+  /**
+   * For a plugin discovery did not find: it is not known to be up to date. Repositories with
+   * browse=false are not searched, and one that does not answer finds nothing.
+   */
+  static String notFoundMessage(InstallReceipt receipt) {
+    return receipt.getArtifactId()
+        + " ("
+        + receipt.getVersion()
+        + ") was not found in any browsable repository, so it may not be up to date."
+        + " Repositories with browse=false are not searched"
+        + (StringUtils.isBlank(receipt.getRepositoryId())
+            ? "."
+            : "; it was installed from '" + receipt.getRepositoryId() + "'.");
+  }
+
   /** The file changes left for the next Hop start because the files were in use, if any. */
   static void printPendingChanges(Path hopHome, ILogChannel log) {
     try {
@@ -552,28 +567,30 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           outdated.add(update.receipt().getArtifactId());
         }
         for (InstallReceipt receipt : receipts) {
-          if (!outdated.contains(receipt.getArtifactId())) {
+          if (outdated.contains(receipt.getArtifactId())) {
+            continue;
+          }
+          if (PluginUpdates.isDiscovered(receipt, discovered)) {
             System.out.println(
                 receipt.getArtifactId() + " is up to date (" + receipt.getVersion() + ").");
+          } else {
+            System.out.println(notFoundMessage(receipt));
           }
         }
 
+        int updated = 0;
         ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
         try {
           for (int i = 0; i < updates.size(); i++) {
             PluginUpdates.Update update = updates.get(i);
             InstallReceipt receipt = update.receipt();
-            MavenCoordinates gav =
-                new MavenCoordinates(
-                    StringUtils.firstNonBlank(
-                        update.latest().getGroupId(), receipt.getGroupId(), config.getGroupId()),
-                    receipt.getArtifactId(),
-                    update.latest().getVersion());
+            MavenCoordinates gav = PluginUpdates.coordinates(update, config);
             progress.item(gav.artifactId(), i, updates.size());
             try {
               installer.install(
                   gav, true, null, PluginUpdates.preferredRepository(update, config), progress);
               progress.complete();
+              updated++;
               System.out.println(
                   "Updated "
                       + gav.artifactId()
@@ -596,7 +613,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         } finally {
           progress.complete();
         }
-        if (updates.size() > failed.size()) {
+        if (updated > 0) {
           System.out.println("Restart Hop to load the new versions.");
         }
         printPendingChanges(hopHome, log);
@@ -715,16 +732,35 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
 
     private void listOutdated(Path hopHome) throws HopException {
-      List<InstallReceipt> receipts = PluginInstaller.readAllReceipts(hopHome, log);
+      if (log == null) {
+        log = new LogChannel("Marketplace");
+      }
+      MarketplaceConfig config = MarketplaceConfig.load();
+      if (!config.isEnabled()) {
+        throw new HopException("Marketplace is disabled in hop-config.json");
+      }
+      List<InstallReceipt> receipts = new ArrayList<>();
+      for (InstallReceipt receipt : PluginInstaller.readAllReceipts(hopHome, log)) {
+        if (!receipt.isPendingActivation() && !receipt.isUninstallPending()) {
+          receipts.add(receipt);
+        }
+      }
       if (receipts.isEmpty()) {
         System.out.println("No marketplace-installed plugins.");
         return;
       }
-      List<OptionalPluginInfo> discovered =
-          PluginDiscovery.query(null, null, MarketplaceConfig.load(), log);
+      List<OptionalPluginInfo> discovered = PluginDiscovery.query(null, null, config, log);
       List<PluginUpdates.Update> updates = PluginUpdates.outdated(receipts, discovered);
+      List<InstallReceipt> notFound =
+          receipts.stream().filter(r -> !PluginUpdates.isDiscovered(r, discovered)).toList();
+      for (InstallReceipt receipt : notFound) {
+        System.out.println(notFoundMessage(receipt));
+      }
       if (updates.isEmpty()) {
-        System.out.println("All marketplace-installed plugins are up to date.");
+        System.out.println(
+            notFound.isEmpty()
+                ? "All marketplace-installed plugins are up to date."
+                : "No newer versions found for the other marketplace-installed plugins.");
         return;
       }
       List<List<String>> rows = new ArrayList<>();

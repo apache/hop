@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
@@ -72,6 +73,7 @@ public final class PendingChanges {
           "# The Hop launchers apply them before Java starts (lib/apply-pending-changes.sh/.cmd).",
           "# copy|<source>|<target> or delete|<target>, relative to the Hop installation.");
 
+  @Getter
   public enum Action {
     COPY("copy"),
     DELETE("delete");
@@ -80,10 +82,6 @@ public final class PendingChanges {
 
     Action(String code) {
       this.code = code;
-    }
-
-    public String getCode() {
-      return code;
     }
   }
 
@@ -188,6 +186,7 @@ public final class PendingChanges {
   }
 
   /** What a pending change does to its target, for the restart message. */
+  @Getter
   public enum Effect {
     ADD("Add"),
     REPLACE("Replace"),
@@ -197,10 +196,6 @@ public final class PendingChanges {
 
     Effect(String label) {
       this.label = label;
-    }
-
-    public String getLabel() {
-      return label;
     }
   }
 
@@ -280,14 +275,15 @@ public final class PendingChanges {
   /**
    * The launchers parse these paths with plain shell and batch string handling, so the rules are
    * strict: no absolute paths, drive letters, backslashes, wildcards, characters cmd treats
-   * specially, {@code ..} or control characters.
+   * specially, {@code ..}, control characters or non-ASCII characters. The list is UTF-8, and cmd
+   * reads it in the console code page, so a non-ASCII name would point at another file.
    */
   private static boolean isSafeRelativePath(String path) {
     if (StringUtils.isBlank(path) || path.startsWith("/") || path.endsWith("/")) {
       return false;
     }
     for (char c : path.toCharArray()) {
-      if (c < ' ' || UNSAFE_CHARACTERS.indexOf(c) >= 0) {
+      if (c < ' ' || c > '~' || UNSAFE_CHARACTERS.indexOf(c) >= 0) {
         return false;
       }
     }

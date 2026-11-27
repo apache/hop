@@ -113,6 +113,8 @@ When a plugin replaces a jar in `lib/core` that has other content, the old jar i
 
 `list --outdated` lists the marketplace-installed plugins that have a newer version, and `update <artifactId>` or `update --all` installs it.
 The newest version is found the same way as for `query`.
+A SNAPSHOT version is only offered as an update to an installed SNAPSHOT.
+A plugin from a repository with `browse=false`, or from one that does not answer, cannot be checked: `update` and `list --outdated` say so instead of calling it up to date.
 
 Before the marketplace installs another version of a plugin, with `install`, `update`, `apply`, or the GUI, it zips the version installed now into `plugins/.marketplace/backup/<plugin>/<version>/rollback.zip`, where `<version>` is the version being installed.
 When the new version cannot be installed, the marketplace puts the previous version back from there.
@@ -187,6 +189,7 @@ Use this tab to work with the local optional-plugin catalog:
 * Table columns: *Name*, *Artifact*, *Category*, *Status*, *Update available*, *Description*.
 * *Status* values:
 ** *Installed* — present on disk with a marketplace install receipt (version shown when known)
+** *Installed, files missing* — the receipt lists files that are gone; *Install* downloads the plugin again to repair it
 ** *Present on disk* — plugin folder exists but no marketplace receipt
 ** *Not installed* — not found under `plugins/`
 * *Install* / *Uninstall* / *Refresh* — act on the selected plugins (uninstall requires a marketplace receipt)

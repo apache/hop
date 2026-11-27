@@ -18,12 +18,15 @@
 package org.apache.hop.marketplace.catalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.install.InstallReceipt;
+import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.junit.jupiter.api.Test;
 
 class PluginUpdatesTest {
@@ -104,5 +107,45 @@ class PluginUpdatesTest {
     assertNull(
         PluginUpdates.preferredRepository(
             new PluginUpdates.Update(installed, info(null, "2.0.0", "apache")), config));
+  }
+
+  @Test
+  void aSnapshotIsOnlyAnUpdateForAnInstalledSnapshot() {
+    List<OptionalPluginInfo> discovered =
+        List.of(
+            info("org.apache.hop", "2.20.0", "corp"),
+            info("org.apache.hop", "2.21.0-SNAPSHOT", "snapshots"));
+
+    assertNull(PluginUpdates.newerVersion(receipt("org.apache.hop", "2.20.0"), discovered));
+    assertEquals(
+        "2.21.0-SNAPSHOT",
+        PluginUpdates.newerVersion(receipt("org.apache.hop", "2.20.0-SNAPSHOT"), discovered)
+            .getVersion());
+  }
+
+  @Test
+  void anUpdateWithoutAGroupIdKeepsTheInstalledGroupId() {
+    MarketplaceConfig config = new MarketplaceConfig();
+    InstallReceipt installed = receipt("com.acme", "1.0.0");
+
+    assertEquals(
+        new MavenCoordinates("com.acme", "hop-tech-test", "2.0.0"),
+        PluginUpdates.coordinates(
+            new PluginUpdates.Update(installed, info(null, "2.0.0", "corp")), config));
+    assertEquals(
+        new MavenCoordinates("org.example", "hop-tech-test", "2.0.0"),
+        PluginUpdates.coordinates(
+            new PluginUpdates.Update(installed, info("org.example", "2.0.0", "corp")), config));
+  }
+
+  @Test
+  void aPluginDiscoveryDidNotFindIsNotUpToDate() {
+    InstallReceipt installed = receipt("org.apache.hop", "1.0.0");
+
+    assertTrue(
+        PluginUpdates.isDiscovered(installed, List.of(info("org.apache.hop", "1.0.0", "corp"))));
+    assertFalse(
+        PluginUpdates.isDiscovered(installed, List.of(info("com.example", "1.0.0", "corp"))));
+    assertFalse(PluginUpdates.isDiscovered(installed, List.of()));
   }
 }

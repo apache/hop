@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
@@ -162,6 +163,20 @@ class PendingChangesTest {
         HopException.class,
         () -> pending.queueDelete(hopHome.resolve("plugins/tech/50%.jar")),
         "characters the Windows launcher cannot handle");
+    // cmd reads the UTF-8 list in the console code page and would look for another name.
+    Path nonAscii = null;
+    try {
+      nonAscii = hopHome.resolve("plugins/transforms/übersetzer/old-1.0.jar");
+    } catch (InvalidPathException e) {
+      // A JVM whose file name encoding cannot hold the name: such a file cannot be installed.
+    }
+    if (nonAscii != null) {
+      Path target = nonAscii;
+      assertThrows(HopException.class, () -> pending.queueDelete(target), "non-ASCII characters");
+    }
+    assertNull(
+        Change.parse("delete|plugins/transforms/übersetzer/old-1.0.jar"),
+        "a non-ASCII line written by hand is not read either");
   }
 
   @Test
