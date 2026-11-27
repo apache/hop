@@ -472,6 +472,42 @@ class AirflowWorkflowEngineTest {
     server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
   }
 
+  /** The launcher of an older Hop on the workers writes no Tasks line, and one task per action. */
+  @Test
+  void runsTheDagOfAnOlderHopOnTheWorkers() throws Exception {
+    stubNewPausedDag(DOC.replace("\\n\\nTasks: PER_ACTION", ""));
+    stubTrigger();
+    stubRunStates("success");
+    stubTask("success", "Starting action [Start]", "Finished action [Start] (result=[true])");
+    stubOutcome("{\"success\":true}");
+
+    Result result = engine().startExecution();
+
+    assertTrue(result.isResult());
+    server.verify(1, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  @Test
+  void namesTheOlderHopOnTheWorkersWhenItIgnoresTheTasks() throws Exception {
+    config.setTasks(AirflowDagTasks.WHOLE_WORKFLOW);
+    config.setDagWaitSeconds("1");
+    stubNewPausedDag(DOC.replace("\\n\\nTasks: PER_ACTION", ""));
+
+    HopException e = assertThrows(HopException.class, () -> engine().submitToRemoteServer());
+
+    assertTrue(e.getMessage().contains("older than 2.21"), e.getMessage());
+    server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  @Test
+  void readsTheTasksOfTheDagDocumentation() {
+    assertEquals(
+        "WHOLE_WORKFLOW",
+        AirflowWorkflowEngine.docTasks("Workflow version: abc\n\nTasks: WHOLE_WORKFLOW\n"));
+    assertEquals("PER_ACTION", AirflowWorkflowEngine.docTasks("Tasks: PER_ACTION"));
+    assertEquals("PER_ACTION", AirflowWorkflowEngine.docTasks("Workflow version: abc"));
+  }
+
   @Test
   void startsNoRunWhenStoppedWhilePublishing() throws Exception {
     server.stubFor(

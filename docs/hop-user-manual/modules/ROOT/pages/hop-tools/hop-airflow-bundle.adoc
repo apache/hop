@@ -178,6 +178,7 @@ The DAG processor's log says why.
 
 With `--tasks WHOLE_WORKFLOW`, or *Tasks* in the xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow run configuration], every workflow of the bundle runs as one task, `run_workflow`.
 The task runs the workflow as `hop run` does.
+The DAG processor and the workers need Hop 2.21 or later: an older Hop ignores the setting and makes one task per action.
 
 [options="header",cols="1,2,2"]
 |===
