@@ -52,3 +52,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/requires-setup/as400-command.hwf`, which runs the CL command `CALL PGM(MYLIB/MYPGM)` on an IBM i system.
+Set the variables `AS400_SERVER`, `AS400_USER` and `AS400_PASSWORD`, and change the command, before you run it.

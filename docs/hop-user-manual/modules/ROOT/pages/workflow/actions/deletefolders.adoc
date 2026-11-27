@@ -55,3 +55,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: With *When number of errors less than*, the action stops and is false as soon as the number of errors reaches *Limit* (strictly fewer errors than the limit is required for success).
+
+== Samples
+
+The samples project has `actions/delete-folders.hwf`, which writes a report to the folders `2026-01` and `2026-02` below `${java.io.tmpdir}/hop-samples/delete-folders`, deletes both folders with their content, and checks that the `2026-01` folder is gone.

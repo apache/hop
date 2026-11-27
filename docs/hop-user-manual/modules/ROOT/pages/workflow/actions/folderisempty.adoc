@@ -49,3 +49,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged.
 |Lines input|When the action is true, the number of subfolders found. Otherwise the value of the previous action is passed on.
 |===
+
+== Samples
+
+The samples project has `actions/folder-is-empty.hwf`, which creates the empty folder `${java.io.tmpdir}/hop-samples/folder-is-empty` and checks it, then writes a file into it and checks it again: the first check succeeds, the second one fails and follows the failure hop.

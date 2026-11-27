@@ -53,3 +53,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/folders-compare.hwf`, which writes the same two files to the folders `source` and `backup` and a different file to the folder `other`, below `${java.io.tmpdir}/hop-samples/folders-compare`, and compares the names, sizes and content of the files: `source` and `backup` are identical, `source` and `other` are not.

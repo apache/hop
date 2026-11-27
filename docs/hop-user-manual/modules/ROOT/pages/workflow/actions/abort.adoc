@@ -54,3 +54,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|No action in this workflow receives them, as the workflow stops. A parent workflow that runs this workflow with a Workflow action receives the result files of the actions before the Abort.
 |Result rows|As for the result files: a parent workflow receives the result rows of the actions before the Abort.
 |===
+
+== Samples
+
+The samples project has `actions/abort.hwf`, which checks that `project-config.json` exists in the project folder and writes a message to the log.
+The Abort action is on the failure hop of that check: change the file name to a file that does not exist, and it stops the workflow with an error.

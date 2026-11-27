@@ -49,3 +49,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: The action reads the DOCTYPE of the file, which Hop refuses by default: the variable `XML_ALLOW_DOCTYPE_DECL` is `N`. Set it to `Y` (see xref:variables.adoc[Variables]), otherwise every file fails with "DOCTYPE is disallowed", whether the DTD is internal or external.
+
+== Samples
+
+The samples project has `actions/requires-setup/dtd-validator.hwf`, which validates `files/xml-actions/orders.xml` against the separate DTD `files/xml-actions/orders.dtd`.
+Hop does not allow DOCTYPE declarations by default: set the variable `XML_ALLOW_DOCTYPE_DECL` to `Y` before you run it, or the validation fails and the workflow follows the failure hop.

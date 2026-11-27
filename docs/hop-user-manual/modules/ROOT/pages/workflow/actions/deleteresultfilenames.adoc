@@ -47,3 +47,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|The result files of the previous action, without the removed ones. The files themselves are not deleted.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/delete-result-filenames.hwf`, which writes `data.csv` and `process.log` to `${java.io.tmpdir}/hop-samples/delete-result-filenames`, adds both to the result file names, and removes the `.log` files from the result: only `data.csv` is left, and both files stay on disk.

@@ -66,3 +66,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged. The file is not added.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/file-exists.hwf`, which checks for `project-config.json` in the project folder, which is always there, and for `not-there.txt`, which is not: the first check follows the success hop, the second one the failure hop.

@@ -36,3 +36,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `workflows/parallel/parallel-workflow.hwf`, which runs `workflows/parallel/sample-pipeline.hpl` twice at the same time and ends each branch with a Dummy action, and `workflows/parallel/parallel-workflow-parent.hwf`, which runs that workflow and ends with a Dummy action too.

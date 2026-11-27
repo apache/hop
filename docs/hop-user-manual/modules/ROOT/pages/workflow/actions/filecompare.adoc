@@ -49,3 +49,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|With *Add filename to result*, both files are added when both exist and are files, also when their contents differ. The result files of the previous action are kept.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/file-compare.hwf`, which writes `a.txt` and `b.txt` with the same content and `c.txt` with other content to `${java.io.tmpdir}/hop-samples/file-compare`: comparing `a.txt` with `b.txt` follows the success hop, comparing `a.txt` with `c.txt` follows the failure hop.

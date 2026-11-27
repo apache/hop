@@ -90,3 +90,8 @@ NOTE: SQL Server reads the file, so *Source File name* must be a path that the d
 NOTE: When the load fails on a row, the rows before it can stay in the table: with the default options, a value that doesn't fit its column on row 2 left row 1 loaded.
 
 NOTE: SQL Server on Linux only accepts the RAW *Codepage*: the default, OEM, makes the load fail there.
+
+== Samples
+
+The samples project has `actions/requires-setup/mssql-bulk-load.hwf`, which empties the table `dbo.customers` and loads the comma-separated file `/data/customers.csv` into it with `BULK INSERT`, skipping the header line.
+Create a connection named `mssql`, the table and the file before you run it. The database server reads the file, but the action first checks that the file exists, so it must be at the same path on the machine that runs Hop too.
