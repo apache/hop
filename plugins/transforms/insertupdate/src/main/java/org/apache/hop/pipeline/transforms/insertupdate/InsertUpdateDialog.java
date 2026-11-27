@@ -85,6 +85,8 @@ public class InsertUpdateDialog extends BaseTransformDialog {
 
   private Button wUpdateBypassed;
 
+  private Button wBatch;
+
   private final InsertUpdateMeta input;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
@@ -243,6 +245,21 @@ public class InsertUpdateDialog extends BaseTransformDialog {
             .result());
     wUpdateBypassed.addSelectionListener(new ComponentSelectionListener(input));
     PropsUi.setLook(wUpdateBypassed);
+
+    // Batch line
+    Label wlBatch = new Label(composite, SWT.RIGHT);
+    wlBatch.setText(BaseMessages.getString(PKG, "InsertUpdateDialog.Batch.Label"));
+    wlBatch.setToolTipText(BaseMessages.getString(PKG, "InsertUpdateDialog.Batch.Tooltip"));
+    wlBatch.setLayoutData(
+        new FormDataBuilder().left().top(wUpdateBypassed, margin).right(middle, -margin).result());
+    PropsUi.setLook(wlBatch);
+
+    wBatch = new Button(composite, SWT.CHECK);
+    wBatch.setToolTipText(BaseMessages.getString(PKG, "InsertUpdateDialog.Batch.Tooltip"));
+    wBatch.setLayoutData(
+        new FormDataBuilder().left(middle, 0).top(wlBatch, 0, SWT.CENTER).right().result());
+    wBatch.addSelectionListener(new ComponentSelectionListener(input));
+    PropsUi.setLook(wBatch);
   }
 
   private void addKeysTab(CTabFolder wTabFolder, ModifyListener lsMod) {
@@ -589,6 +606,7 @@ public class InsertUpdateDialog extends BaseTransformDialog {
 
     wCommit.setText(input.getCommitSize());
     wUpdateBypassed.setSelection(input.isUpdateBypassed());
+    wBatch.setSelection(input.isUseBatchUpdate());
 
     if (input.getInsertUpdateLookupField().getLookupKeys() != null) {
       for (int i = 0; i < input.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
@@ -653,6 +671,7 @@ public class InsertUpdateDialog extends BaseTransformDialog {
 
     inf.setCommitSize(wCommit.getText());
     inf.setUpdateBypassed(wUpdateBypassed.getSelection());
+    inf.setUseBatchUpdate(wBatch.getSelection());
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundKeys", nrkeys + ""));

@@ -23,8 +23,12 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.IBatchRowListener;
+import org.apache.hop.core.database.batch.RecoverableBatch;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pgvector.util.EmbeddingJsonParser;
@@ -48,6 +52,18 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
       "PgVectorUpsert.Error.Committing";
 
   private static final Class<?> PKG = PgVectorUpsertMeta.class;
+
+  /**
+   * A row that fails before its upsert reaches the database (no key, a chunk index or embedding
+   * that can't be read, too many documents to track), or whose document delete fails.
+   */
+  private static final String CODE_BEFORE_THE_DATABASE = "PGVECTORUPSERT001";
+
+  /** A row whose upsert the database refused: on its own, or in a recovered batch. */
+  private static final String CODE_REFUSED = "PGVECTORUPSERT002";
+
+  /** A row of a recovered batch that was never sent to the database, which could not be asked. */
+  private static final String CODE_NOT_ATTEMPTED = "PGVECTORUPSERT003";
 
   /**
    * Upper bound on the per-document delete cache, which holds one entry per distinct document id so
@@ -81,6 +97,10 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
   public boolean processRow() throws HopException {
     Object[] row = getRow();
     if (row == null) {
+      if (data.recoveredBatches && !flushRecoveredBatchOrStop()) {
+        setOutputDone();
+        return false;
+      }
       commitBatch();
       setOutputDone();
       return false;
@@ -91,6 +111,10 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
       data.inputRowMeta = getInputRowMeta();
       openDatabase();
       resolveFieldIndices();
+    }
+
+    if (data.recoveredBatches) {
+      return processRecoveredRow(row);
     }
 
     try {
@@ -326,7 +350,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
    * <p>Batching and an error hop are mutually exclusive. A failed {@code executeBatch} cannot be
    * mapped back onto individual rows here, so a rejected batch would leave its rows neither written
    * nor diverted. That holds for every dialect, which is why it does not consult {@code iDatabase},
-   * unlike the savepoints, which only some databases need.
+   * unlike the savepoints, which only some databases need. Where the connection's batch failure
+   * contract is validated, {@link #configureRecoveredBatches()} batches with an error hop instead.
    */
   void configureCommitStrategy(IDatabase iDatabase) {
     data.commitSize = Const.toInt(resolve(meta.getCommitSize()), 100);
@@ -399,6 +424,7 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
                 .getConnection()
                 .prepareStatement(PgVectorSqlBuilder.deleteByDocumentIdSql(qualifiedTable));
       }
+      configureRecoveredBatches();
     } catch (Exception e) {
       // Do not leak the connection when the statements cannot be prepared.
       closeDatabase();
@@ -565,7 +591,23 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
   }
 
   @Override
+  public void batchComplete() throws HopException {
+    // The single threaded engine ends an iteration here: no row may wait for the next one.
+    if (data.recoveredBatches) {
+      flushOrDiscardRecoveredBatch();
+    }
+  }
+
+  @Override
   public void dispose() {
+    if (data.recoveredBatches && data.database != null) {
+      try {
+        flushOrDiscardRecoveredBatch();
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_COMMITTING), e);
+        setErrors(getErrors() + 1);
+      }
+    }
     // Only commit on a clean end of stream. On a stop or a failure the pending batch is rolled
     // back with the connection instead of being silently written.
     if (isStopped() || getErrors() > 0) {
@@ -587,5 +629,360 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
     }
     closeDatabase();
     super.dispose();
+  }
+
+  // Recovered batches: with an error hop, on a connection whose batch failure contract is validated
+
+  /**
+   * Decides, once the connection's commit mode is set, whether the upserts go out in a {@link
+   * RecoverableBatch} with an error hop attached: the connection's batch failure contract is
+   * validated against the database (PostgreSQL's is), the transform has an error hop and a commit
+   * size, and the connection is its own and not in auto-commit, so not shared by a transactional
+   * pipeline. The contract then tells which rows of a failed batch the database refused, so no row
+   * needs a savepoint. Every other case keeps {@link #configureCommitStrategy(IDatabase)} as it is:
+   * without an error hop the rows are batched as they always were, and with one every row runs on
+   * its own.
+   */
+  void configureRecoveredBatches() throws HopException {
+    data.batchSupport = BatchSupport.of(data.database.getDatabaseMeta().getIDatabase(), this);
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "PgVectorUpsert.Log.BatchSupport", data.batchSupport.describe()));
+    }
+    data.recoveredBatches =
+        data.batchSupport.isRecovered()
+            && getTransformMeta().isDoingErrorHandling()
+            && Const.toInt(resolve(meta.getCommitSize()), 100) > 0
+            && !data.database.isAutoCommit()
+            && data.database.getUseBatchInsert(true);
+    if (!data.recoveredBatches) {
+      return;
+    }
+    // Batching stays on with the error hop, without a savepoint per row.
+    data.useSafePoints = false;
+    data.batchMode = false;
+    data.batch =
+        RecoverableBatch.of(
+                data.database, data.insertStatement, this::bindInsertValues, data.batchSupport)
+            .withStatementFactory(
+                () -> {
+                  // A driver that closes the statement of a failed batch gets a new one.
+                  data.insertStatement = prepareInsertStatement();
+                  return data.insertStatement;
+                });
+  }
+
+  private PreparedStatement prepareInsertStatement() throws SQLException {
+    String qualifiedTable =
+        PgVectorSqlBuilder.qualifiedTable(
+            resolve(meta.getSchemaName()), resolve(meta.getTableName()));
+    return data.database
+        .getConnection()
+        .prepareStatement(PgVectorSqlBuilder.upsertSql(qualifiedTable, data.tableColumns));
+  }
+
+  /**
+   * One row on the path of recovered batches. Its upsert waits in the batch, and every row that
+   * comes in while the batch holds rows waits with it, also a row that stores nothing or fails
+   * before it reaches the database. So the rows leave in the order they came in, each one after the
+   * commit that includes it.
+   *
+   * @return false when the transform was stopped
+   */
+  private boolean processRecoveredRow(Object[] row) throws HopException {
+    String documentId;
+    Object[] values;
+    try {
+      documentId = getFieldAsString(row, data.documentIdFieldIndex);
+      String content = getFieldAsString(row, data.contentFieldIndex);
+      Object embedding = row[data.embeddingFieldIndex];
+      if (Utils.isEmpty(content) || EmbeddingJsonParser.isEmpty(embedding)) {
+        // Nothing to store for this row, but it still belongs in the output stream.
+        putRowInOrder(row);
+        return flushRecoveredBatchWhenFull();
+      }
+      String id = resolveId(row);
+      String chunkIndex = getFieldAsString(row, data.chunkIndexFieldIndex);
+      // Before any delete: a row that can't be bound must not delete its document.
+      values = insertValues(row, id, documentId, chunkIndex, content, embedding);
+      if (shouldDeleteDocument(documentId)
+          && data.deletedDocuments.size() >= MAX_DELETED_DOCUMENT_CACHE) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG,
+                "PgVectorUpsert.Error.TooManyDeletedDocuments",
+                String.valueOf(MAX_DELETED_DOCUMENT_CACHE)));
+      }
+    } catch (HopException e) {
+      putErrorInOrder(row, e.getMessage(), CODE_BEFORE_THE_DATABASE);
+      return flushRecoveredBatchWhenFull();
+    }
+
+    if (shouldDeleteDocument(documentId)) {
+      // The rows before it are committed first, so that the transaction holds nothing else.
+      if (!flushRecoveredBatchOrStop()) {
+        setOutputDone();
+        return false;
+      }
+      replaceDocument(row, documentId, values);
+      return true;
+    }
+
+    try {
+      data.batch.add(values, row);
+    } catch (HopDatabaseException e) {
+      putErrorInOrder(
+          row,
+          new HopException(
+                  BaseMessages.getString(
+                      PKG, CONST_PG_VECTOR_UPSERT_ERROR_BINDING_ROW, String.valueOf(values[0])),
+                  e)
+              .getMessage(),
+          CODE_BEFORE_THE_DATABASE);
+      return flushRecoveredBatchWhenFull();
+    }
+    PgVectorUpsertData.PendingRow pending = PgVectorUpsertData.PendingRow.output(row);
+    data.batchBuffer.add(pending);
+    data.pendingRows.add(pending);
+    return flushRecoveredBatchWhenFull();
+  }
+
+  /**
+   * Runs the batch once a commit size of rows waits. The rows that wait behind the batch count as
+   * well, so that memory stays at one commit size.
+   *
+   * @return false when the transform was stopped
+   */
+  private boolean flushRecoveredBatchWhenFull() {
+    if (data.pendingRows.size() >= data.commitSize && !flushRecoveredBatchOrStop()) {
+      setOutputDone();
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * The first row of a document with "Delete document before upsert". The batch before it was just
+   * committed, so the transaction holds nothing else: the delete and the upsert of the row run on
+   * their own and are committed together, or both rolled back when the database refuses either. So
+   * a refused row never leaves the delete of its document behind; the next row of the document
+   * deletes it again.
+   */
+  private void replaceDocument(Object[] row, String documentId, Object[] values)
+      throws HopException {
+    try {
+      data.deleteStatement.setString(1, documentId);
+      data.deleteStatement.executeUpdate();
+    } catch (SQLException e) {
+      data.database.rollback();
+      putErrorInOrder(
+          row,
+          new HopException(
+                  BaseMessages.getString(PKG, "PgVectorUpsert.Error.DeletingDocument", documentId),
+                  e)
+              .getMessage(),
+          CODE_BEFORE_THE_DATABASE);
+      return;
+    }
+    try {
+      bindInsertValues(data.insertStatement, values);
+      data.insertStatement.executeUpdate();
+    } catch (HopDatabaseException | SQLException e) {
+      data.database.rollback();
+      putErrorInOrder(row, statementFailure(e).toString(), CODE_REFUSED);
+      return;
+    }
+    data.database.commit();
+    data.deletedDocuments.add(documentId);
+    putRowInOrder(row);
+  }
+
+  /** The upsert's parameter values of a row, one per mapping binding, in statement order. */
+  private Object[] insertValues(
+      Object[] row,
+      String id,
+      String documentId,
+      String chunkIndex,
+      String content,
+      Object embedding)
+      throws HopException {
+    String vectorLiteral;
+    try {
+      vectorLiteral = EmbeddingJsonParser.toPgVectorLiteral(embedding);
+    } catch (RuntimeException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_BINDING_ROW, String.valueOf(id)),
+          e);
+    }
+    Object[] values = new Object[data.mappingBindings.size()];
+    int i = 0;
+    for (PgVectorUpsertData.MappingBinding binding : data.mappingBindings) {
+      values[i++] =
+          switch (binding.column.name()) {
+            case "id" -> id;
+            case "document_id" -> documentId;
+            case "chunk_index" -> parseChunkIndex(chunkIndex);
+            case "content" -> content;
+            case "embedding" -> vectorLiteral;
+            default -> getFieldAsString(row, binding.streamFieldIndex);
+          };
+    }
+    return values;
+  }
+
+  /**
+   * Binds the values of {@link #insertValues} to the upsert. The recovered batch calls it for a row
+   * when it is added and again for every retry, always with the same values.
+   */
+  private void bindInsertValues(PreparedStatement statement, Object[] values)
+      throws HopDatabaseException {
+    int i = 0;
+    try {
+      for (PgVectorUpsertData.MappingBinding binding : data.mappingBindings) {
+        Object value = values[i++];
+        if (binding.column.type() == PgVectorColumnType.INTEGER) {
+          statement.setInt(binding.statementIndex, (Integer) value);
+        } else {
+          statement.setString(binding.statementIndex, value == null ? null : value.toString());
+        }
+      }
+    } catch (SQLException e) {
+      // The id is the first column of the upsert.
+      throw new HopDatabaseException(
+          BaseMessages.getString(
+              PKG, CONST_PG_VECTOR_UPSERT_ERROR_BINDING_ROW, String.valueOf(values[0])),
+          e);
+    }
+  }
+
+  /** Passes a row on to the output, after the rows of the pending batch that came in before it. */
+  private void putRowInOrder(Object[] row) throws HopTransformException {
+    if (data.batchBuffer.isEmpty()) {
+      putRow(data.inputRowMeta, row);
+    } else {
+      data.pendingRows.add(PgVectorUpsertData.PendingRow.output(row));
+    }
+  }
+
+  /** Passes a row on to the error hop, after the rows of the pending batch that came before it. */
+  private void putErrorInOrder(Object[] row, String errorMessage, String errorCode)
+      throws HopTransformException {
+    if (data.batchBuffer.isEmpty()) {
+      putError(data.inputRowMeta, row, 1L, errorMessage, null, errorCode);
+    } else {
+      data.pendingRows.add(PgVectorUpsertData.PendingRow.error(row, errorMessage, errorCode));
+    }
+  }
+
+  /**
+   * Passes every pending row on in the order the rows came in: a failed row to the error hop, the
+   * others to the output. Empties the batch.
+   */
+  private void releasePendingRows() throws HopTransformException {
+    for (PgVectorUpsertData.PendingRow pending : data.pendingRows) {
+      if (pending.isFailed()) {
+        putError(
+            data.inputRowMeta,
+            pending.getRow(),
+            1L,
+            pending.getErrorMessage(),
+            null,
+            pending.getErrorCode());
+      } else {
+        putRow(data.inputRowMeta, pending.getRow());
+      }
+    }
+    clearPendingRows();
+  }
+
+  private void clearPendingRows() {
+    data.pendingRows.clear();
+    data.batchBuffer.clear();
+  }
+
+  /**
+   * Runs the recovered batch, stopping the transform when that fails.
+   *
+   * @return false when the transform was stopped
+   */
+  private boolean flushRecoveredBatchOrStop() {
+    try {
+      flushRecoveredBatch();
+      return true;
+    } catch (HopException e) {
+      logError(BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_COMMITTING), e);
+      setErrors(1);
+      stopAll();
+      return false;
+    }
+  }
+
+  /**
+   * Runs and commits the recovered batch, then passes every pending row on in the order the rows
+   * came in. The connection's batch failure contract tells which rows of a failed batch the
+   * database refused: they go to the error hop, the others are committed and go to the output, each
+   * exactly once. When the batch can't be run or recovered at all, none of the pending rows is
+   * passed on and the failure is thrown.
+   */
+  private void flushRecoveredBatch() throws HopException {
+    if (data.batch == null) {
+      return;
+    }
+    if (!data.batch.isEmpty()) {
+      data.settledRows = 0;
+      try {
+        data.batch.flush(recoveredBatchListener());
+      } catch (HopException e) {
+        clearPendingRows();
+        throw e;
+      } finally {
+        data.insertStatement = data.batch.getStatement();
+      }
+    }
+    releasePendingRows();
+  }
+
+  /**
+   * Settles the rows of {@link PgVectorUpsertData#batchBuffer}: the batch gives every row its
+   * verdict once, in the order the rows were added. {@link #releasePendingRows()} passes them on
+   * afterwards.
+   */
+  private IBatchRowListener recoveredBatchListener() {
+    return new IBatchRowListener() {
+      @Override
+      public void rowWritten(Object[] outputRow) {
+        data.settledRows++;
+      }
+
+      @Override
+      public void rowRejected(Object[] outputRow, String message, boolean attempted) {
+        data.batchBuffer
+            .get(data.settledRows++)
+            .fail(message, attempted ? CODE_REFUSED : CODE_NOT_ATTEMPTED);
+      }
+    };
+  }
+
+  /**
+   * At the end of a single-threaded iteration, and when the transform is disposed: runs what waits
+   * in the recovered batch, or drops it when the transform failed or was stopped, so that no row is
+   * committed that is not passed on.
+   */
+  private void flushOrDiscardRecoveredBatch() throws HopException {
+    if (data.batch == null) {
+      return;
+    }
+    if (getErrors() > 0 || isStopped()) {
+      int dropped = data.batch.discard().size();
+      clearPendingRows();
+      if (dropped > 0) {
+        logError(
+            BaseMessages.getString(
+                PKG, "PgVectorUpsert.Log.BatchDiscarded", String.valueOf(dropped)));
+      }
+      return;
+    }
+    flushRecoveredBatch();
   }
 }

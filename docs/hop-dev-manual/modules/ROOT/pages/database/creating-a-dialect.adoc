@@ -116,7 +116,7 @@ A capability is a fact about the database that Hop can act on in several places;
 == Batch failure contract
 
 When a row in a JDBC batch fails, drivers disagree about what happened to the other rows of the batch, and about what `BatchUpdateException.getUpdateCounts()` means.
-A dialect that knows what its driver does returns it from `getBatchFailureContract()`, and Table output and Update then use it to keep batching with an error hop attached and still send every row of a failed batch to exactly one stream, in input order:
+A dialect that knows what its driver does returns it from `getBatchFailureContract()`, and Table output, Update, Delete, Insert/Update, Synchronize after merge and pgvector upsert then use it to keep batching with an error hop attached and still send every row of a failed batch to exactly one stream, in input order:
 
 `MARKS_FAILED_ROWS`::
 The driver runs every row and marks the failed ones with `EXECUTE_FAILED`.

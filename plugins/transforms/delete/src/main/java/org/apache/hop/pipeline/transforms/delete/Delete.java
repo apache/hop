@@ -17,11 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.IBatchRowListener;
+import org.apache.hop.core.database.batch.RecoverableBatch;
+import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -37,6 +42,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Delete data in a database table. */
 public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class;
+  private static final String CONST_DEL001 = "DEL001";
+
+  /** A row of a recovered batch that the database refused. */
+  private static final String CONST_DEL002 = "DEL002";
+
+  /** A row of a recovered batch that was never sent to the database, which could not be asked. */
+  private static final String CONST_DEL003 = "DEL003";
 
   public Delete(
       TransformMeta transformMeta,
@@ -48,9 +60,11 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private synchronized void deleteValues(IRowMeta rowMeta, Object[] row) throws HopException {
-    // OK, now do the lookup.
-    // We need the lookupvalues for that.
+  /**
+   * @return the parameters of the DELETE for a row: its key values, in the order of the WHERE
+   *     clause
+   */
+  private Object[] deleteParameters(Object[] row) {
     Object[] deleteRow = new Object[data.deleteParameterRowMeta.size()];
     int deleteIndex = 0;
 
@@ -65,6 +79,13 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
         deleteIndex++;
       }
     }
+    return deleteRow;
+  }
+
+  private synchronized void deleteValues(IRowMeta rowMeta, Object[] row) throws HopException {
+    // OK, now do the lookup.
+    // We need the lookupvalues for that.
+    Object[] deleteRow = deleteParameters(row);
 
     data.db.setValues(data.deleteParameterRowMeta, deleteRow, data.prepStatementDelete);
 
@@ -90,6 +111,9 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     Object[] r = getRow();
     // no more input to be expected...
     if (r == null) {
+      if (data.recoveredBatches) {
+        flushRecoveredBatchOrStop();
+      }
       setOutputDone();
       return false;
     }
@@ -149,6 +173,13 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       }
 
       prepareDelete(getInputRowMeta());
+      if (data.recoveredBatches) {
+        createRecoveredBatch();
+      }
+    }
+
+    if (data.recoveredBatches) {
+      return processRecoveredRow(r);
     }
 
     try {
@@ -184,11 +215,220 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
       if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, null, "DEL001");
+        putError(getInputRowMeta(), r, 1, errorMessage, null, CONST_DEL001);
       }
     }
 
     return true;
+  }
+
+  /**
+   * Processes a row with recovered batches: its DELETE goes into the batch, and the row is passed
+   * on once the batch has run and is committed, see {@link #flushRecoveredBatch()}. A row whose key
+   * can't be bound to the statement goes to the error hop, in its place among the rows of the
+   * batch.
+   *
+   * @return false when the transform was stopped
+   */
+  private boolean processRecoveredRow(Object[] r) throws HopException {
+    try {
+      addToRecoveredBatch(getInputRowMeta(), r);
+      if (checkFeedback(getLinesRead()) && isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "Delete.Log.LineNumber") + getLinesRead());
+      }
+    } catch (HopException e) {
+      if (!getTransformMeta().isDoingErrorHandling()) {
+        logError(BaseMessages.getString(PKG, "Delete.Log.ErrorInTransform") + e.getMessage());
+        setErrors(1);
+        stopAll();
+        // signal end to receiver(s)
+        setOutputDone();
+        return false;
+      }
+      putErrorInOrder(r, e.toString(), null, CONST_DEL001);
+    }
+
+    // Outside the try above: a failed batch is about the rows in it, not about this row. The rows
+    // waiting behind the batch count as well, so that memory stays at one commit size.
+    if (data.pendingRows.size() >= data.commitSize && !flushRecoveredBatchOrStop()) {
+      setOutputDone();
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Adds the DELETE of a row to the recovered batch. The row waits in {@link
+   * DeleteData#batchBuffer} until the batch has run.
+   */
+  private void addToRecoveredBatch(IRowMeta rowMeta, Object[] row) throws HopException {
+    Object[] deleteRow = deleteParameters(row);
+    data.batch.add(deleteRow, row);
+    if (isDebug()) {
+      logDebug(
+          BaseMessages.getString(
+              PKG,
+              "Delete.Log.SetValuesForDelete",
+              data.deleteParameterRowMeta.getString(deleteRow),
+              rowMeta.getString(row),
+              meta.isUseBatchUpdate()));
+    }
+    DeleteData.PendingRow pending = DeleteData.PendingRow.batched(row);
+    data.batchBuffer.add(pending);
+    data.pendingRows.add(pending);
+  }
+
+  /**
+   * Passes a row on to the error hop, after the rows of a pending batch that came in before it.
+   *
+   * @param row the row as it came in
+   */
+  private void putErrorInOrder(
+      Object[] row, String errorMessage, String errorFields, String errorCode)
+      throws HopTransformException {
+    if (data.batchBuffer.isEmpty()) {
+      putError(getInputRowMeta(), row, 1L, errorMessage, errorFields, errorCode);
+    } else {
+      data.pendingRows.add(DeleteData.PendingRow.error(row, errorMessage, errorFields, errorCode));
+    }
+  }
+
+  /**
+   * Passes every pending row on in the order the rows came in: a failed row to the error hop, the
+   * others to the output, each deleted row counted as updated. Empties the batch.
+   */
+  private void releasePendingRows() throws HopTransformException {
+    for (DeleteData.PendingRow pending : data.pendingRows) {
+      if (pending.isFailed()) {
+        putError(
+            getInputRowMeta(),
+            pending.getRow(),
+            1L,
+            pending.getErrorMessage(),
+            pending.getErrorFields(),
+            pending.getErrorCode());
+      } else {
+        if (pending.isBatched()) {
+          incrementLinesUpdated();
+        }
+        putRow(data.outputRowMeta, pending.getRow());
+      }
+    }
+    clearPendingRows();
+  }
+
+  private void clearPendingRows() {
+    data.pendingRows.clear();
+    data.batchBuffer.clear();
+  }
+
+  /**
+   * Creates the recovered batch on the DELETE statement. Some drivers (DuckDB) close the statement
+   * when a batch fails; the batch then prepares it again.
+   */
+  private void createRecoveredBatch() throws HopDatabaseException {
+    String sql = data.deleteSql;
+    data.batch =
+        RecoverableBatch.of(
+                data.db,
+                data.prepStatementDelete,
+                (statement, bindRow) ->
+                    data.db.setValues(data.deleteParameterRowMeta, bindRow, statement),
+                data.batchSupport)
+            .withStatementFactory(
+                () -> {
+                  PreparedStatement again = data.db.getConnection().prepareStatement(sql);
+                  data.prepStatementDelete = again;
+                  return again;
+                });
+  }
+
+  /**
+   * Runs the recovered batch, stopping the transform when that fails.
+   *
+   * @return false when the transform was stopped
+   */
+  private boolean flushRecoveredBatchOrStop() {
+    try {
+      flushRecoveredBatch();
+      return true;
+    } catch (HopException e) {
+      logError(BaseMessages.getString(PKG, "Delete.Log.ErrorInTransform"), e);
+      setErrors(1);
+      stopAll();
+      return false;
+    }
+  }
+
+  /**
+   * Runs and commits the recovered batch, then passes every pending row on in the order the rows
+   * came in. With an error hop the connection's batch failure contract tells which rows of a failed
+   * batch the database refused: they go to the error hop, the others are committed and go to the
+   * output, each exactly once. Without an error hop a failed batch is rolled back, none of the
+   * pending rows is passed on, and the failure is thrown.
+   */
+  private void flushRecoveredBatch() throws HopException {
+    if (data.batch == null || data.batch.isEmpty()) {
+      return;
+    }
+    data.settledRows = 0;
+    try {
+      if (getTransformMeta().isDoingErrorHandling()) {
+        data.batch.flush(recoveredBatchListener());
+      } else {
+        data.batch.flushOrFail(recoveredBatchListener());
+      }
+    } catch (HopDatabaseBatchException e) {
+      clearPendingRows();
+      throw new HopDatabaseBatchException(
+          BaseMessages.getString(PKG, "Delete.Exception.BatchFailed", data.schemaTable), e);
+    } catch (HopException e) {
+      clearPendingRows();
+      throw e;
+    } finally {
+      data.prepStatementDelete = data.batch.getStatement();
+    }
+    releasePendingRows();
+  }
+
+  /**
+   * Settles the rows of {@link DeleteData#batchBuffer}: the batch gives every row its verdict once,
+   * in the order the rows were added. {@link #releasePendingRows()} passes them on afterwards.
+   */
+  private IBatchRowListener recoveredBatchListener() {
+    return new IBatchRowListener() {
+      @Override
+      public void rowWritten(Object[] outputRow) {
+        data.settledRows++;
+      }
+
+      @Override
+      public void rowRejected(Object[] outputRow, String message, boolean attempted) {
+        data.batchBuffer
+            .get(data.settledRows++)
+            .fail(message, null, attempted ? CONST_DEL002 : CONST_DEL003);
+      }
+    };
+  }
+
+  /**
+   * At the end of a single-threaded iteration, and when the transform is disposed: runs what waits
+   * in the recovered batch, or drops it when the transform failed or was stopped, so that no row is
+   * deleted that is not passed on.
+   */
+  private void flushOrDiscardRecoveredBatch() throws HopException {
+    if (data.batch == null) {
+      return;
+    }
+    if (getErrors() > 0 || isStopped()) {
+      int dropped = data.batch.discard().size();
+      clearPendingRows();
+      if (dropped > 0) {
+        logError(BaseMessages.getString(PKG, "Delete.Log.BatchDiscarded", String.valueOf(dropped)));
+      }
+      return;
+    }
+    flushRecoveredBatch();
   }
 
   // Lookup certain fields in a table
@@ -224,8 +464,8 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       if (isDetailed()) {
         logDetailed("Setting delete preparedStatement to [" + sql + "]");
       }
-      data.prepStatementDelete =
-          data.db.getConnection().prepareStatement(databaseMeta.stripCR(sql));
+      data.deleteSql = databaseMeta.stripCR(sql);
+      data.prepStatementDelete = data.db.getConnection().prepareStatement(data.deleteSql);
     } catch (SQLException ex) {
       throw new HopDatabaseException(
           "Unable to prepare statement for SQL statement [" + sql + "]", ex);
@@ -267,12 +507,35 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
         data.commitSize = meta.getCommitSize(this);
         data.db.setCommit(data.commitSize);
-        data.useSavepoints =
-            data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
-        // A failed row in a batch can't be undone on its own: with savepoints, no batch.
-        data.batchMode = meta.isUseBatchUpdate() && !data.useSavepoints;
-        if (meta.isUseBatchUpdate() && data.useSavepoints) {
-          logBasic(BaseMessages.getString(PKG, "Delete.Log.BatchOffForErrorHandling"));
+
+        // How a failed batch is handled on this connection. Only a contract validated against the
+        // database (or chosen on the connection) recovers batches with RecoverableBatch; every
+        // other connection keeps the handling below, exactly as it always was.
+        data.batchSupport = BatchSupport.of(databaseMeta.getIDatabase(), this);
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "Delete.Log.BatchSupport", data.batchSupport.describe()));
+        }
+        data.recoveredBatches =
+            data.batchSupport.isRecovered()
+                && meta.isUseBatchUpdate()
+                && data.commitSize > 0
+                && !data.db.isAutoCommit()
+                && data.db.getUseBatchInsert(true);
+
+        if (data.recoveredBatches) {
+          // Batching stays on with an error hop, without a savepoint per row: the contract tells
+          // which rows of a failed batch were refused.
+          data.useSavepoints = false;
+          data.batchMode = false;
+        } else {
+          data.useSavepoints =
+              data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
+          // A failed row in a batch can't be undone on its own: with savepoints, no batch.
+          data.batchMode = meta.isUseBatchUpdate() && !data.useSavepoints;
+          if (meta.isUseBatchUpdate() && data.useSavepoints) {
+            logBasic(BaseMessages.getString(PKG, "Delete.Log.BatchOffForErrorHandling"));
+          }
         }
         return true;
       } catch (HopException ke) {
@@ -286,11 +549,22 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
   @Override
   public void batchComplete() throws HopException {
+    if (data.recoveredBatches) {
+      flushOrDiscardRecoveredBatch();
+    }
     commitBatch(false);
   }
 
   @Override
   public void dispose() {
+    if (data.recoveredBatches && data.db != null) {
+      try {
+        flushOrDiscardRecoveredBatch();
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "Delete.Log.ErrorInTransform"), e);
+        setErrors(1);
+      }
+    }
     commitBatch(true);
     super.dispose();
   }

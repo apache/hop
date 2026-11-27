@@ -66,6 +66,56 @@ If the lookup field is not found, then an exception is thrown.
 This option can be used as an extra check if you wish to check updates/deletes prior to their execution.|Not applicable
 |===
 
+== Batches and error handling
+
+With *Use batch update* on, the inserts, updates and deletes are sent to the database in batches: one batch for each statement, and for each table when the table name is defined in a field.
+A batch runs and is committed:
+
+* when the transform has added *Commit size* rows to its batches since the last time this happened: the batch of that row runs, the others wait,
+* when a statement has taken one row more than the commit size since its batch last ran this way,
+* at the end of the input, and at the end of an iteration of a single-threaded pipeline: then every batch runs.
+
+So when one key gets more than one operation between two commits, for example an insert and a delete of the same key, the statements run in the order of their batches, not in the order of the rows, unless the database's driver has been measured (see below).
+On other databases, switch *Use batch update* off when that order matters: the rows then run one by one, in the order they come in.
+
+When the insert, update or delete of a row in a batch fails, what happened to the other rows of the batch depends on the database's JDBC driver: some run the other rows, some stop at the failing row, and some lose the whole batch.
+
+On a database whose driver's behaviour has been measured, the transform uses it to work out which rows of a failed batch are in the database, and with an error hop attached it sends each row to exactly one stream: the main output for rows that were written, the error hop for rows the database refused.
+A row only appears on the main output after the database has committed what it did, and the rows keep their input order: also the rows that are skipped, the rows whose key was not found by *Perform lookup*, and the rows that failed on their own.
+When as many rows as the commit size wait behind a batch that has not run yet, every batch runs, as at the end of the input, so that the waiting rows don't pile up in memory.
+
+On such a database the operations on one key also run in input order, with or without an error hop: when the key of a row waits in a batch of another statement of the same table, the pending batches are written first.
+So an insert and a delete of the same key between two commits end as they would row by row.
+With *Perform lookup* a row also waits for a batch of its own statement that holds its key, since the lookup can't see the rows in the batches.
+Keys are compared the way a database might: numbers by value, text without case and surrounding spaces.
+A key condition that is not an equality (a range, `LIKE`, `BETWEEN`) can match any row, so then a row waits for every batch of another statement of the table.
+Batches without repeated keys run at the same moments, and in the same order, as before.
+
+On such a database the transform also keeps batching when an error hop is attached.
+That includes PostgreSQL, where an error hop otherwise makes every row run on its own behind a savepoint, and databases such as SQL Server, H2 and DuckDB, where an error hop otherwise switches batching off.
+Without an error hop a failed batch is rolled back and the transform stops, as before; the rows of the batches committed before it are passed on.
+When the transform is stopped or fails, the rows that still wait in its batches are not written.
+
+The error codes on the error hop are:
+
+* `SUYNC001`: the row failed on its own, for example its key was not found by *Perform lookup*,
+* `SUYNC002`: the database refused the row in a batch,
+* `SUYNC003`: the row was never sent to the database, and the database could not be asked about it.
+
+The databases measured so far, with their default connection options, are listed in the development manual under "Creating a dialect".
+On every other database, and when a connection option changes how the driver handles a failed batch, the transform handles a failed batch as it always did.
+
+To go back to that behaviour on a measured database:
+
+* set *When a batch fails, the driver* on the *Advanced* tab of the connection to *As before*, or
+* set the variable `HOP_DATABASE_BATCH_RECOVERY` to `LEGACY`, for every connection.
+
+The same option can name what the driver does, for a connection whose options change it.
+
+When a failed batch is worked out this way, the statement of a row can be sent to the database more than once, so a failed batch can fire non-transactional triggers again.
+
+With *Use batch update* off the rows are written one by one, as before.
+
 == See also
 
 * xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]

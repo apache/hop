@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.Getter;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.RecoverableBatch;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pgvector.util.PgVectorTableColumn;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -52,6 +55,83 @@ public class PgVectorUpsertData extends BaseTransformData implements ITransformD
    * route.
    */
   public boolean useSafePoints;
+
+  /** How a failed batch is handled on this connection, see {@link BatchSupport}. */
+  public BatchSupport batchSupport;
+
+  /**
+   * True with an error hop when the connection's batch failure contract has been validated: the
+   * upserts go out in {@link #batch}, which works out the rows of a failed batch by that contract,
+   * and no row runs behind a savepoint. False keeps the handling this transform always had, with
+   * {@link #batchMode} and {@link #useSafePoints}.
+   */
+  public boolean recoveredBatches;
+
+  /** The batch of {@link #recoveredBatches}, created with the upsert statement. */
+  public RecoverableBatch batch;
+
+  /**
+   * How many rows of {@link #batchBuffer} the recovered batch has given a verdict while it runs.
+   */
+  public int settledRows;
+
+  /**
+   * The rows in the current recovered batch, in the order they were added. Each also waits in
+   * {@link #pendingRows}.
+   */
+  public final List<PendingRow> batchBuffer = new ArrayList<>();
+
+  /**
+   * Every row that waits for the current recovered batch, in the order the rows came in: the rows
+   * of {@link #batchBuffer} and the rows that arrived between them. Empty when nothing is pending.
+   */
+  public final List<PendingRow> pendingRows = new ArrayList<>();
+
+  /**
+   * A row that waits for the current recovered batch before it is passed on. A row in the batch
+   * goes to the output or the error hop once the database has said which. The other rows (nothing
+   * to store, a failure before the database) already know where they go, but wait as well, so that
+   * rows leave in the order they came in.
+   */
+  @Getter
+  public static final class PendingRow {
+    /** The row as it came in: the output row and the error row alike. */
+    private final Object[] row;
+
+    private String errorMessage;
+
+    /** Set when the row goes to the error hop. */
+    private String errorCode;
+
+    private PendingRow(Object[] row) {
+      this.row = row;
+    }
+
+    /**
+     * A row whose upsert is in the batch, or a row for the output that isn't: both go to the output
+     * unless the batch {@link #fail fails} the row.
+     */
+    public static PendingRow output(Object[] row) {
+      return new PendingRow(row);
+    }
+
+    /** A row for the error hop that isn't in the batch. */
+    public static PendingRow error(Object[] row, String errorMessage, String errorCode) {
+      PendingRow pending = new PendingRow(row);
+      pending.fail(errorMessage, errorCode);
+      return pending;
+    }
+
+    public boolean isFailed() {
+      return errorCode != null;
+    }
+
+    /** Sends the row to the error hop instead of the output. */
+    public void fail(String errorMessage, String errorCode) {
+      this.errorMessage = errorMessage;
+      this.errorCode = errorCode;
+    }
+  }
 
   /** Rows written since the last commit, used to honour the commit size outside batch mode. */
   public int rowsSinceCommit;

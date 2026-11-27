@@ -39,6 +39,9 @@ To find which values the database would reject before writing, put xref:pipeline
 |Commit size|The number of rows to change (insert / update) before running a commit.
 |Connection|The database connection to which data is written
 |Don't perform any updates|If enabled, the values in the database are never updated;only inserts are performed.
+|Use batch updates|If enabled, the inserts and updates are sent to the database in batches of the commit size instead of one statement per row, on a database where Hop knows how its driver handles a failed batch and when every key condition is an equality.
+See <<batches-and-error-handling>>.
+Off by default.
 |Key Lookup table|Allows you to specify a list of field values and comparators.
 You can use the following comparators: =, = ~NULL, <>, <, <=, >, >=, LIKE, BETWEEN, IS NULL, IS NOT NULL
 |SQL button|Click SQL to generate the SQL to create the table and indexes for correct operation.
@@ -49,6 +52,45 @@ This is important for data sources that allow for table names with periods in th
 |Update Fields|Allows you to specify all fields in the table you want to insert/update including the keys.
 Avoid updates on certain fields by specifying N in the update column.
 |===
+
+[[batches-and-error-handling]]
+== Batches and error handling
+
+With *Use batch updates* off, the default, the rows are inserted or updated one by one, as before.
+On PostgreSQL and the other databases where a failed statement aborts the transaction, every row then runs behind a savepoint when an error hop is attached, so that only the row that failed goes to the error hop.
+
+With *Use batch updates* on, every row is still looked up on its own, but the inserts and the updates are sent to the database in two batches of the commit size: an insert batch and an update batch.
+When a row in a batch fails, what happened to the other rows of the batch depends on the database's JDBC driver: some run the other rows, some stop at the failing row, and some lose the whole batch.
+On a database whose driver's behaviour has been measured, the transform uses it to work out which rows of a failed batch are in the database, and with an error hop attached it sends each row to exactly one stream: the main output for rows that were inserted or updated, the error hop for rows that were refused.
+That includes PostgreSQL, where the rows are then batched with an error hop instead of running one by one behind a savepoint.
+
+* A row only appears on the main output after the database has committed its insert or update.
+The rows keep their input order, also the rows that needed no update: they wait for the rows before them.
+* The rows of a commit window go out together: first the inserts are written and committed, then the updates.
+So when an update and a later insert of the same window both set a column outside the key that must be unique to the same value, the insert gets it and the update is refused, where row by row the update, which came first, would get it.
+* The lookup can't see the rows that still wait in a batch.
+When a row's key is the key of a row that waits, before or after its insert or update, the waiting batches are written first and the row is looked up after them, so a key that comes twice is inserted once and then updated, as row by row.
+Keys are compared without case, accents and surrounding spaces, and numbers by value, so that the transform never misses a key the database finds equal; two keys that only look alike cost an extra write of the batches.
+* Batches are only used when every key condition is `=`, `= ~NULL`, `IS NULL` or `IS NOT NULL`.
+With any other comparator a waiting row could match the lookup of any later row, so the rows are written one by one, and the log says so.
+* Rows refused in a batch go to the error hop with error code `ISU002`; a row of a batch that the database never ran and could not be asked about gets `ISU003`.
+A row that fails on its own, such as a lookup that fails, keeps `ISU001`.
+* Without an error hop a failed batch is rolled back and the transform stops.
+None of the rows of that batch is passed on.
+When the update batch of a window fails, the inserts of that window were committed before it ran, and are passed on.
+* When the transform is stopped or fails, the rows that still wait in its batches are not written.
+
+The databases measured so far, with their default connection options, are listed in the development manual under "Creating a dialect".
+On every other database, and when a connection option changes how the driver handles a failed batch, the transform writes the rows one by one, as with *Use batch updates* off, and the log says why.
+
+To go back to that behaviour on a measured database:
+
+* set *When a batch fails, the driver* on the *Advanced* tab of the connection to *As before*, or
+* set the variable `HOP_DATABASE_BATCH_RECOVERY` to `LEGACY`, for every connection.
+
+When a failed batch is worked out this way, the insert or update of a row can be sent to the database more than once, so a failed batch can fire non-transactional triggers again.
+
+With a commit size of 0, or on a connection shared by a transactional pipeline, the rows are written one by one.
 
 == Samples
 
