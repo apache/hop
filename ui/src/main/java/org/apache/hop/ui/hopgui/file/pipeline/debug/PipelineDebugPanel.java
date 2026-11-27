@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CursorRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -32,6 +33,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.debug.DebugController;
 import org.apache.hop.pipeline.debug.DebugController.HopPause;
@@ -1038,6 +1040,18 @@ public class PipelineDebugPanel {
       String directory =
           DebugSessionStore.sessionDirectory(
               sessions.sessionsRoot(), sessions.projectName(), sessions.pipelineName(), name);
+
+      FileObject targetFolder = HopVfs.getFileObject(directory);
+      if (targetFolder.exists()) {
+        MessageBox box = new MessageBox(status.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+        box.setText(text("PipelineDebugPanel.Session.Save.Title"));
+        box.setMessage(text("PipelineDebugPanel.Session.Save.Confirm"));
+
+        if (box.open() != SWT.YES) {
+          return;
+        }
+      }
+
       DebugSessionStore.save(session.getPipeline(), captured, directory);
       pinStatus(BaseMessages.getString(PKG, "PipelineDebugPanel.Session.Saved", name.trim()));
       refresh();
