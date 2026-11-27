@@ -51,8 +51,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -396,6 +399,39 @@ class DatabaseRunInSavepointTest {
     verify(connection, never()).rollback(any(Savepoint.class));
   }
 
+  /** The query answered: a savepoint that cannot be released does not make the table vanish. */
+  @Test
+  void anExistingTableIsStillThereWhenTheProbeSavepointCannotBeReleased() throws Exception {
+    Statement statement = tableExistsProbe("orders");
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(mock(ResultSet.class));
+    when(connection.getAutoCommit()).thenReturn(false);
+    doThrow(new SQLException("release failed")).when(connection).releaseSavepoint(savepoint);
+
+    List<String> errors = errorsLoggedDuring(() -> assertTrue(db.checkTableExists(null, "orders")));
+
+    verify(connection, never()).rollback(any(Savepoint.class));
+    assertTrue(
+        errors.stream().anyMatch(message -> message.contains("could not be released")),
+        () -> "no error logged for the failed release: " + errors);
+  }
+
+  /** A rollback that fails leaves the transaction aborted: the log has to say why. */
+  @Test
+  void aFailedRollbackToTheProbeSavepointIsLoggedAsAnError() throws Exception {
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery("SELECT 1 FROM missing"))
+        .thenThrow(new SQLException("relation \"missing\" does not exist", "42P01"));
+    when(connection.getAutoCommit()).thenReturn(false);
+    doThrow(new SQLException("rollback failed")).when(connection).rollback(savepoint);
+
+    List<String> errors =
+        errorsLoggedDuring(() -> assertFalse(db.checkTableExists(null, "missing")));
+
+    assertTrue(
+        errors.stream().anyMatch(message -> message.contains("the transaction stays aborted")),
+        () -> "no error logged for the failed rollback: " + errors);
+  }
+
   @ParameterizedTest(name = "savepoints={0}, auto-commit={1}")
   @CsvSource({"true, true", "false, false", "false, true"})
   void theExistenceProbeOnlyUsesASavepointInATransactionThatAFailureWouldAbort(
@@ -420,6 +456,32 @@ class DatabaseRunInSavepointTest {
     Statement statement = mock(Statement.class);
     when(connection.createStatement()).thenReturn(statement);
     return statement;
+  }
+
+  private interface CheckedRunnable {
+    void run() throws Exception;
+  }
+
+  private List<String> errorsLoggedDuring(CheckedRunnable check) throws Exception {
+    HopLogStore.init();
+    db.setLogLevel(LogLevel.ERROR);
+    List<String> errors = new CopyOnWriteArrayList<>();
+    IHopLoggingEventListener listener =
+        event -> {
+          if (event.getLevel() == LogLevel.ERROR) {
+            errors.add(
+                event.getMessage() instanceof LogMessage logMessage
+                    ? logMessage.getMessage()
+                    : String.valueOf(event.getMessage()));
+          }
+        };
+    HopLogStore.getAppender().addLoggingEventListener(listener);
+    try {
+      check.run();
+    } finally {
+      HopLogStore.getAppender().removeLoggingEventListener(listener);
+    }
+    return errors;
   }
 
   private SharedConnectionLock share() {

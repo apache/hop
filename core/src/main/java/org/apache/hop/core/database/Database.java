@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -2150,26 +2151,59 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * auto-commit runs the query behind a savepoint. A missing table or column then leaves the
    * transaction of a transactional pipeline or workflow usable, so the CREATE TABLE or ALTER TABLE
    * that usually follows the check can still run.
+   *
+   * <p>The answer only depends on the query. When the query ran but its savepoint could not be
+   * released, the object is still there. When the savepoint could not be rolled back, the
+   * transaction stays aborted; that is logged as an error, because the statement after the check
+   * will fail on it.
    */
   private boolean existenceProbeSucceeds(String sql) {
     try {
       if (isExistenceProbeBehindSavepoint()) {
-        runInSavepoint(
-            () -> {
-              runExistenceProbe(sql);
-              return null;
-            });
-      } else {
-        runExistenceProbe(sql);
+        return existenceProbeBehindSavepointSucceeds(sql);
       }
+      runExistenceProbe(sql);
       return true;
     } catch (Exception e) {
-      // Any failure running the query means the object is not there, as with getOneRow, which
-      // wrapped every exception of the query in a HopDatabaseException.
-      if (log.isDebug()) {
-        log.logDebug("Existence check [" + sql + "] failed: " + e.getMessage());
-      }
+      logExistenceProbeFailure(sql, e);
       return false;
+    }
+  }
+
+  private boolean existenceProbeBehindSavepointSucceeds(String sql) {
+    AtomicBoolean queryRan = new AtomicBoolean(false);
+    try {
+      runInSavepoint(
+          () -> {
+            runExistenceProbe(sql);
+            queryRan.set(true);
+            return null;
+          });
+      return true;
+    } catch (Exception e) {
+      if (queryRan.get()) {
+        log.logError(
+            "The existence check [" + sql + "] ran, but its savepoint could not be released", e);
+        return true;
+      }
+      // runInSavepoint adds a failed rollback to the failure of the query.
+      for (Throwable rollbackFailure : e.getSuppressed()) {
+        log.logError(
+            "Unable to roll back to the savepoint of the failed existence check ["
+                + sql
+                + "]: the transaction stays aborted",
+            rollbackFailure);
+      }
+      logExistenceProbeFailure(sql, e);
+      return false;
+    }
+  }
+
+  private void logExistenceProbeFailure(String sql, Exception e) {
+    // Any failure running the query means the object is not there, as with getOneRow, which
+    // wrapped every exception of the query in a HopDatabaseException.
+    if (log.isDebug()) {
+      log.logDebug("Existence check [" + sql + "] failed: " + e.getMessage());
     }
   }
 
