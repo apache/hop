@@ -75,8 +75,13 @@ class HopBundleMainTest {
     assertEquals("Two actions", whole.description());
     assertEquals(perAction.version(), whole.version());
     assertEquals(
-        "Hop workflow `two.hwf`\n\n" + HopAirflowBundle.DAG_DOC_VERSION + perAction.version(),
-        HopBundleMain.dagDoc(whole));
+        "Hop workflow `two.hwf`\n\n"
+            + HopAirflowBundle.DAG_DOC_VERSION
+            + perAction.version()
+            + "\n\n"
+            + HopAirflowBundle.DAG_DOC_TASKS
+            + HopAirflowBundle.TASKS_WHOLE_WORKFLOW,
+        HopBundleMain.dagDoc(whole, HopAirflowBundle.TASKS_WHOLE_WORKFLOW));
 
     // A workflow that already runs as one task keeps its reason
     Path broken = folder.resolve("broken.hwf");

@@ -117,7 +117,7 @@ public final class HopBundleMain {
               .config("queue", QUEUE)
               .config("description", workflow.description())
               .config("tags", List.of("hop", manifest.projectName()))
-              .config("doc_md", dagDoc(workflow));
+              .config("doc_md", dagDoc(workflow, manifest.tasks()));
       if (workflow.tasks().isEmpty()) {
         // stdout: Airflow shows a task's stderr as errors
         System.out.println(
@@ -218,13 +218,16 @@ public final class HopBundleMain {
     }
   }
 
-  /** Names the workflow, and its version for the Airflow run configuration. */
-  static String dagDoc(HopWorkflowFile workflow) {
+  /**
+   * Names the workflow, and its version and the tasks of the bundle for the Airflow run
+   * configuration.
+   */
+  static String dagDoc(HopWorkflowFile workflow, String tasks) {
     String doc = "Hop workflow `" + workflow.relativePath() + "`";
     if (workflow.version() != null) {
       doc += "\n\n" + HopAirflowBundle.DAG_DOC_VERSION + workflow.version();
     }
-    return doc;
+    return doc + "\n\n" + HopAirflowBundle.DAG_DOC_TASKS + tasks;
   }
 
   private static String doc(ActionTasks.ActionTask task, HopWorkflowFile workflow) {

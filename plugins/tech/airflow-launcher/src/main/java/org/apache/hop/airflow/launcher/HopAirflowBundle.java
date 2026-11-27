@@ -94,6 +94,13 @@ public final class HopAirflowBundle {
   public static final String DAG_DOC_VERSION = "Workflow version: ";
 
   /**
+   * Starts the line of a DAG's documentation that names the {@link #ATTRIBUTE_TASKS} of the stub. A
+   * change of the tasks alone leaves the workflow version as it was: the Airflow run configuration
+   * also waits until Airflow shows the DAG with the tasks it published.
+   */
+  public static final String DAG_DOC_TASKS = "Tasks: ";
+
+  /**
    * The key of the run conf that holds the version of the workflow the run was started for. The
    * Apache Airflow run configuration sets it; it is not passed on to Hop as a parameter.
    */

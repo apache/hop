@@ -75,7 +75,9 @@ class AirflowWorkflowEngineTest {
 
   /** The documentation of the DAG of the published flows/hello.hwf, which holds "<workflow/>". */
   private static final String DOC =
-      "Hop workflow `flows/hello.hwf`\\n\\nWorkflow version: " + sha("<workflow/>");
+      "Hop workflow `flows/hello.hwf`\\n\\nWorkflow version: "
+          + sha("<workflow/>")
+          + "\\n\\nTasks: PER_ACTION";
 
   private static String sha(String content) {
     try {
@@ -155,6 +157,10 @@ class AirflowWorkflowEngineTest {
 
   /** Airflow shows the DAG only after the first check, and paused. */
   private void stubNewPausedDag() {
+    stubNewPausedDag(DOC);
+  }
+
+  private void stubNewPausedDag(String doc) {
     server.stubFor(
         get(urlEqualTo(DAG + "/details"))
             .inScenario("dag")
@@ -169,7 +175,7 @@ class AirflowWorkflowEngineTest {
                 aResponse()
                     .withBody(
                         "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":true,\"doc_md\":\""
-                            + DOC
+                            + doc
                             + "\"}")));
     server.stubFor(
         patch(urlEqualTo(DAG + "?update_mask=is_paused"))
@@ -280,7 +286,7 @@ class AirflowWorkflowEngineTest {
   @Test
   void publishesTheTasksOfTheRunConfiguration() throws Exception {
     config.setTasks(AirflowDagTasks.WHOLE_WORKFLOW);
-    stubNewPausedDag();
+    stubNewPausedDag(DOC.replace("PER_ACTION", "WHOLE_WORKFLOW"));
     stubTrigger();
     stubRunStates("running", "success");
     stubTask(
@@ -397,6 +403,46 @@ class AirflowWorkflowEngineTest {
                     .withBody(
                         "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
                             + DOC
+                            + "\"}")));
+    stubTrigger();
+    stubRunStates("success");
+    stubTask("success", "Starting action [Start]", "Finished action [Start] (result=[true])");
+    stubOutcome("{\"success\":true}");
+
+    engine().startExecution();
+
+    server.verify(2, getRequestedFor(urlEqualTo(DAG + "/details")));
+    server.verify(1, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  /**
+   * Changing only the Tasks of the run configuration leaves the workflow as it was: Airflow still
+   * shows the DAG with the earlier tasks until it parses the new stub. A run of that DAG would fail
+   * on the workers, which already read the new stub.
+   */
+  @Test
+  void waitsForTheDagWithTheTasksOfTheRunConfiguration() throws Exception {
+    config.setTasks(AirflowDagTasks.WHOLE_WORKFLOW);
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .inScenario("tasks")
+            .whenScenarioStateIs(Scenario.STARTED)
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + DOC
+                            + "\"}"))
+            .willSetStateTo("parsed"));
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .inScenario("tasks")
+            .whenScenarioStateIs("parsed")
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + DOC.replace("PER_ACTION", "WHOLE_WORKFLOW")
                             + "\"}")));
     stubTrigger();
     stubRunStates("success");

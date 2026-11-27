@@ -137,7 +137,7 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     String bundleFolder = publish(projectName, projectHome);
     checkNotStopped();
     publishedVersion = workflowVersion(bundleFolder, relativePath);
-    AirflowDag dag = waitForDag(publishedVersion);
+    AirflowDag dag = waitForDag(publishedVersion, publishedTasks());
     checkNotStopped();
     if (dag.paused()) {
       if (!config.isUnpausingDag()) {
@@ -261,6 +261,12 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     }
   }
 
+  /** The code of the tasks the bundle was published with, as the stub has it. */
+  private String publishedTasks() {
+    AirflowDagTasks tasks = airflowRunConfiguration.getTasks();
+    return (tasks == null ? AirflowDagTasks.PER_ACTION : tasks).getCode();
+  }
+
   /** The writer of the bundle. Tests override it, to write without an installed launcher. */
   protected AirflowBundleWriter newBundleWriter() {
     return new AirflowBundleWriter();
@@ -272,9 +278,10 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
    * published.
    *
    * @param version the version of the published workflow
+   * @param tasks the tasks of the published bundle, see {@link HopAirflowBundle#DAG_DOC_TASKS}
    * @return the DAG
    */
-  private AirflowDag waitForDag(String version) throws HopException {
+  private AirflowDag waitForDag(String version, String tasks) throws HopException {
     long waitMillis =
         Const.toLong(
                 resolve(airflowRunConfiguration.getDagWaitSeconds()),
@@ -287,7 +294,8 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
       boolean current =
           dag != null
               && dag.docMd() != null
-              && dag.docMd().contains(HopAirflowBundle.DAG_DOC_VERSION + version);
+              && dag.docMd().contains(HopAirflowBundle.DAG_DOC_VERSION + version)
+              && dag.docMd().contains(HopAirflowBundle.DAG_DOC_TASKS + tasks);
       if (current) {
         return dag;
       }
