@@ -96,7 +96,7 @@ public class MinioPipedOutputStream extends OutputStream {
               .contentType("application/octet-stream")
               .bucket(bucketName)
               .object(key)
-              .stream(new ByteArrayInputStream(data), data.length, -1)
+              .stream(new ByteArrayInputStream(data), (long) data.length, -1L)
               .build();
       fileSystem.getClient().putObject(args);
       fileSystem.invalidateListCacheForParentOf(bucketName, key);
