@@ -17,14 +17,17 @@
 
 package org.apache.hop.pipeline;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,7 +36,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -48,11 +53,13 @@ import org.apache.hop.core.plugins.IClassLoadingPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -629,5 +636,180 @@ class PipelineTest {
     pipeline.stopAll();
 
     assertEquals(1, stopped[0]);
+  }
+
+  @Test
+  void stopAllCallbacksCanAccessTransformsFromAnotherThread() throws Exception {
+    assertStopCallbackCanAccessTransforms(false);
+  }
+
+  @Test
+  void safeStopCallbacksCanAccessTransformsFromAnotherThread() throws Exception {
+    assertStopCallbackCanAccessTransforms(true);
+  }
+
+  private void assertStopCallbackCanAccessTransforms(final boolean safeStop) throws Exception {
+    final var pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    final var combi = new TransformMetaDataCombi();
+    combi.transformMeta = new TransformMeta("input", new DummyMeta());
+    combi.transform = mock(ITransform.class);
+    combi.data = mock(ITransformData.class);
+    pipeline.getPipelineMeta().addTransform(combi.transformMeta);
+    pipeline.setTransforms(Collections.synchronizedList(new ArrayList<>(List.of(combi))));
+    final var reader = Executors.newSingleThreadExecutor();
+    try {
+      doAnswer(
+              invocation -> {
+                // size() acquires the synchronized list's monitor. The callback must not hold it
+                // while waiting for another thread to inspect the pipeline.
+                final var size = reader.submit(() -> pipeline.getTransforms().size());
+                assertEquals(1, assertDoesNotThrow(() -> size.get(5, TimeUnit.SECONDS)));
+                return null;
+              })
+          .when(combi.transform)
+          .stopRunning();
+
+      if (safeStop) {
+        pipeline.safeStop();
+      } else {
+        pipeline.stopAll();
+      }
+
+      verify(combi.transform).stopRunning();
+    } finally {
+      reader.shutdownNow();
+      assertTrue(reader.awaitTermination(5, TimeUnit.SECONDS), "Transform reader did not finish");
+    }
+  }
+
+  @Test
+  void stopAllDoesNotReenterTransformStopCallbacks() throws Exception {
+    final var pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    final var combi = new TransformMetaDataCombi();
+    combi.transform = mock(ITransform.class);
+    combi.data = mock(ITransformData.class);
+    pipeline.setTransforms(Collections.synchronizedList(new ArrayList<>(List.of(combi))));
+    final var callbacks = new AtomicInteger();
+    final var notifications = new AtomicInteger();
+    pipeline.addExecutionStoppedListener(p -> notifications.incrementAndGet());
+    doAnswer(
+            invocation -> {
+              // Bound a broken implementation to one recursive call instead of overflowing the
+              // stack: the observable callback count must still be exactly one.
+              if (callbacks.incrementAndGet() == 1) {
+                pipeline.stopAll();
+              }
+              return null;
+            })
+        .when(combi.transform)
+        .stopRunning();
+
+    pipeline.stopAll();
+
+    assertEquals(1, callbacks.get());
+    assertEquals(1, notifications.get());
+    assertTrue(pipeline.isStopped());
+  }
+
+  @Test
+  void stopAllStillReachesTerminalStateWhenAStopCallbackThrows() throws Exception {
+    final var pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    final var combi = new TransformMetaDataCombi();
+    combi.transform = mock(ITransform.class);
+    combi.data = mock(ITransformData.class);
+    pipeline.setTransforms(Collections.synchronizedList(new ArrayList<>(List.of(combi))));
+    final var notifications = new AtomicInteger();
+    pipeline.addExecutionStoppedListener(p -> notifications.incrementAndGet());
+    // A misbehaving transform throws while it is being stopped: the pipeline must still reach its
+    // terminal stopped state and notify the stopped listeners exactly once.
+    doThrow(new RuntimeException("boom")).when(combi.transform).stopRunning();
+
+    pipeline.stopAll();
+
+    assertEquals(1, notifications.get());
+    assertTrue(pipeline.isStopped());
+    assertFalse(pipeline.isPaused());
+  }
+
+  @Test
+  void concurrentStopAllCallsNotifyStoppedListenersOnce() throws Exception {
+    final var pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    final var combi = new TransformMetaDataCombi();
+    combi.transform = mock(ITransform.class);
+    combi.data = mock(ITransformData.class);
+    // Isolate the one-shot guard from the synchronized list monitor: both calls can reach the
+    // callback in a broken implementation, without serializing on list iteration.
+    pipeline.setTransforms(new ArrayList<>(List.of(combi)));
+    final var callbackEntered = new CountDownLatch(1);
+    final var releaseCallback = new CountDownLatch(1);
+    final var callbacks = new AtomicInteger();
+    final var notifications = new AtomicInteger();
+    pipeline.addExecutionStoppedListener(p -> notifications.incrementAndGet());
+    doAnswer(
+            invocation -> {
+              if (callbacks.incrementAndGet() == 1) {
+                callbackEntered.countDown();
+                assertTrue(releaseCallback.await(10, TimeUnit.SECONDS), "Callback not released");
+              }
+              return null;
+            })
+        .when(combi.transform)
+        .stopRunning();
+    final var callers = Executors.newFixedThreadPool(2);
+    try {
+      final var first = callers.submit(pipeline::stopAll);
+      assertTrue(callbackEntered.await(5, TimeUnit.SECONDS), "First stop did not reach callback");
+      final var second = callers.submit(pipeline::stopAll);
+      // Keep the first stop inside the callback until the competing stop has returned.
+      second.get(5, TimeUnit.SECONDS);
+      releaseCallback.countDown();
+      first.get(5, TimeUnit.SECONDS);
+
+      assertEquals(1, notifications.get());
+      assertEquals(1, callbacks.get());
+      assertTrue(pipeline.isStopped());
+    } finally {
+      releaseCallback.countDown();
+      callers.shutdownNow();
+      assertTrue(callers.awaitTermination(5, TimeUnit.SECONDS), "Stop callers did not finish");
+    }
+  }
+
+  @Test
+  void safeStopOnlyStopsInputTransforms() throws Exception {
+    final var meta = new PipelineMeta();
+    final var input = new TransformMetaDataCombi();
+    input.transformMeta = new TransformMeta("input", new DummyMeta());
+    input.transform = mock(ITransform.class);
+    input.data = mock(ITransformData.class);
+    final var downstream = new TransformMetaDataCombi();
+    downstream.transformMeta = new TransformMeta("downstream", new DummyMeta());
+    downstream.transform = mock(ITransform.class);
+    downstream.data = mock(ITransformData.class);
+    meta.addTransform(input.transformMeta);
+    meta.addTransform(downstream.transformMeta);
+    meta.addPipelineHop(new PipelineHopMeta(input.transformMeta, downstream.transformMeta));
+    final var pipeline = new LocalPipelineEngine(meta);
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    pipeline.setTransforms(
+        Collections.synchronizedList(new ArrayList<>(List.of(input, downstream))));
+
+    pipeline.safeStop();
+
+    verify(input.transform).setStopped(true);
+    verify(input.transform).setSafeStopped(true);
+    verify(input.transform).stopRunning();
+    verify(input.transform).setOutputDone();
+    verify(input.data).setStatus(ComponentExecutionStatus.STATUS_STOPPED);
+    verify(downstream.transform, never()).setStopped(true);
+    verify(downstream.transform, never()).setSafeStopped(true);
+    verify(downstream.transform, never()).stopRunning();
+    verify(downstream.transform, never()).setOutputDone();
+    verify(downstream.data, never()).setStatus(ComponentExecutionStatus.STATUS_STOPPED);
+    assertFalse(pipeline.isStopped(), "Downstream transforms must be allowed to drain");
   }
 }

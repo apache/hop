@@ -42,7 +42,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
@@ -202,6 +205,66 @@ class BaseTransformTest {
       done.set(true);
       addListeners.join();
     }
+  }
+
+  @Test
+  void finishedListenerCanAcquireTransformAndListenerMonitorsFromAnotherThread() {
+    final var transform =
+        new BaseTransform<>(
+            mockHelper.transformMeta,
+            mockHelper.iTransformMeta,
+            mockHelper.iTransformData,
+            0,
+            mockHelper.pipelineMeta,
+            mockHelper.pipeline);
+    final var calls = new AtomicInteger();
+    transform.addTransformFinishedListener(
+        (pipeline, meta, finished) -> {
+          final var acquired =
+              CompletableFuture.runAsync(
+                  () -> {
+                    synchronized (transform) {
+                      // stopRunning() implementations also acquire this monitor.
+                      synchronized (transform.getTransformFinishedListeners()) {
+                        calls.incrementAndGet();
+                      }
+                    }
+                  });
+          try {
+            acquired.get(5, TimeUnit.SECONDS);
+          } catch (Exception e) {
+            throw new AssertionError("Completion callback retained a lifecycle monitor", e);
+          }
+        });
+    transform.markStart();
+    transform.markStop();
+    transform.markStop();
+    assertEquals(1, calls.get());
+  }
+
+  @Test
+  void concurrentMarkStopNotifiesOnceAndAllowsListenerRegistration() throws Exception {
+    final var transform =
+        new BaseTransform<>(
+            mockHelper.transformMeta,
+            mockHelper.iTransformMeta,
+            mockHelper.iTransformData,
+            0,
+            mockHelper.pipelineMeta,
+            mockHelper.pipeline);
+    final var calls = new AtomicInteger();
+    transform.addTransformFinishedListener(
+        (pipeline, meta, finished) -> {
+          calls.incrementAndGet();
+          // Adding a listener during notification must not invalidate iteration.
+          transform.addTransformFinishedListener((p, m, t) -> calls.addAndGet(100));
+          transform.markStop();
+        });
+    transform.markStart();
+    final var first = CompletableFuture.runAsync(transform::markStop);
+    final var second = CompletableFuture.runAsync(transform::markStop);
+    CompletableFuture.allOf(first, second).get(5, TimeUnit.SECONDS);
+    assertEquals(1, calls.get());
   }
 
   @Test
