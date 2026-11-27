@@ -59,6 +59,11 @@ The https://github.com/apache/hop/blob/main/docs/hop-user-manual/modules/ROOT/as
 WARNING: Mounting the Docker socket gives the Airflow worker, and every DAG it runs, root-equivalent access to the Docker host. Only do this on a machine you use for testing. On a shared or production platform, use the <<kubernetes,KubernetesPodOperator>> instead.
 
 Save the file in an empty folder.
+
+NOTE: If you followed an earlier version of this page (Airflow 2 with Postgres 13), run `docker compose down -v` in the old folder first, or use a folder with another name.
+Postgres 16 can't read the Postgres 13 database in the old `postgres-db-volume` volume and keeps restarting, so Airflow never starts.
+`down -v` deletes that old Airflow database.
+
 Airflow needs an `.env` file next to it.
 On Linux, put your user id and the group id of the Docker socket in it, so the files Airflow creates are yours and the worker can use the Docker socket:
 
@@ -197,7 +202,8 @@ with DAG(
 ----
 
 `mount_tmp_dir=False` stops the DockerOperator from mounting a temporary folder of the worker into the Hop container. That folder does not exist on the Docker host.
-`auto_remove="success"` removes the Hop container when the run succeeds and keeps it when it fails, so you can still check it with `docker logs`.
+`auto_remove="success"` removes the Hop container after the run, also when the run fails. The Hop output is in the Airflow task log.
+To keep the container, for example to check it with `docker logs`, use `auto_remove="never"` and remove it yourself afterwards.
 
 == Deploy and run your first DAG
 
@@ -392,15 +398,16 @@ Managed Airflow services such as Amazon MWAA, Google Cloud Composer and Astronom
 Use the https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/operators.html[KubernetesPodOperator^] instead: it runs the same `apache/hop` image as a pod in a Kubernetes cluster.
 It is in the `apache-airflow-providers-cncf-kubernetes` package, which the official Airflow image already contains.
 
-A pod can't mount a folder from your machine. Put the project in an image (see xref:hop-server/deploy-project-image.adoc[Project in a Docker image]) and the environment configuration file in a ConfigMap:
+A pod can't mount a folder from your machine. Put the project in an image (see xref:hop-server/deploy-project-image.adoc[Project in a Docker image]) and the environment configuration file in a ConfigMap, in the namespace the pod runs in (see below):
 
 [source, bash]
 ----
-kubectl create configmap hop-airflow-config --from-file=hop-airflow-config.json
+kubectl create configmap hop-airflow-config --from-file=hop-airflow-config.json -n NAMESPACE
 ----
 
 The DAG below runs the pipeline with parameter from the previous section in a pod.
-`registry.example.com/your-project:1.0` is your project image, with the project in `/your-project`.
+`registry.example.com/your-project:1.0` is an image of the samples project, with the project in `/your-project`.
+For an image of your own project, point `HOP_FILE_PATH` at a pipeline or workflow in that project.
 
 [source, python]
 ----
@@ -421,7 +428,6 @@ with DAG(
     hop = KubernetesPodOperator(
         task_id="pipeline-with-parameter",
         name="hop-pipeline-with-parameter",
-        namespace="default",
         image="registry.example.com/your-project:1.0",
         env_vars={
             "HOP_RUN_PARAMETERS": "PRM_EXAMPLE={{ params.prm_example }}",
@@ -453,6 +459,12 @@ with DAG(
 How Airflow connects to the cluster depends on where it runs.
 On Cloud Composer and Astronomer, the default connection runs the pod in the Airflow cluster itself.
 On MWAA, and on your own Airflow outside the cluster, set `kubernetes_conn_id` or `config_file` to point the operator at your cluster.
+
+The DAG doesn't set a `namespace`, so the operator uses the namespace of the Kubernetes connection, then the namespace Airflow itself runs in, then `default`.
+Platforms often only let Airflow create pods in one namespace, such as the deployment namespace on Astronomer or `composer-user-workloads` on Cloud Composer 3.
+If yours does, set `namespace` on the operator to that namespace.
+Create the ConfigMap in the same namespace, or the pod can't find it.
+
 See the KubernetesPodOperator documentation and the documentation of your platform.
 
 == Scheduling a DAG in Apache Airflow
@@ -461,7 +473,7 @@ So far, we've triggered DAGs manually. There are lots of https://airflow.apache.
 
 For the same hop-run / short-lived-container contract with cron, systemd, Jenkins or a Kubernetes CronJob, see xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines].
 
-One option is a cron expression. For example, to run a DAG at 10:00 every morning, change `schedule` from `None` to a cron expression in the `with DAG` line of your DAG:
+One option is a cron expression. For example, to run a DAG at 10:00 UTC every morning, change `schedule` from `None` to a cron expression in the `with DAG` line of your DAG:
 
 [source, python]
 ----
@@ -473,6 +485,10 @@ with DAG(
     is_paused_upon_creation=False,
 ) as dag:
 ----
+
+Airflow reads the cron expression in UTC, because the Docker Compose setup sets no default time zone and `start_date` has none.
+To schedule in local time, give `start_date` a time zone, for example `pendulum.datetime(2026, 1, 1, tz="Europe/Brussels")` (with `import pendulum`).
+See https://airflow.apache.org/docs/apache-airflow/stable/authoring-and-scheduling/timezone.html[Time zones^] in the Airflow documentation.
 
 Scheduled runs use the default values of the DAG's `params`.
 See https://airflow.apache.org/docs/apache-airflow/stable/authoring-and-scheduling/cron.html[Cron & Time Intervals^] in the Airflow documentation for cron expressions, presets such as `@daily`, and other ways to schedule a DAG.
