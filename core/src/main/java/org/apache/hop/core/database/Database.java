@@ -2145,10 +2145,46 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * the result, at most one row is fetched, and the statement is closed even when the query fails:
    * Table exists and Column exists ask this once per row.
    *
-   * <p>A failing query is still a failing query: on a database that aborts the transaction on an
-   * error (PostgreSQL without auto-commit) it does so, exactly as before.
+   * <p>On a database where a failed statement aborts the transaction until it is rolled back
+   * (PostgreSQL and its look-alikes, see {@link IDatabase#isUseSafePoints()}), a connection without
+   * auto-commit runs the query behind a savepoint. A missing table or column then leaves the
+   * transaction of a transactional pipeline or workflow usable, so the CREATE TABLE or ALTER TABLE
+   * that usually follows the check can still run.
    */
   private boolean existenceProbeSucceeds(String sql) {
+    try {
+      if (isExistenceProbeBehindSavepoint()) {
+        runInSavepoint(
+            () -> {
+              runExistenceProbe(sql);
+              return null;
+            });
+      } else {
+        runExistenceProbe(sql);
+      }
+      return true;
+    } catch (Exception e) {
+      // Any failure running the query means the object is not there, as with getOneRow, which
+      // wrapped every exception of the query in a HopDatabaseException.
+      if (log.isDebug()) {
+        log.logDebug("Existence check [" + sql + "] failed: " + e.getMessage());
+      }
+      return false;
+    }
+  }
+
+  private boolean isExistenceProbeBehindSavepoint() {
+    if (!databaseMeta.getIDatabase().isUseSafePoints()) {
+      return false;
+    }
+    try {
+      return !connection.getAutoCommit();
+    } catch (SQLException e) {
+      return false;
+    }
+  }
+
+  private void runExistenceProbe(String sql) throws HopDatabaseException {
     Statement statement = null;
     try {
       statement = connection.createStatement();
@@ -2163,14 +2199,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       try (ResultSet resultSet = statement.executeQuery(databaseMeta.stripCR(sql))) {
         resultSet.next();
       }
-      return true;
-    } catch (Exception e) {
-      // Any failure running the query means the object is not there, as with getOneRow, which
-      // wrapped every exception of the query in a HopDatabaseException.
-      if (log.isDebug()) {
-        log.logDebug("Existence check [" + sql + "] failed: " + e.getMessage());
-      }
-      return false;
+    } catch (SQLException e) {
+      throw new HopDatabaseException(e);
     } finally {
       if (statement != null) {
         try {

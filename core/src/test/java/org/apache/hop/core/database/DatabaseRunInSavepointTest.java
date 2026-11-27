@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -35,8 +36,10 @@ import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -65,6 +68,7 @@ class DatabaseRunInSavepointTest {
   private Connection connection;
   private Savepoint savepoint;
   private IDatabase dialect;
+  private DatabaseMeta meta;
   private Database db;
   private ExecutorService other;
 
@@ -77,7 +81,7 @@ class DatabaseRunInSavepointTest {
     dialect = mock(IDatabase.class);
     when(dialect.isUseSafePoints()).thenReturn(true);
     when(dialect.isReleaseSavepoint()).thenReturn(true);
-    DatabaseMeta meta = mock(DatabaseMeta.class);
+    meta = mock(DatabaseMeta.class);
     when(meta.getIDatabase()).thenReturn(dialect);
     db = new Database(log, new Variables(), meta);
     db.setConnection(connection);
@@ -351,6 +355,71 @@ class DatabaseRunInSavepointTest {
     when(dialect.isUseSafePoints()).thenReturn(useSafePoints);
     db.setCommit(commitSize);
     assertEquals(expected, db.isUsingRowSavepoints(errorHandling));
+  }
+
+  /**
+   * On PostgreSQL a failed query aborts the transaction. Checking for a table that is not there, as
+   * the DDL transform and Table output do before CREATE TABLE, must not take the transaction of a
+   * transactional pipeline or workflow down with it (#9748).
+   */
+  @Test
+  void aMissingTableInATransactionIsCheckedBehindASavepoint() throws Exception {
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery("SELECT 1 FROM missing"))
+        .thenThrow(new SQLException("relation \"missing\" does not exist", "42P01"));
+    when(connection.getAutoCommit()).thenReturn(false);
+
+    assertFalse(db.checkTableExists(null, "missing"));
+
+    InOrder order = inOrder(connection, statement);
+    order.verify(connection).setSavepoint();
+    order.verify(statement).executeQuery("SELECT 1 FROM missing");
+    order.verify(statement).close();
+    order.verify(connection).rollback(savepoint);
+    order.verify(connection).releaseSavepoint(savepoint);
+    verify(connection, never()).rollback();
+  }
+
+  @Test
+  void anExistingTableInATransactionReleasesTheProbeSavepoint() throws Exception {
+    Statement statement = tableExistsProbe("orders");
+    ResultSet resultSet = mock(ResultSet.class);
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(resultSet);
+    when(connection.getAutoCommit()).thenReturn(false);
+
+    assertTrue(db.checkTableExists(null, "orders"));
+
+    InOrder order = inOrder(connection, statement);
+    order.verify(connection).setSavepoint();
+    order.verify(statement).executeQuery("SELECT 1 FROM orders");
+    order.verify(connection).releaseSavepoint(savepoint);
+    verify(connection, never()).rollback(any(Savepoint.class));
+  }
+
+  @ParameterizedTest(name = "savepoints={0}, auto-commit={1}")
+  @CsvSource({"true, true", "false, false", "false, true"})
+  void theExistenceProbeOnlyUsesASavepointInATransactionThatAFailureWouldAbort(
+      boolean useSafePoints, boolean autoCommit) throws Exception {
+    when(dialect.isUseSafePoints()).thenReturn(useSafePoints);
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery(anyString())).thenThrow(new SQLException("no such table"));
+    when(connection.getAutoCommit()).thenReturn(autoCommit);
+
+    assertFalse(db.checkTableExists(null, "missing"));
+
+    verify(connection, never()).setSavepoint();
+    verify(connection, never()).rollback(any(Savepoint.class));
+    verify(statement).close();
+  }
+
+  private Statement tableExistsProbe(String table) throws Exception {
+    String sql = "SELECT 1 FROM " + table;
+    when(meta.getQuotedSchemaTableCombination(any(), any(), eq(table))).thenReturn(table);
+    when(meta.getSqlTableExists(table)).thenReturn(sql);
+    when(meta.stripCR(sql)).thenReturn(sql);
+    Statement statement = mock(Statement.class);
+    when(connection.createStatement()).thenReturn(statement);
+    return statement;
   }
 
   private SharedConnectionLock share() {
