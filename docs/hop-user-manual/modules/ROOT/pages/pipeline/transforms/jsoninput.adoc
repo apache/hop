@@ -285,7 +285,6 @@ The samples project has:
 
 * `pipelines/read-transactions.hpl`, which reads `Account`, `Amount`, `Company` and `Report_Date` from the JSON array built for each Excel file.
 * `transforms/json-input-basic.hpl`, which reads the settings of the pipeline log `metadata/pipeline-log/pipeline-log-example.json`.
-* `transforms/json-input-nested-elements.hpl`, which reads the Dataflow run configuration `metadata/pipeline-run-configuration/DataFlow.json`, and then reads its configuration variables from a field with a second JSON Input.
-This file comes with the Beam plugin, so without that plugin the pipeline returns no rows.
+* `transforms/json-input-nested-elements.hpl`, which reads `data/dataflow-run-configuration.json`, a copy of the Dataflow pipeline run configuration of the Beam plugin, and then reads its configuration variables from a field with a second JSON Input.
 * `transforms/json-input-public-holidays-from-rest.hpl`, which gets the public holidays of `${PRM_COUNTRY}` (default `BE`) in 2023 from the Nager.Date REST API, and reads the date, the names, the type and the other fields of each holiday.
 It needs network access.

@@ -103,7 +103,7 @@ limitations under the License.
       <variable_name>END_LOOP</variable_name>
       <variable_value/>
       <delay/>
-      <keep_values>N</keep_values>
+      <keep_values>Y</keep_values>
       <logfile_enabled>N</logfile_enabled>
       <logfile_appended>Y</logfile_appended>
       <logfile_base/>
@@ -130,6 +130,11 @@ limitations under the License.
         <field>
           <variable_name>COUNTER</variable_name>
           <variable_value>1</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>END_LOOP</variable_name>
+          <variable_value/>
           <variable_type>JVM</variable_type>
         </field>
       </fields>

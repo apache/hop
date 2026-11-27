@@ -135,7 +135,7 @@ Alternatively, you can store the .HPL, and then open the .HPL in a text editor.
 The samples project has:
 
 * `transforms/filter-rows-basic.hpl`, which checks 10 rows from a Data grid against `(id < 5 OR group = GR03) AND NOT desc = d`: one Filter rows sends the 5 matching rows to one Dummy and the other 5 to another, and the second one only passes on the 5 matching rows.
-* `metadata-injection/filter-rows-mdi-parent.hpl`, which injects the condition shown under <<MDI Example>> into the Filter rows of `metadata-injection/filter-rows-mdi-child.hpl`, which reads `files/customers-100.txt`.
+* `metadata-injection/filter-rows-mdi-parent.hpl`, which injects the condition shown under <<MDI Example>> into the Filter rows of `metadata-injection/filter-rows-mdi-child.hpl`, which reads `files/customers-100.txt`: the one customer that matches goes to True, the other 99 go to False.
 * `loops/child-check-set-counter-value.hpl`, which the *repeat pipeline* action of `loops/repeat-action.hwf` runs again and again: while `${COUNTER}` is 10 or less it adds 1 to it, and when it is higher it sets `${END_LOOP}`, which ends the repeat.
 * `pipelines/read-transactions.hpl`, which uses the sheet row number to split the header row of each Excel file from its data rows.
 
@@ -147,7 +147,7 @@ The full example pipelines are listed under <<Samples>>.
 
 [source, shell]
 ----
-stateCode = FL
+stateCode = CA
 AND
 housenr > 100
 ----
@@ -165,7 +165,7 @@ housenr > 100
                     <value>
                         <name>constant</name>
                         <type>String</type>
-                        <text>FL</text>
+                        <text>CA</text>
                         <length>-1</length>
                         <precision>-1</precision>
                         <isnull>N</isnull>

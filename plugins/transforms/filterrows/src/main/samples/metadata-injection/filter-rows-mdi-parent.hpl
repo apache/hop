@@ -127,21 +127,21 @@ limitations under the License.
     <stream_target_transform/>
     <mappings>
       <mapping>
-        <target_transform_name>FL and housenr>100</target_transform_name>
+        <target_transform_name>CA and housenr>100</target_transform_name>
         <target_attribute_key>SEND_FALSE_TRANSFORM</target_attribute_key>
         <target_detail>N</target_detail>
         <source_transform>metadata</source_transform>
         <source_field>falseTarget</source_field>
       </mapping>
       <mapping>
-        <target_transform_name>FL and housenr>100</target_transform_name>
+        <target_transform_name>CA and housenr>100</target_transform_name>
         <target_attribute_key>SEND_TRUE_TRANSFORM</target_attribute_key>
         <target_detail>N</target_detail>
         <source_transform>metadata</source_transform>
         <source_field>trueTarget</source_field>
       </mapping>
       <mapping>
-        <target_transform_name>FL and housenr>100</target_transform_name>
+        <target_transform_name>CA and housenr>100</target_transform_name>
         <target_attribute_key>CONDITION</target_attribute_key>
         <target_detail>N</target_detail>
         <source_transform>metadata</source_transform>
@@ -178,7 +178,7 @@ limitations under the License.
                     &lt;value>
                         &lt;name>constant&lt;/name>
                         &lt;type>String&lt;/type>
-                        &lt;text>FL&lt;/text>
+                        &lt;text>CA&lt;/text>
                         &lt;length>-1&lt;/length>
                         &lt;precision>-1&lt;/precision>
                         &lt;isnull>N&lt;/isnull>

@@ -1,0 +1,44 @@
+{
+  "engineRunConfiguration": {
+    "BeamDataFlowPipelineEngine": {
+      "gcpWorkerMachineType": "n1-standard-4",
+      "streamingHopTransformsBufferSize": "5000",
+      "gcpMaximumNumberOfWorkers": "2",
+      "gcpZone": "",
+      "gcpProjectId": "apache-hop",
+      "userAgent": "Hop",
+      "gcpRegion": "us-east1",
+      "pluginsToStage": "",
+      "tempLocation": "gs://apache-hop-it/tmp/",
+      "gcpWorkerDiskType": "",
+      "gcpAppName": "ApacheHop",
+      "gcpInitialNumberOfWorkers": "1",
+      "gcpStagingLocation": "gs://apache-hop-it/binaries/",
+      "fatJar": "/home/matt/parking/hop-2.2-fat.jar",
+      "streamingHopTransformsFlushInterval": "1000",
+      "transformPluginClasses": "",
+      "gcpDiskSizeGb": "",
+      "gcpAutoScalingAlgorithm": "",
+      "xpPluginClasses": ""
+    }
+  },
+  "configurationVariables": [
+    {
+      "name": "DATA_INPUT",
+      "description": "",
+      "value": "gs://apache-hop/input/customers-noheader-1M.txt"
+    },
+    {
+      "name": "STATE_INPUT",
+      "description": "",
+      "value": "gs://apache-hop/input/state-data.txt"
+    },
+    {
+      "name": "DATA_OUTPUT",
+      "description": "",
+      "value": "gs://apache-hop/output/"
+    }
+  ],
+  "name": "DataFlow",
+  "description": ""
+}

@@ -53,8 +53,8 @@ limitations under the License.
       <height>146</height>
       <xloc>160</xloc>
       <yloc>80</yloc>
-      <note>This sample reads the JSON definition for the Dataflow pipeline run configuration metadata item.
-This metadata item is defined in ${PROJECT_HOME}/metadata/metadata/pipeline-run-configuration/DataFlow.json
+      <note>This sample reads the JSON definition of a Dataflow pipeline run configuration metadata item.
+A copy of this definition is in ${PROJECT_HOME}/data/dataflow-run-configuration.json
 
 In the first JSON Input transform, we read the general run configuration elements. 
 We also pick up the repeating element (array) of configuration variables as a String field. 
@@ -209,7 +209,7 @@ This second transform uses the "configuration_variables" to read from, instead o
     <defaultPathLeafToNull>Y</defaultPathLeafToNull>
     <rownum_field/>
     <file>
-      <name>${PROJECT_HOME}/metadata/pipeline-run-configuration/DataFlow.json</name>
+      <name>${PROJECT_HOME}/data/dataflow-run-configuration.json</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
