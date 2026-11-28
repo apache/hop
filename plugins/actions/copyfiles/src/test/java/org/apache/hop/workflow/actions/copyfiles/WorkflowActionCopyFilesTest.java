@@ -27,11 +27,18 @@ import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.Workflow;
@@ -108,6 +115,97 @@ class WorkflowActionCopyFilesTest {
             anyString(), anyString(), anyString(), any(Workflow.class), any(Result.class));
     Assertions.assertFalse(result.isResult());
     Assertions.assertEquals(3, result.getNrErrors());
+  }
+
+  @Test
+  void fileCopiedIntoFolderDoesNotReplaceExisting() throws Exception {
+    Path root = Files.createTempDirectory("hop-copy-9263-keep");
+    String source = root.resolve("source.txt").toString();
+    String destination = root.resolve("dest").toString();
+    writeText(source, "new");
+    createFolder(destination);
+    writeText(destination + "/source.txt", "old");
+
+    entry.setOverwriteFiles(false);
+    entry.setRemoveSourceFiles(true);
+    entry.setAddResultFilenames(true);
+    entry.setFileRows(
+        rows(new String[] {source}, new String[] {destination}, new String[] {EMPTY}));
+
+    Result result = entry.execute(new Result(), 0);
+
+    Assertions.assertTrue(result.isResult());
+    Assertions.assertEquals(0, result.getNrErrors());
+    Assertions.assertEquals("old", readText(destination + "/source.txt"));
+    Assertions.assertTrue(HopVfs.fileExists(source));
+    Assertions.assertTrue(result.getResultFiles().isEmpty());
+  }
+
+  @Test
+  void fileCopiedIntoFolderHonorsOverwriteRemoveAndResult() throws Exception {
+    Path root = Files.createTempDirectory("hop-copy-9263-replace");
+    String source = root.resolve("source.txt").toString();
+    String destination = root.resolve("dest").toString();
+    writeText(source, "new");
+    createFolder(destination);
+    writeText(destination + "/source.txt", "old");
+
+    entry.setOverwriteFiles(true);
+    entry.setRemoveSourceFiles(true);
+    entry.setAddResultFilenames(true);
+    entry.setFileRows(
+        rows(new String[] {source}, new String[] {destination}, new String[] {EMPTY}));
+
+    Result result = entry.execute(new Result(), 0);
+
+    Assertions.assertTrue(result.isResult());
+    Assertions.assertEquals(0, result.getNrErrors());
+    Assertions.assertEquals("new", readText(destination + "/source.txt"));
+    Assertions.assertFalse(HopVfs.fileExists(source));
+    Assertions.assertEquals(1, result.getResultFiles().size());
+    ResultFile resultFile = result.getResultFiles().values().iterator().next();
+    Assertions.assertTrue(resultFile.getFile().toString().endsWith("source.txt"));
+  }
+
+  @Test
+  void failedFileInFolderFailsTheAction() throws Exception {
+    Path root = Files.createTempDirectory("hop-copy-9263-fail");
+    String source = root.resolve("source").toString();
+    String destination = root.resolve("dest").toString();
+    createFolder(source);
+    createFolder(destination);
+    writeText(source + "/ok.txt", "ok");
+    writeText(source + "/locked.txt", "locked");
+    // A non-empty folder cannot be replaced by the file of the same name.
+    createFolder(destination + "/locked.txt");
+    writeText(destination + "/locked.txt/blocker.txt", "keep");
+
+    entry.setOverwriteFiles(true);
+    entry.setFileRows(
+        rows(new String[] {source}, new String[] {destination}, new String[] {EMPTY}));
+
+    Result result = entry.execute(new Result(), 0);
+
+    Assertions.assertFalse(result.isResult());
+    Assertions.assertEquals(1, result.getNrErrors());
+    Assertions.assertEquals("ok", readText(destination + "/ok.txt"));
+    Assertions.assertEquals("keep", readText(destination + "/locked.txt/blocker.txt"));
+  }
+
+  private static void createFolder(String path) throws Exception {
+    try (FileObject folder = HopVfs.getFileObject(path)) {
+      folder.createFolder();
+    }
+  }
+
+  private static void writeText(String path, String content) throws Exception {
+    try (OutputStream out = HopVfs.getOutputStream(path, false)) {
+      out.write(content.getBytes(StandardCharsets.UTF_8));
+    }
+  }
+
+  private static String readText(String path) throws Exception {
+    return HopVfs.getTextFileContent(path, StandardCharsets.UTF_8);
   }
 
   @Test

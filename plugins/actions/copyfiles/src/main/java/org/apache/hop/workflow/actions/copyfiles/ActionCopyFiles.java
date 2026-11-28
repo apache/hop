@@ -381,26 +381,16 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
                     HopVfs.getFriendlyURI(realDestinationFileFolderName, getVariables())));
 
           } else {
+            boolean copiedWithoutError = true;
 
             if (destinationFileFolder.getType().equals(FileType.FOLDER)
                 && sourceFileFolder.getType().equals(FileType.FILE)) {
-              // Source is a file, destination is a folder
-              // Copy the file to the destination folder
-              //
+              // Source is a file, destination is a folder. Apply the same overwrite, removal and
+              // result rules as a file copied onto a file, using the child inside the folder.
               FileObject destChild =
                   destinationFileFolder.resolveFile(
                       sourceFileFolder.getName().getBaseName(), NameScope.CHILD);
-              long copied = copyFileWithByteTracking(sourceFileFolder, destChild, result);
-              emitCopyLineage(sourceFileFolder, destChild, copied);
-
-              if (isDetailed()) {
-                logDetailed(
-                    BaseMessages.getString(
-                        PKG,
-                        CONST_FILE_COPIED,
-                        HopVfs.getFriendlyURI(sourceFileFolder),
-                        HopVfs.getFriendlyURI(destinationFileFolder)));
-              }
+              copyFileRespectingOptions(sourceFileFolder, destChild, result);
 
             } else if (sourceFileFolder.getType().equals(FileType.FILE) && destinationIsAFile) {
               // Source is a file, destination is a file (stream copy + byte metrics; no copyFrom)
@@ -424,7 +414,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
                       result);
               try {
                 destinationFileFolder.copyFrom(sourceFileFolder, textFileSelector);
-                textFileSelector.copyPendingFiles();
+                copiedWithoutError = textFileSelector.copyPendingFiles();
               } finally {
                 textFileSelector.shutdown();
               }
@@ -519,7 +509,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
               }
             }
 
-            entrystatus = true;
+            entrystatus = copiedWithoutError;
           }
         } else if (destinationStatus == DESTINATION_FOLDER_NOT_AVAILABLE) {
           logError(
@@ -625,61 +615,14 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
 
   /**
    * File-to-file copy: same rules as the former one-to-one {@link FileSelector} (exists / overwrite
-   * / logging), then stream copy for byte metrics. Does not use {@code copyFrom}.
+   * / logging), then stream copy for byte metrics. Does not use {@code copyFrom}. A copy error is
+   * logged here and does not fail the action, matching the previous file-to-file behavior.
    *
    * @return true if the file was copied, false if skipped or on error
    */
   private boolean copyOneFileToFile(FileObject sourceFile, FileObject destFile, Result result) {
-    boolean shouldCopy = false;
     try {
-      if (destFile.exists()) {
-        if (isDetailed()) {
-          logDetailed(
-              CONST_SPACE_SHORT
-                  + BaseMessages.getString(
-                      PKG,
-                      overwriteFiles ? CONST_FILE_EXISTS : CONST_FILE_EXISTS_SKIP_COPY,
-                      HopVfs.getFriendlyURI(destFile)));
-        }
-        if (overwriteFiles) {
-          if (isDetailed()) {
-            logDetailed(
-                CONST_SPACE_SHORT
-                    + BaseMessages.getString(
-                        PKG,
-                        CONST_FILE_OVERWRITE,
-                        HopVfs.getFriendlyURI(sourceFile),
-                        HopVfs.getFriendlyURI(destFile)));
-          }
-          shouldCopy = true;
-        }
-      } else {
-        if (isDetailed()) {
-          logDetailed(
-              CONST_SPACE_SHORT
-                  + BaseMessages.getString(
-                      PKG,
-                      CONST_FILE_COPIED,
-                      HopVfs.getFriendlyURI(sourceFile),
-                      HopVfs.getFriendlyURI(destFile)));
-        }
-        shouldCopy = true;
-      }
-
-      if (!shouldCopy) {
-        return false;
-      }
-
-      long copied = copyFileWithByteTracking(sourceFile, destFile, result);
-      emitCopyLineage(sourceFile, destFile, copied);
-
-      if (removeSourceFiles) {
-        listFilesRemove.add(sourceFile.toString());
-      }
-      if (addResultFilenames) {
-        listAddResult.add(destFile.toString());
-      }
-      return true;
+      return copyFileRespectingOptions(sourceFile, destFile, result);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
@@ -690,6 +633,66 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
               e.getMessage()));
       return false;
     }
+  }
+
+  /**
+   * Copies {@code sourceFile} onto {@code destFile} when the destination is missing or overwrite is
+   * enabled. After a successful copy, registers the source for removal and the destination as a
+   * result file when those options are set.
+   *
+   * @return false when the destination exists and overwrite is disabled
+   */
+  private boolean copyFileRespectingOptions(
+      FileObject sourceFile, FileObject destFile, Result result) throws IOException {
+    boolean shouldCopy = false;
+    if (destFile.exists()) {
+      if (isDetailed()) {
+        logDetailed(
+            CONST_SPACE_SHORT
+                + BaseMessages.getString(
+                    PKG,
+                    overwriteFiles ? CONST_FILE_EXISTS : CONST_FILE_EXISTS_SKIP_COPY,
+                    HopVfs.getFriendlyURI(destFile)));
+      }
+      if (overwriteFiles) {
+        if (isDetailed()) {
+          logDetailed(
+              CONST_SPACE_SHORT
+                  + BaseMessages.getString(
+                      PKG,
+                      CONST_FILE_OVERWRITE,
+                      HopVfs.getFriendlyURI(sourceFile),
+                      HopVfs.getFriendlyURI(destFile)));
+        }
+        shouldCopy = true;
+      }
+    } else {
+      if (isDetailed()) {
+        logDetailed(
+            CONST_SPACE_SHORT
+                + BaseMessages.getString(
+                    PKG,
+                    CONST_FILE_COPIED,
+                    HopVfs.getFriendlyURI(sourceFile),
+                    HopVfs.getFriendlyURI(destFile)));
+      }
+      shouldCopy = true;
+    }
+
+    if (!shouldCopy) {
+      return false;
+    }
+
+    long copied = copyFileWithByteTracking(sourceFile, destFile, result);
+    emitCopyLineage(sourceFile, destFile, copied);
+
+    if (removeSourceFiles) {
+      listFilesRemove.add(sourceFile.toString());
+    }
+    if (addResultFilenames) {
+      listAddResult.add(destFile.toString());
+    }
+    return true;
   }
 
   /**
@@ -1055,8 +1058,11 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     /**
      * Copies the files selected during the traversal. Copying while VFS still walks the source tree
      * makes a destination folder below the source pick up the files already copied into it (#8800).
+     *
+     * @return false when one or more files could not be copied
      */
-    public void copyPendingFiles() {
+    public boolean copyPendingFiles() {
+      boolean succeeded = true;
       for (PendingFileCopy copy : pendingFileCopies) {
         if (parentjob.isStopped()) {
           break;
@@ -1072,6 +1078,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
             listAddResult.add(target.toString());
           }
         } catch (Exception e) {
+          succeeded = false;
           logError(
               BaseMessages.getString(
                   PKG,
@@ -1088,6 +1095,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
         }
       }
       pendingFileCopies.clear();
+      return succeeded;
     }
 
     @Override
