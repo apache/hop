@@ -25,10 +25,15 @@ services:
         condition: service_healthy
       ssh:
         condition: service_started
+      ssh-jump:
+        condition: service_started
+      ssh-target:
+        condition: service_started
     links:
       - postgres
       - mysql
       - ssh
+      - ssh-jump
     environment:
       - SSH_TUNNEL_HOST=ssh
       - SSH_TUNNEL_PORT=22
@@ -41,10 +46,35 @@ services:
       context: ../../.
       dockerfile: docker/integration-tests/ssh.Dockerfile
 
+  # SSH jump host test (main-0038-postgres-via-ssh-jump-host): Hop reaches ssh-jump, ssh-jump
+  # reaches ssh-target, and only ssh-target reaches PostgreSQL as postgres-behind-ssh. The test
+  # container shares no network with ssh-target and cannot resolve postgres-behind-ssh, so the
+  # connection only works through both SSH servers, in that order.
+  ssh-jump:
+    build:
+      context: ../../.
+      dockerfile: docker/integration-tests/ssh.Dockerfile
+    networks:
+      - default
+      - ssh-jump-net
+
+  ssh-target:
+    build:
+      context: ../../.
+      dockerfile: docker/integration-tests/ssh.Dockerfile
+    networks:
+      - ssh-jump-net
+      - ssh-target-net
+
   postgres:
     image: postgres:latest
     env_file:
       - database.env
+    networks:
+      default:
+      ssh-target-net:
+        aliases:
+          - postgres-behind-ssh
     ports:
       - "5432"
     healthcheck:
@@ -70,3 +100,10 @@ services:
       # files. INTO OUTFILE refuses to overwrite a file, so it has to be empty on every start, also
       # when KEEP_IMAGES=true makes compose reuse the container.
       - /var/lib/mysql-files:mode=1777
+
+networks:
+  # internal: no route out of the compose project, and no member of the default network on it.
+  ssh-jump-net:
+    internal: true
+  ssh-target-net:
+    internal: true

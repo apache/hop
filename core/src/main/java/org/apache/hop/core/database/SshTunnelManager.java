@@ -18,9 +18,12 @@
 package org.apache.hop.core.database;
 
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -29,7 +32,16 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 
-/** Manages SSH tunnels for database connections using JSch port forwarding. */
+/**
+ * Manages SSH tunnels for database connections using JSch port forwarding.
+ *
+ * <p>Without jump hosts Hop signs in to the connection's SSH server and forwards a free local port
+ * to the database. With jump hosts ({@link DatabaseMeta#getSshTunnelJumpHosts()}) Hop signs in to
+ * the first jump host directly and reaches every next SSH server through a local port forwarded by
+ * the session before it, the way {@code ssh -J} does. The last session, the one to the connection's
+ * own SSH server, forwards the database port. Each session has its own credentials and its own
+ * keepalive.
+ */
 public class SshTunnelManager {
 
   /**
@@ -40,11 +52,21 @@ public class SshTunnelManager {
    */
   public static final String VARIABLE_SSH_TUNNEL_LOCAL_PORT = "sshTunnel.localPort";
 
-  private Session session;
+  /** The address every forwarded port listens on: never reachable from another machine. */
+  private static final String LOOPBACK_ADDRESS = "127.0.0.1";
+
+  private static final int DEFAULT_SSH_PORT = 22;
+
+  private static final int CONNECT_TIMEOUT_MS = 30000;
+
+  /** The sessions in the order they were opened: the jump hosts first, the SSH server last. */
+  private final List<Session> sessions = new ArrayList<>();
+
   private int localPort;
 
   /**
-   * Opens an SSH tunnel with local port forwarding.
+   * Opens an SSH tunnel with local port forwarding, through the connection's jump hosts if it has
+   * any.
    *
    * @param variables variables for resolving expressions
    * @param databaseMeta the database metadata containing SSH tunnel configuration
@@ -54,56 +76,37 @@ public class SshTunnelManager {
    */
   public int openTunnel(IVariables variables, DatabaseMeta databaseMeta, ILogChannel log)
       throws HopDatabaseException {
+    SshServer server = null;
     try {
-      String sshHost = variables.resolve(databaseMeta.getSshTunnelHost());
-      int sshPort = Const.toInt(variables.resolve(databaseMeta.getSshTunnelPort()), 22);
-      String sshUser = variables.resolve(databaseMeta.getSshTunnelUsername());
-      String sshPassword =
-          Encr.decryptPasswordOptionallyEncrypted(
-              variables.resolve(databaseMeta.getSshTunnelPassword()));
-
+      List<SshServer> servers = getSshServers(variables, databaseMeta, log);
       String remoteHost = variables.resolve(databaseMeta.getHostname());
       int remotePort =
           Const.toInt(
               variables.resolve(databaseMeta.getPort()), databaseMeta.getDefaultDatabasePort());
 
-      JSch jsch = new JSch();
-
-      // Private key authentication
-      if (databaseMeta.isSshTunnelUsePrivateKey()) {
-        String keyFile = variables.resolve(databaseMeta.getSshTunnelPrivateKeyFile());
-        String passphrase =
-            Encr.decryptPasswordOptionallyEncrypted(
-                variables.resolve(databaseMeta.getSshTunnelPassphrase()));
-        if (!Utils.isEmpty(passphrase)) {
-          jsch.addIdentity(keyFile, passphrase);
-        } else {
-          jsch.addIdentity(keyFile);
+      Session previous = null;
+      for (SshServer next : servers) {
+        server = next;
+        String connectHost = server.host();
+        int connectPort = server.port();
+        if (previous != null) {
+          // Reach this server through the session before it, like ssh -J.
+          connectHost = LOOPBACK_ADDRESS;
+          connectPort = previous.setPortForwardingL(0, server.host(), server.port());
         }
+        log.logBasic(
+            "Opening SSH tunnel to "
+                + server.describe()
+                + (previous == null ? "" : " through localhost:" + connectPort));
+        Session session = createSession(server, connectHost, connectPort, previous != null);
+        sessions.add(session);
+        session.connect(CONNECT_TIMEOUT_MS);
+        previous = session;
       }
-
-      session = jsch.getSession(sshUser, sshHost, sshPort);
-
-      // Password authentication (supports both password and keyboard-interactive)
-      if (!databaseMeta.isSshTunnelUsePrivateKey() && !Utils.isEmpty(sshPassword)) {
-        session.setPassword(sshPassword);
-        session.setUserInfo((UserInfo) new SshPasswordUserInfo(sshPassword));
-      }
-
-      Properties config = new Properties();
-      config.put("StrictHostKeyChecking", "no");
-      config.put("PreferredAuthentications", "publickey,keyboard-interactive,password");
-      session.setConfig(config);
-
-      // Send keepalive every 30s to prevent VPN/firewall from dropping idle connections
-      session.setServerAliveInterval(30000);
-      session.setServerAliveCountMax(3);
-
-      log.logBasic("Opening SSH tunnel to " + sshHost + ":" + sshPort + " as user " + sshUser);
-      session.connect(30000);
+      server = null;
 
       // Local port 0 = auto-assign a free port
-      localPort = session.setPortForwardingL(0, remoteHost, remotePort);
+      localPort = previous.setPortForwardingL(0, remoteHost, remotePort);
       log.logBasic(
           "SSH tunnel established: localhost:"
               + localPort
@@ -115,30 +118,172 @@ public class SshTunnelManager {
       return localPort;
     } catch (Exception e) {
       closeTunnel(log);
-      throw new HopDatabaseException("Failed to open SSH tunnel", e);
+      String message = "Failed to open SSH tunnel";
+      if (server != null) {
+        message += ": unable to connect to " + server.describe();
+      }
+      throw new HopDatabaseException(message, e);
     }
   }
 
-  /** Closes the SSH tunnel and disconnects the session. */
+  /**
+   * The SSH servers of the tunnel in the order Hop connects to them: the jump hosts with a host
+   * name, then the connection's own SSH server. A jump host whose host name resolves to an empty
+   * string is left out, so a variable can drop it in an environment that does not need it.
+   */
+  private static List<SshServer> getSshServers(
+      IVariables variables, DatabaseMeta databaseMeta, ILogChannel log) {
+    List<SshServer> servers = new ArrayList<>();
+    List<SshJumpHost> jumpHosts = databaseMeta.getSshTunnelJumpHosts();
+    if (jumpHosts != null) {
+      for (int i = 0; i < jumpHosts.size(); i++) {
+        SshJumpHost jumpHost = jumpHosts.get(i);
+        String label = "SSH jump host " + (i + 1) + " of " + jumpHosts.size();
+        String host = variables.resolve(jumpHost.getHost());
+        if (Utils.isEmpty(host)) {
+          log.logDetailed(label + " has no host name and is skipped");
+          continue;
+        }
+        servers.add(
+            new SshServer(
+                label,
+                host,
+                Const.toInt(variables.resolve(jumpHost.getPort()), DEFAULT_SSH_PORT),
+                variables.resolve(jumpHost.getUsername()),
+                jumpHost.getAuthenticationMethod() == SshAuthenticationMethod.PRIVATE_KEY,
+                decrypt(variables, jumpHost.getPassword()),
+                variables.resolve(jumpHost.getPrivateKeyFile()),
+                decrypt(variables, jumpHost.getPassphrase())));
+      }
+    }
+    servers.add(
+        new SshServer(
+            "SSH server",
+            variables.resolve(databaseMeta.getSshTunnelHost()),
+            Const.toInt(variables.resolve(databaseMeta.getSshTunnelPort()), DEFAULT_SSH_PORT),
+            variables.resolve(databaseMeta.getSshTunnelUsername()),
+            databaseMeta.isSshTunnelUsePrivateKey(),
+            decrypt(variables, databaseMeta.getSshTunnelPassword()),
+            variables.resolve(databaseMeta.getSshTunnelPrivateKeyFile()),
+            decrypt(variables, databaseMeta.getSshTunnelPassphrase())));
+    return servers;
+  }
+
+  private static String decrypt(IVariables variables, String value) {
+    return Encr.decryptPasswordOptionallyEncrypted(variables.resolve(value));
+  }
+
+  /**
+   * Creates the session for one SSH server. Every server gets its own {@link JSch} instance: the
+   * identities belong to that instance, so a server is only offered its own private key and never
+   * the key of another hop, which would count against its {@code MaxAuthTries}.
+   */
+  private static Session createSession(
+      SshServer server, String connectHost, int connectPort, boolean throughJumpHost)
+      throws JSchException {
+    JSch jsch = new JSch();
+
+    // Private key authentication
+    if (server.usePrivateKey()) {
+      if (!Utils.isEmpty(server.passphrase())) {
+        jsch.addIdentity(server.privateKeyFile(), server.passphrase());
+      } else {
+        jsch.addIdentity(server.privateKeyFile());
+      }
+    }
+
+    Session session = jsch.getSession(server.username(), connectHost, connectPort);
+    if (throughJumpHost) {
+      // Behind a jump host the session points at a local port: keep the real name for its host key
+      session.setHostKeyAlias(server.host());
+    }
+
+    // Password authentication (supports both password and keyboard-interactive)
+    if (!server.usePrivateKey() && !Utils.isEmpty(server.password())) {
+      session.setPassword(server.password());
+      session.setUserInfo((UserInfo) new SshPasswordUserInfo(server.password()));
+    }
+
+    Properties config = new Properties();
+    config.put("StrictHostKeyChecking", "no");
+    config.put("PreferredAuthentications", "publickey,keyboard-interactive,password");
+    session.setConfig(config);
+
+    // Send keepalive every 30s to prevent VPN/firewall from dropping idle connections
+    session.setServerAliveInterval(30000);
+    session.setServerAliveCountMax(3);
+    return session;
+  }
+
+  /**
+   * Closes the SSH tunnel: disconnects the sessions from the last one opened to the first, so no
+   * session loses the forwarded port it runs over while it is still connected.
+   */
   public void closeTunnel(ILogChannel log) {
-    if (session != null && session.isConnected()) {
+    if (sessions.isEmpty()) {
+      return;
+    }
+    Session last = sessions.get(sessions.size() - 1);
+    if (last.isConnected()) {
       try {
-        session.delPortForwardingL(localPort);
+        last.delPortForwardingL(localPort);
       } catch (Exception e) {
         log.logDebug("Error removing port forwarding: " + e.getMessage());
       }
-      session.disconnect();
+    }
+    boolean wasOpen = false;
+    for (int i = sessions.size() - 1; i >= 0; i--) {
+      Session session = sessions.get(i);
+      if (session.isConnected()) {
+        wasOpen = true;
+        session.disconnect();
+      }
+    }
+    sessions.clear();
+    if (wasOpen) {
       log.logBasic("SSH tunnel closed");
     }
-    session = null;
   }
 
+  /**
+   * @return true if every session of the tunnel, jump hosts included, is connected
+   */
   public boolean isOpen() {
-    return session != null && session.isConnected();
+    if (sessions.isEmpty()) {
+      return false;
+    }
+    for (Session session : sessions) {
+      if (!session.isConnected()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public int getLocalPort() {
     return localPort;
+  }
+
+  /** One resolved SSH server of the tunnel, a jump host or the connection's own SSH server. */
+  record SshServer(
+      String label,
+      String host,
+      int port,
+      String username,
+      boolean usePrivateKey,
+      String password,
+      String privateKeyFile,
+      String passphrase) {
+
+    String describe() {
+      return label + " " + host + ":" + port + " as user " + username;
+    }
+
+    /** Never print the password or passphrase, also not by accident in a debug log. */
+    @Override
+    public String toString() {
+      return describe();
+    }
   }
 
   /** Handles keyboard-interactive authentication by responding with the password. */
