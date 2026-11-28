@@ -17,7 +17,6 @@
 
 package org.apache.hop.core.config;
 
-import java.util.Map;
 import org.apache.hop.core.Const;
 
 /**
@@ -40,12 +39,9 @@ import org.apache.hop.core.Const;
  * config file, let the platform inject environment at deploy time, and reserve {@code -D} for
  * ad-hoc or debugging overrides that should win over everything else.
  *
- * <p><b>Note:</b> After full Hop environment initialization, described variables from {@code
- * hop-config.json} are copied into {@link System#setProperty(String, String)}. For names that
- * appear in the config file, {@link System#getProperties()} will then usually repeat the file
- * value, so the JVM tier can override environment variables until that copy is aligned with this
- * resolver. Call sites that run <em>before</em> that copy (for example {@link
- * org.apache.hop.core.HopClientEnvironment}) see the intended hop → env → {@code -D} behavior.
+ * <p>A system property that only repeats the hop-config value is the copy {@code HopEnvironment}
+ * makes at startup, not an explicit {@code -D}. It does not hide an environment variable. A
+ * property that differs from the file is an explicit override and wins over the environment.
  */
 public final class HopResolvedSettings {
 
@@ -57,14 +53,34 @@ public final class HopResolvedSettings {
    * @return the effective string value
    */
   public static String resolveString(String name, String defaultValue) {
-    String value = HopConfig.readStringVariable(name, null);
-    Map<String, String> env = System.getenv();
-    if (env.containsKey(name)) {
-      value = env.get(name);
+    String resolved =
+        resolveLayered(
+            HopConfig.readStringVariable(name, null),
+            System.getenv(name),
+            System.getProperty(name));
+    return Const.NVL(resolved, defaultValue);
+  }
+
+  /**
+   * Resolve one setting from the three layers, without reading the live JVM.
+   *
+   * <p>A system property that equals the hop-config value (or is empty when the file has no value)
+   * is treated as the startup copy of that file. An environment variable then wins over it. A
+   * system property with any other value is an explicit {@code -D} and wins over the environment.
+   *
+   * @param configValue value from {@code hop-config.json}, or null when the name is not configured
+   * @param environmentValue exported environment variable, or null when it is not set
+   * @param systemPropertyValue system property, or null when it is not set
+   * @return the winning value, which may be null when every layer is absent
+   */
+  public static String resolveLayered(
+      String configValue, String environmentValue, String systemPropertyValue) {
+    String value = configValue;
+    if (systemPropertyValue != null && !systemPropertyValue.equals(Const.NVL(configValue, ""))) {
+      value = systemPropertyValue;
+    } else if (environmentValue != null) {
+      value = environmentValue;
     }
-    if (System.getProperties().containsKey(name)) {
-      value = System.getProperty(name);
-    }
-    return Const.NVL(value, defaultValue);
+    return value;
   }
 }

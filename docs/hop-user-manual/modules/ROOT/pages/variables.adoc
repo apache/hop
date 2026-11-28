@@ -235,6 +235,11 @@ You can define variables in a pipeline either with the xref:pipeline/transforms/
 
 The following variables are available in Hop through the xref:hop-gui/perspective-configuration.adoc[configuration perspective]. If you have the menu toolbar enabled in the configuration perspective's xref:hop-gui/perspective-configuration.adoc#_general[General] tab, these variables are also available through `Tools -> Edit config variables`.
 
+The values are stored in `hop-config.json`.
+An operating system environment variable with the same name overrides that file, and a JVM system property (`-DNAME=value`) that differs from the file overrides both.
+A project or lifecycle environment can set the variable again for that run.
+For example, exporting `HOP_EMPTY_STRING_DIFFERS_FROM_NULL=Y` keeps empty strings distinct from null without editing `hop-config.json`.
+
 [%header, width="90%", cols="3,1,5"]
 |===
 |Variable name|Default Value|Description

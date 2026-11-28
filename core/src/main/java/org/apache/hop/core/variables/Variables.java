@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
@@ -44,6 +45,27 @@ import org.json.simple.parser.JSONParser;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {
+  /**
+   * JVM value of an application or engine setting before {@link #setVariable} copied a later
+   * assignment onto the system properties, and the value of that copy.
+   *
+   * <p>{@code null} for {@link RuntimeMirror#valueBefore} means the property was not set. A fresh
+   * variable space must keep resolving hop-config, the environment and a real {@code -D}. The copy
+   * exists so code that reads the JVM (for example empty-string handling) sees the assignment. It
+   * is not itself a {@code -D}.
+   */
+  private static final Map<String, RuntimeMirror> runtimeMirrors = new ConcurrentHashMap<>();
+
+  private static final class RuntimeMirror {
+    private final String valueBefore;
+    private volatile String mirroredValue;
+
+    private RuntimeMirror(String valueBefore, String mirroredValue) {
+      this.valueBefore = valueBefore;
+      this.mirroredValue = mirroredValue;
+    }
+  }
+
   private final Map<String, String> properties;
 
   private IVariables parent;
@@ -127,12 +149,29 @@ public class Variables implements IVariables {
     //
     Set<String> systemPropertiesNames = System.getProperties().stringPropertyNames();
     for (String key : systemPropertiesNames) {
-      getProperties().put(key, System.getProperties().getProperty(key));
+      String value = systemPropertyForResolution(key);
+      if (value != null) {
+        getProperties().put(key, value);
+      }
     }
 
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
     for (DescribedVariable describedVariable : describedVariables) {
-      getProperties().put(describedVariable.getName(), describedVariable.getValue());
+      String name = describedVariable.getName();
+      if (StringUtils.isEmpty(name)) {
+        continue;
+      }
+      // hop-config < environment < an explicit -D. The raw file value used to win, so a container
+      // could not override HOP_EMPTY_STRING_DIFFERS_FROM_NULL (#7677).
+      getProperties()
+          .put(
+              name,
+              Const.NVL(
+                  HopResolvedSettings.resolveLayered(
+                      describedVariable.getValue(),
+                      System.getenv(name),
+                      systemPropertyForResolution(name)),
+                  ""));
     }
 
     if (parent != null) {
@@ -152,20 +191,18 @@ public class Variables implements IVariables {
   private static boolean isEnvironmentImported() {
     String name = Const.HOP_IMPORT_ENVIRONMENT_VARIABLES;
     return isEnvironmentImported(
-        HopConfig.readStringVariable(name, null), System.getenv(name), System.getProperty(name));
+        HopConfig.readStringVariable(name, null),
+        System.getenv(name),
+        systemPropertyForResolution(name));
   }
 
   /**
-   * Decides whether the environment is imported, following the hop-config, environment, {@code -D}
-   * precedence of {@link HopResolvedSettings} so that the flag itself can be exported, which is
-   * what a container deployment has to hand.
+   * Decides whether the environment is imported, following {@link
+   * HopResolvedSettings#resolveLayered} so that an exported flag is enough for a container.
    *
-   * <p>{@link HopResolvedSettings#resolveString} cannot be used directly: once {@code
-   * HopEnvironment} has started it copies the hop-config value (the annotation default {@code N}
-   * unless configured) onto the system properties, so the JVM layer would always win and an
-   * exported flag would never be seen. A system property therefore only counts as a {@code -D}
-   * override when it differs from the hop-config value. An explicit {@code -D} that repeats the
-   * hop-config value cannot be told apart from that copy, so an exported value wins over it.
+   * <p>A system property counts as an explicit {@code -D} only when it differs from the hop-config
+   * value. {@code HopEnvironment} copies that file onto the JVM, and an explicit {@code -D} that
+   * repeats the file value cannot be told apart from the copy, so an exported value wins over it.
    *
    * @param configValue the value in hop-config.json, or null when it is not configured
    * @param environmentValue the exported environment variable, or null when it is not set
@@ -197,9 +234,48 @@ public class Variables implements IVariables {
     }
     if (variableValue != null) {
       properties.put(variableName, variableValue);
+      // ValueMeta and similar code read these from the JVM, not from this map. A project or
+      // environment file sets them after HopEnvironment has already copied hop-config (#7677).
+      mirrorRuntimeSetting(variableName, variableValue);
     } else {
       properties.remove(variableName);
     }
+  }
+
+  private static void mirrorRuntimeSetting(String name, String value) {
+    VariableRegistry registry = VariableRegistry.getInstance();
+    if (registry == null || !registry.isApplicationOrEngineVariable(name)) {
+      return;
+    }
+    runtimeMirrors.compute(
+        name,
+        (key, existing) -> {
+          RuntimeMirror mirror =
+              existing == null ? new RuntimeMirror(System.getProperty(key), value) : existing;
+          mirror.mirroredValue = value;
+          System.setProperty(key, value);
+          return mirror;
+        });
+  }
+
+  /**
+   * System property to feed into layered resolution.
+   *
+   * <p>A value still equal to the last {@link #setVariable} copy is that copy, not an explicit
+   * {@code -D}. Resolution then sees the property as it was before the copy (including absent).
+   * Once the live property changes, the copy is forgotten and the new value stands.
+   */
+  private static String systemPropertyForResolution(String name) {
+    String live = System.getProperty(name);
+    RuntimeMirror mirror = runtimeMirrors.get(name);
+    if (mirror == null) {
+      return live;
+    }
+    if (mirror.mirroredValue.equals(live)) {
+      return mirror.valueBefore;
+    }
+    runtimeMirrors.remove(name, mirror);
+    return live;
   }
 
   @Override
