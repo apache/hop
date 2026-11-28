@@ -226,8 +226,9 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
         } else if (aggregationType == Aggregation.TYPE_GROUP_COUNT_ALL
             || aggregationType == Aggregation.TYPE_GROUP_COUNT_DISTINCT
             || aggregationType == Aggregation.TYPE_GROUP_COUNT_ANY) {
-          length = IValueMeta.DEFAULT_INTEGER_LENGTH;
-          precision = 0;
+          // As Group By writes a count without "Include all rows": an Integer without a length
+          length = -1;
+          precision = -1;
         } else if (aggregationType == Aggregation.TYPE_GROUP_SUM
             && valueType != IValueMeta.TYPE_INTEGER
             && valueType != IValueMeta.TYPE_NUMBER

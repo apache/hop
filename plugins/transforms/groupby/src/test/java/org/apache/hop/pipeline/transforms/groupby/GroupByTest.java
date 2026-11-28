@@ -33,14 +33,18 @@ import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit tests for the {@link GroupBy} transform worker. */
 class GroupByTest {
@@ -361,6 +365,56 @@ class GroupByTest {
     assertEquals(1, rows.size());
     assertEquals(30.0, ((Number) rows.getFirst()[1]).doubleValue(), 1e-9);
     assertEquals(2L, ((Number) rows.getFirst()[2]).longValue());
+  }
+
+  /**
+   * The counts Group By writes have the layout it declares, with or without "Include all rows": an
+   * Integer without a length. With a length, a later transform that converts a count to String pads
+   * it to that length in one mode only.
+   */
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void countsAreWrittenAsDeclared(boolean passAllRows) throws Exception {
+    meta.setPassAllRows(passAllRows);
+    meta.getAggregations().clear();
+    int[] countTypes = {
+      Aggregation.TYPE_GROUP_COUNT_ALL,
+      Aggregation.TYPE_GROUP_COUNT_ANY,
+      Aggregation.TYPE_GROUP_COUNT_DISTINCT
+    };
+    for (int countType : countTypes) {
+      meta.getAggregations()
+          .add(
+              new Aggregation(
+                  Aggregation.getTypeLabelFromCode(countType),
+                  "amount",
+                  Aggregation.getTypeDescLongFromCode(countType),
+                  null));
+    }
+    data = new GroupByData();
+    groupBy = createGroupBy(meta, data);
+
+    QueueRowSet input = new QueueRowSet();
+    input.putRow(inputRowMeta, new Object[] {"A", 10.0});
+    input.putRow(inputRowMeta, new Object[] {"A", 20.0});
+    input.setDone();
+    groupBy.addRowSetToInputRowSets(input);
+    QueueRowSet output = new QueueRowSet();
+    groupBy.addRowSetToOutputRowSets(output);
+    while (groupBy.processRow()) {
+      // all input
+    }
+    assertFalse(drain(output).isEmpty());
+
+    IRowMeta declared = inputRowMeta.clone();
+    meta.getFields(declared, "Group By", null, null, new Variables(), null);
+    for (int countType : countTypes) {
+      String name = Aggregation.getTypeLabelFromCode(countType);
+      IValueMeta written = output.getRowMeta().searchValueMeta(name);
+      assertEquals(-1, written.getLength(), name + " is written without a length");
+      assertEquals(written.getLength(), declared.searchValueMeta(name).getLength(), name);
+      assertEquals(written.getPrecision(), declared.searchValueMeta(name).getPrecision(), name);
+    }
   }
 
   private GroupBy createGroupBy(GroupByMeta transformMeta, GroupByData transformData) {
