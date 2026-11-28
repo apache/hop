@@ -135,6 +135,14 @@ EXPOSE 8080
 VOLUME ["/files"]
 USER hop
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
+
+# Class data sharing: hop-conf and hop-run map the classes of an archive written now,
+# instead of loading them at every start. Containers only read it (HOP_CDS=use).
+# See lib/hop-cds.sh in the installation. The archives are part of the image, in a
+# fixed folder: an audit folder set or mounted at run time doesn't hide them.
+ENV HOP_CDS_FOLDER=${DEPLOYMENT_PATH}/cds
+RUN ${DEPLOYMENT_PATH}/lib/generate-cds-archives.sh
+ENV HOP_CDS=use
 WORKDIR /home/hop
 
 ENTRYPOINT ["/bin/bash", "/opt/hop/run.sh"]

@@ -26,3 +26,11 @@ COPY --from=jre /opt/java/openjdk /opt/java/openjdk
 COPY --chown=airflow:root ./assemblies/client/target/hop /opt/hop
 USER airflow
 ENV JAVA_HOME=/opt/java/openjdk
+
+# Class data sharing: hop-conf and hop-run map the classes of an archive written now,
+# instead of loading them at every start. Containers only read it (HOP_CDS=use).
+# See lib/hop-cds.sh in the installation. The archives are part of the image, in a
+# fixed folder: an audit folder set or mounted at run time doesn't hide them.
+ENV HOP_CDS_FOLDER=/opt/hop/cds
+RUN /opt/hop/lib/generate-cds-archives.sh
+ENV HOP_CDS=use

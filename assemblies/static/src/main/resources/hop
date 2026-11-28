@@ -176,6 +176,19 @@ if [ -n "${HOP_PLUGIN_BASE_FOLDERS:-}" ]; then
   unset _hop_plugin_rest _hop_plugin_folder _hop_plugin_home
 fi
 
+# Class data sharing: the JVM maps the classes of earlier runs instead of loading them
+# again. A subcommand shares the archive of its own script: hop run uses hop-run's archive.
+# See lib/hop-cds.sh (HOP_CDS=auto|use|off).
+if [ -f lib/hop-cds.sh ]; then
+  . lib/hop-cds.sh
+  case "$1" in
+  run | conf | gui | server | search | import | export | encrypt) _hop_cds_tool="$1" ;;
+  *) _hop_cds_tool="command" ;;
+  esac
+  HOP_OPTIONS="${HOP_OPTIONS} $(hop_cds_options "${_hop_cds_tool}")"
+  unset _hop_cds_tool
+fi
+
 # The JVM runs from the Hop installation, so user.dir is never where the user typed the command.
 # Pass the directory they were in, for subcommands which take a path from them.
 # Use exec so that the JVM receives the signals sent to this script (docker stop, Ctrl-C, ...)
