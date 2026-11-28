@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Hop's own transform on every partition: an H on blue -->
+  <circle cx="8" cy="8" r="7.5" fill="#1f6aa5"/>
+  <path d="M5 4 V12 M11 4 V12 M5 8 H11" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

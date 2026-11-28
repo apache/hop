@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Hop's transform on one stream, no parallelism: a 1 in a warning triangle -->
+  <path d="M8 1 L15.3 14.5 H0.7 Z" fill="#d4a106" stroke="#7a5c00" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M7 7 L8.6 5.8 V12.5" stroke="#3a2c00" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

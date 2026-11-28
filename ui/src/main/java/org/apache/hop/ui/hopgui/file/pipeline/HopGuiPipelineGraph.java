@@ -3510,6 +3510,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (paletteTree != null && !paletteTree.isDisposed()) {
       paletteTree.refresh();
     }
+    // Painter plugins can draw for the engine designed for
+    redraw();
   }
 
   @GuiToolbarElement(

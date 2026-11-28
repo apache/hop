@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.addsequence.AddSequenceMeta;
 import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
+import org.apache.hop.spark.pipeline.SparkTransformPlan;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -59,6 +60,30 @@ public class SparkAddSequenceHandler extends SparkBaseTransformHandler {
   }
 
   @Override
+  public SparkTransformPlan plan(
+      PipelineMeta pipelineMeta, TransformMeta transformMeta, IVariables variables)
+      throws HopException {
+    AddSequenceMeta meta = transformMeta(AddSequenceMeta.class, transformMeta, pipelineMeta);
+    if (usesDatabase(meta)) {
+      return SparkTransformPlan.of(
+          SparkTransformPlan.Kind.HOP, "SparkTransformPlan.AddSequence.Database");
+    }
+    if (!Utils.isEmpty(meta.getConfigurationTransform())) {
+      return SparkTransformPlan.of(
+          SparkTransformPlan.Kind.HOP, "SparkTransformPlan.AddSequence.CounterTransform");
+    }
+    if (pipelineMeta.findPreviousTransforms(transformMeta, false).isEmpty()) {
+      return new SparkTransformPlan(SparkTransformPlan.Kind.HOP, null);
+    }
+    return SparkTransformPlan.SPARK_CODE;
+  }
+
+  /** A database sequence, or no counter: the transform then reads from a database too. */
+  static boolean usesDatabase(AddSequenceMeta meta) {
+    return meta.isDatabaseUsed() || !meta.isCounterUsed();
+  }
+
+  @Override
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
@@ -76,7 +101,7 @@ public class SparkAddSequenceHandler extends SparkBaseTransformHandler {
       throws HopException {
     AddSequenceMeta meta = transformMeta(AddSequenceMeta.class, transformMeta, pipelineMeta);
     // The transform's counter: a database sequence, or neither, is Hop's
-    boolean database = meta.isDatabaseUsed() || !meta.isCounterUsed();
+    boolean database = usesDatabase(meta);
     String configurationTransform = meta.getConfigurationTransform();
     if (input == null || database || !Utils.isEmpty(configurationTransform)) {
       if (!database && !Utils.isEmpty(configurationTransform)) {

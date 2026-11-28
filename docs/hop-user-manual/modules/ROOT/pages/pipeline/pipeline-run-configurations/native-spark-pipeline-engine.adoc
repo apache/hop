@@ -338,16 +338,40 @@ Most classic Hop transforms (including *Workflow Executor*, *Pipeline Executor*,
 ** *Force distributed* — always use `mapPartitions` across partitions
 ** *Force Driver Only* — always run this transform's mini-pipeline on the Spark driver
 +
-The override is stored on the transform (`attributes` group `spark` / key `run_mode`) and is saved with the pipeline. When a force override is set, a small badge is drawn at the **bottom-left** of the transform icon.
+The override is stored on the transform (`attributes` group `spark` / key `run_mode`) and is saved with the pipeline. When a force override is set, a small badge is drawn at the **bottom-left** of the transform icon. When the canvas designs for Native Spark (see below), the plan badge shows the override instead.
 
 image::pipeline/spark/native-spark-run-mode-force-driver.png[Transform with Force Driver Only Spark run-mode badge,width=70%]
 
-Native Dataset handlers (Spark File / Lake Table, Memory Group By, Group By, Sort, Unique, Merge Join, Add Sequence with a counter) ignore this setting.
+Transforms that run as Spark code ignore this setting, for example Spark File / Lake Table, Memory Group By, Sort, Unique, Merge Join and Add Sequence with a counter. Group By and Unique rows (HashSet) hand their rows to Hop's transform, so they follow it. The plan badges below show which transforms run as Spark code.
 
 [NOTE]
 ====
 `DRIVER_ONLY` collects that transform's input rows on the driver. Prefer `DISTRIBUTED` for high-volume data; use driver-only for nested execution control (for example a Workflow Executor over a modest set of control rows).
 ====
+
+==== How each transform runs: the plan badges
+
+Set *Design for* on the pipeline toolbar to the Native Spark engine and every transform gets a badge at the top right of its icon, with the reason in its tooltip:
+
+[cols="1,5",options="header"]
+|===
+|Badge |Meaning
+|image:pipeline/spark/spark-plan-native.svg[Orange disc with a spark,width=24px] |Native: runs as Spark code.
+|image:pipeline/spark/spark-plan-hop.svg[Blue disc with an H,width=24px] |Hop transform: runs as Hop's transform on every partition, with the rows converted from Spark to Hop and back.
+|image:pipeline/spark/spark-plan-hop-fused.svg[Blue disc with two linked rings,width=24px] |Hop transform in a chain: runs together with its Hop neighbours, so the rows are converted once for the chain.
+|image:pipeline/spark/spark-plan-one-stream.svg[Amber triangle with a 1,width=24px] |One stream: the transform needs all rows in their order, so it runs in one Spark task, without parallelism.
+|image:pipeline/spark/spark-plan-driver.svg[Blue disc with a single node,width=24px] |On the driver: the transform's rows are collected on the Spark driver and it runs there once (*Spark Run Mode*).
+|===
+
+When a transform with a Spark version runs as Hop's transform, the tooltip says why. Some examples:
+
+* Group by and Unique rows (HashSet): Spark only puts the rows of a group, or of a key, on one partition, and Hop's transform works on each partition.
+* Add sequence: it takes its values from a database sequence, or reads its counter settings from a transform.
+* Table input: it isn't a plain partitioned read.
+
+The tooltip also names the transforms of a Hop chain, and the *Spark Run Mode* that puts a transform on the driver.
+
+The badges follow the engine's default run configuration and the row layouts known at design time. The log of a run says how every transform really ran.
 
 ==== Row numbers and the whole stream
 

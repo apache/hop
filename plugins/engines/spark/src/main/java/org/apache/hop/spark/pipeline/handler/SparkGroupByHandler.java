@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupingField;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
+import org.apache.hop.spark.pipeline.SparkTransformPlan;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -81,7 +82,6 @@ public class SparkGroupByHandler extends SparkBaseTransformHandler {
     }
     GroupByMeta meta = transformMeta(GroupByMeta.class, transformMeta, pipelineMeta);
     List<String> keys = groupingFields(meta);
-    boolean oneRowAlways = meta.isAlwaysGivingBackOneRow();
     for (String key : keys) {
       if (rowMeta.indexOfValue(key) < 0) {
         throw new HopException(
@@ -101,7 +101,7 @@ public class SparkGroupByHandler extends SparkBaseTransformHandler {
     Dataset<Row> numbered =
         input.withColumn(ROW_NR_COLUMN, functions.monotonically_increasing_id());
     Dataset<Row> grouped;
-    if (keys.isEmpty() || oneRowAlways) {
+    if (onOnePartition(meta)) {
       // Exactly one partition, also for an empty input: a shuffle of nothing can end up with no
       // partitions at all (adaptive execution), and then Group By never runs to give its row
       grouped = SparkGenericTransformHandler.onePartition(spark, numbered);
@@ -131,6 +131,21 @@ public class SparkGroupByHandler extends SparkBaseTransformHandler {
         rowMeta,
         previousTransforms,
         grouped);
+  }
+
+  @Override
+  public SparkTransformPlan plan(
+      PipelineMeta pipelineMeta, TransformMeta transformMeta, IVariables variables)
+      throws HopException {
+    return onOnePartition(transformMeta(GroupByMeta.class, transformMeta, pipelineMeta))
+        ? SparkTransformPlan.of(
+            SparkTransformPlan.Kind.ONE_STREAM, "SparkTransformPlan.GroupBy.OnePartition")
+        : SparkTransformPlan.of(SparkTransformPlan.Kind.HOP, "SparkTransformPlan.GroupBy.ByGroup");
+  }
+
+  /** Without grouping fields, or when an empty input must still give one row: one partition. */
+  static boolean onOnePartition(GroupByMeta meta) {
+    return groupingFields(meta).isEmpty() || meta.isAlwaysGivingBackOneRow();
   }
 
   static List<String> groupingFields(GroupByMeta meta) {

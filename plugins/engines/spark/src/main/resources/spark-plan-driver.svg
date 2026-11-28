@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Hop's transform once on the Spark driver: a single node (dot in a ring) on blue -->
+  <circle cx="8" cy="8" r="7.5" fill="#1f6aa5"/>
+  <circle cx="8" cy="8" r="4.2" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+  <circle cx="8" cy="8" r="1.9" fill="#ffffff"/>
+</svg>
