@@ -65,13 +65,22 @@ public final class LintPathUtils {
       return false;
     }
 
-    String normalizedA = normalizePath(a);
-    String normalizedB = normalizePath(b);
+    return normalizedPathsMatch(normalizePath(a), normalizePath(b));
+  }
 
-    if (normalizedA.equals(normalizedB)) {
-      return true;
+  /**
+   * {@link #pathsMatch} for two paths that already went through {@link #normalizePath}, such as the
+   * keys of the lint caches. It only compares the strings.
+   *
+   * <p>Normalizing resolves a VFS file object, which takes the lock of the file system it is on.
+   * Doing that for every key of a cache, for every item of the Explorer, on the UI thread, froze
+   * Hop GUI for as long as a background lint walked a large local folder: the walk takes that same
+   * lock for each file it visits.
+   */
+  public static boolean normalizedPathsMatch(String normalizedA, String normalizedB) {
+    if (Utils.isEmpty(normalizedA) || Utils.isEmpty(normalizedB)) {
+      return false;
     }
-
     return normalizedA.equalsIgnoreCase(normalizedB);
   }
 

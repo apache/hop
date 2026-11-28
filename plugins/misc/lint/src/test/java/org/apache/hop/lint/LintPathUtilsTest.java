@@ -39,6 +39,33 @@ public class LintPathUtilsTest {
   }
 
   @Test
+  void normalizedPathsMatchIgnoresCase() {
+    assertTrue(LintPathUtils.normalizedPathsMatch("/tmp/project/Foo.hpl", "/tmp/project/foo.hpl"));
+  }
+
+  @Test
+  void normalizedPathsDoNotMatchDifferentFiles() {
+    assertFalse(LintPathUtils.normalizedPathsMatch("/tmp/project/foo.hpl", "/tmp/project/bar.hpl"));
+  }
+
+  @Test
+  void normalizedPathsDoNotMatchWhenEmpty() {
+    assertFalse(LintPathUtils.normalizedPathsMatch("", ""));
+    assertFalse(LintPathUtils.normalizedPathsMatch(null, "/tmp/project/foo.hpl"));
+  }
+
+  /** It compares strings and resolves nothing, so a URI only matches once it is normalized. */
+  @Test
+  void normalizedPathsMatchDoesNotResolveUris() {
+    assertFalse(
+        LintPathUtils.normalizedPathsMatch("file:///tmp/project/foo.hpl", "/tmp/project/foo.hpl"));
+    assertTrue(
+        LintPathUtils.normalizedPathsMatch(
+            LintPathUtils.normalizePath("file:///tmp/project/foo.hpl"),
+            LintPathUtils.normalizePath("/tmp/project/foo.hpl")));
+  }
+
+  @Test
   void resolveExplorerFilePathUsesFullHopFilePath() {
     String fullPath = "/tmp/project/pipelines/extract.hpl";
     assertTrue(
