@@ -55,9 +55,9 @@ public class BeamHop {
       //
       System.setProperty(Const.HOP_AUTO_CREATE_CONFIG, "N");
 
-      // Load Hop base plugins
+      // Load Hop base plugins, then drop the plugin scan caches: they hold the fat jar's index
       //
-      HopEnvironment.init();
+      HopEnvironment.initForWorker();
 
       XmlHandlerCache.getInstance();
     }

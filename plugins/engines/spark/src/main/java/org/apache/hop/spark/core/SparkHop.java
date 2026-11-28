@@ -34,9 +34,11 @@ public final class SparkHop {
 
   public static void init() throws HopException {
     synchronized (PluginRegistry.getInstance()) {
-      // Don't create hop config files on every executor JVM
+      // Don't create hop config files on every executor JVM. The plugin scan caches go after
+      // start-up:
+      // they hold the fat jar's index
       System.setProperty(Const.HOP_AUTO_CREATE_CONFIG, "N");
-      HopEnvironment.init();
+      HopEnvironment.initForWorker();
       XmlHandlerCache.getInstance();
     }
   }

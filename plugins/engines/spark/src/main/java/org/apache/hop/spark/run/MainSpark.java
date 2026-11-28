@@ -132,7 +132,7 @@ public class MainSpark {
       // best-effort diagnostics only
     }
     ignorePluginFoldersOutsideTheFatJar();
-    HopEnvironment.init();
+    HopEnvironment.initForWorker();
 
     MainSparkArgs parsed = MainSparkArgs.parse(args);
     System.out.println(
