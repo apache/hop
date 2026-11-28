@@ -47,6 +47,7 @@ import org.apache.hop.spark.core.SparkVariableValue;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
+import org.apache.hop.spark.pipeline.SparkPersistedDatasets;
 import org.apache.hop.spark.util.SparkRunMode;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -77,6 +78,7 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
   private static volatile boolean internalRowsUnavailable;
 
   private SparkTransformMetricsAccumulator metricsAccumulator;
+  private SparkPersistedDatasets persistedDatasets = new SparkPersistedDatasets();
   private SparkExecutionDataAccumulator sampleDataAccumulator;
   private String runConfigName;
   private String parentLogChannelId;
@@ -84,6 +86,11 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
 
   public void setMetricsAccumulator(SparkTransformMetricsAccumulator metricsAccumulator) {
     this.metricsAccumulator = metricsAccumulator;
+  }
+
+  /** The Datasets of the run, released when it ends: this handler keeps rows through it only. */
+  public void setPersistedDatasets(SparkPersistedDatasets persistedDatasets) {
+    this.persistedDatasets = persistedDatasets;
   }
 
   public void setSampleDataAccumulator(SparkExecutionDataAccumulator sampleDataAccumulator) {
@@ -499,7 +506,7 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
       // parallel. In order: partition 1 holds the first rows, partition 2 the next ..., so a
       // transform that relies on the order of a file (a merge join on a sorted file) still sees
       // it when the partitions are read in turn
-      taggedOrPlain = spreadInOrder(taggedOrPlain, sourcePartitions);
+      taggedOrPlain = spreadInOrder(taggedOrPlain, sourcePartitions, persistedDatasets);
       log.logDetailed(
           "Spreading the rows of source '"
               + transformMeta.getName()
@@ -510,8 +517,7 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
 
     if (copiesToSeveral) {
       // Read by every next transform: computed once
-      taggedOrPlain =
-          taggedOrPlain.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK());
+      taggedOrPlain = persistedDatasets.persist(taggedOrPlain);
     }
     if (!multiTarget) {
       transformDatasetMap.put(lastMeta.getName(), taggedOrPlain);
@@ -614,11 +620,6 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
   static final String ROW_NR_COLUMN = "__hop_source_row_nr";
 
   /**
-   * Spread the rows over partitions in contiguous, ordered ranges of their position: unlike {@code
-   * repartition(n)}, which deals them out round robin, the order of the rows survives. The source
-   * is computed once.
-   */
-  /**
    * The rows in exactly one partition, in the order of their partitions. Also for no rows at all: a
    * shuffle of nothing can end up with no partitions (adaptive execution), and then a transform
    * that has to say something about an empty stream (Group By, Detect empty stream) never runs.
@@ -631,13 +632,20 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
     return rows.unionByName(empty).coalesce(1);
   }
 
-  static Dataset<Row> spreadInOrder(Dataset<Row> rows, int partitions) {
+  /**
+   * Spread the rows over partitions in contiguous, ordered ranges of their position: unlike {@code
+   * repartition(n)}, which deals them out round robin, the order of the rows survives. The source
+   * is computed once: the run keeps it in {@code persistedDatasets}.
+   */
+  static Dataset<Row> spreadInOrder(
+      Dataset<Row> rows, int partitions, SparkPersistedDatasets persistedDatasets) {
     Column rowNr = org.apache.spark.sql.functions.col(ROW_NR_COLUMN);
     // Range partitioning samples its input in a job of its own: kept, so the source transform
     // runs once (generated values, a web service call ...) and the sample sees the same rows
-    return rows.withColumn(
-            ROW_NR_COLUMN, org.apache.spark.sql.functions.monotonically_increasing_id())
-        .persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK())
+    return persistedDatasets
+        .persist(
+            rows.withColumn(
+                ROW_NR_COLUMN, org.apache.spark.sql.functions.monotonically_increasing_id()))
         .repartitionByRange(partitions, rowNr)
         .sortWithinPartitions(rowNr)
         .drop(ROW_NR_COLUMN);

@@ -71,7 +71,6 @@ import org.apache.hop.spark.util.SparkJobNames;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.storage.StorageLevel;
 
 /**
  * Converts a Hop {@link PipelineMeta} into a Spark {@link Dataset} lineage. Stateless transforms
@@ -212,8 +211,8 @@ public class HopPipelineMetaToSparkConverter {
   /** Datasets of the transforms without successors, in topological order (see createDataset). */
   private final Map<String, Dataset<Row>> leafDatasets = new LinkedHashMap<>();
 
-  /** Datasets read by more than one transform, persisted so they are computed once. */
-  private final List<Dataset<Row>> persistedDatasets = new ArrayList<>();
+  /** The Datasets this run keeps, by the converter and the handlers; released by unpersistAll. */
+  private final SparkPersistedDatasets persistedDatasets = new SparkPersistedDatasets();
 
   public HopPipelineMetaToSparkConverter(
       IVariables variables,
@@ -242,6 +241,7 @@ public class HopPipelineMetaToSparkConverter {
     this.sparkRunConfiguration = sparkConfig;
     this.transformHandlers = new HashMap<>();
     this.genericTransformHandler = new SparkGenericTransformHandler();
+    this.genericTransformHandler.setPersistedDatasets(persistedDatasets);
     addDefaultTransformHandlers();
   }
 
@@ -263,6 +263,7 @@ public class HopPipelineMetaToSparkConverter {
     this.sparkRunConfiguration = sparkRunConfiguration;
     this.transformHandlers = new HashMap<>();
     this.genericTransformHandler = new SparkGenericTransformHandler();
+    this.genericTransformHandler.setPersistedDatasets(persistedDatasets);
     addDefaultTransformHandlers();
   }
 
@@ -302,7 +303,11 @@ public class HopPipelineMetaToSparkConverter {
    */
   private void register(String pluginId, Supplier<ISparkPipelineTransformHandler> handler) {
     try {
-      transformHandlers.put(pluginId, handler.get());
+      ISparkPipelineTransformHandler created = handler.get();
+      if (created instanceof SparkBaseTransformHandler baseHandler) {
+        baseHandler.setPersistedDatasets(persistedDatasets);
+      }
+      transformHandlers.put(pluginId, created);
     } catch (LinkageError e) {
       LogChannel.GENERAL.logDebug(
           "No native Spark handler for transform plugin " + pluginId + ": " + e.getMessage());
@@ -604,8 +609,7 @@ public class HopPipelineMetaToSparkConverter {
     if (shared == null) {
       return;
     }
-    shared.persist(StorageLevel.MEMORY_AND_DISK());
-    persistedDatasets.add(shared);
+    persistedDatasets.persist(shared);
     log.logDetailed("Persisted the output of transform '" + name + "': several transforms read it");
   }
 
@@ -614,16 +618,9 @@ public class HopPipelineMetaToSparkConverter {
     return leafDatasets;
   }
 
-  /** Releases the Datasets persisted by {@link #createDataset}. */
+  /** Releases the Datasets kept by {@link #createDataset}, and by the transform handlers. */
   public void unpersistAll() {
-    for (Dataset<Row> dataset : persistedDatasets) {
-      try {
-        dataset.unpersist();
-      } catch (Exception e) {
-        // The session may already be gone
-      }
-    }
-    persistedDatasets.clear();
+    persistedDatasets.unpersistAll();
   }
 
   /**

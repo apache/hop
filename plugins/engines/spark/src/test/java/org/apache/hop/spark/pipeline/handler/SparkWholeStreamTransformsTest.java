@@ -56,6 +56,7 @@ import org.apache.hop.pipeline.transforms.samplerows.SampleRowsMeta;
 import org.apache.hop.spark.core.HopSparkRowConverter;
 import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
+import org.apache.hop.spark.pipeline.SparkPersistedDatasets;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -170,7 +171,9 @@ class SparkWholeStreamTransformsTest {
     }
     Dataset<Row> input =
         SparkGenericTransformHandler.spreadInOrder(
-            spark.createDataFrame(sparkRows, HopSparkRowConverter.toStructType(rowMeta)), 4);
+            spark.createDataFrame(sparkRows, HopSparkRowConverter.toStructType(rowMeta)),
+            4,
+            new SparkPersistedDatasets());
     Map<String, Dataset<Row>> map = new HashMap<>();
     handler.handleTransform(
         LogChannel.GENERAL,

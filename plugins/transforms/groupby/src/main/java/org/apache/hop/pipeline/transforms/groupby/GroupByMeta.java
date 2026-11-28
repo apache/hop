@@ -226,11 +226,8 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
         } else if (aggregationType == Aggregation.TYPE_GROUP_COUNT_ALL
             || aggregationType == Aggregation.TYPE_GROUP_COUNT_DISTINCT
             || aggregationType == Aggregation.TYPE_GROUP_COUNT_ANY) {
-          // As the counts Group By writes: an Integer without a length. A length here made the
-          // next transform format a count other than the value it got (" 0000000039" in a text
-          // file) wherever it works with the declared layout (all rows, the native Spark engine)
-          length = -1;
-          precision = -1;
+          length = IValueMeta.DEFAULT_INTEGER_LENGTH;
+          precision = 0;
         } else if (aggregationType == Aggregation.TYPE_GROUP_SUM
             && valueType != IValueMeta.TYPE_INTEGER
             && valueType != IValueMeta.TYPE_NUMBER

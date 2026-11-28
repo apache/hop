@@ -50,6 +50,7 @@ import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.spark.core.HopSparkRowConverter;
 import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
+import org.apache.hop.spark.pipeline.SparkPersistedDatasets;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -234,7 +235,9 @@ class SparkGroupByHandlerTest {
     }
     Dataset<Row> input =
         SparkGenericTransformHandler.spreadInOrder(
-            spark.createDataFrame(sparkRows, HopSparkRowConverter.toStructType(rowMeta)), 4);
+            spark.createDataFrame(sparkRows, HopSparkRowConverter.toStructType(rowMeta)),
+            4,
+            new SparkPersistedDatasets());
     Map<String, Dataset<Row>> map = new HashMap<>();
     new SparkGroupByHandler(new SparkGenericTransformHandler())
         .handleTransform(

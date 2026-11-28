@@ -35,7 +35,6 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.storage.StorageLevel;
 
 /**
  * Identify last row in a stream on the native Spark engine: only the last row of all rows is the
@@ -75,7 +74,7 @@ public class SparkDetectLastRowHandler extends SparkBaseTransformHandler {
       // Nothing to flag: the rows pass on
       output = input;
     } else {
-      Dataset<Row> kept = input.persist(StorageLevel.MEMORY_AND_DISK());
+      Dataset<Row> kept = getPersistedDatasets().persist(input);
       long lastIndex = kept.count() - 1;
       JavaRDD<Row> flagged =
           kept.toJavaRDD()

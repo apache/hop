@@ -47,6 +47,7 @@ import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueField;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
 import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
+import org.apache.hop.spark.pipeline.SparkPersistedDatasets;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -295,7 +296,8 @@ class SparkNativeHandlersTest {
       rows.add(RowFactory.create(i));
     }
     Dataset<Row> source = spark.createDataFrame(rows, schema).repartition(1);
-    Dataset<Row> spread = SparkGenericTransformHandler.spreadInOrder(source, 4);
+    Dataset<Row> spread =
+        SparkGenericTransformHandler.spreadInOrder(source, 4, new SparkPersistedDatasets());
     assertEquals(4, spread.rdd().getNumPartitions());
     assertEquals(List.of("n"), Arrays.asList(spread.columns()));
     List<Long> values = spread.collectAsList().stream().map(r -> r.getLong(0)).toList();

@@ -28,6 +28,7 @@ import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
+import org.apache.hop.spark.pipeline.SparkPersistedDatasets;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -35,6 +36,7 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
 
   private SparkTransformMetricsAccumulator metricsAccumulator;
   private SparkNativeMetricsListener metricsListener;
+  private SparkPersistedDatasets persistedDatasets = new SparkPersistedDatasets();
 
   public void setMetricsAccumulator(SparkTransformMetricsAccumulator metricsAccumulator) {
     this.metricsAccumulator = metricsAccumulator;
@@ -46,6 +48,15 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
 
   public void setMetricsListener(SparkNativeMetricsListener metricsListener) {
     this.metricsListener = metricsListener;
+  }
+
+  /** The Datasets of the run, released when it ends: a handler keeps rows through it only. */
+  public void setPersistedDatasets(SparkPersistedDatasets persistedDatasets) {
+    this.persistedDatasets = persistedDatasets;
+  }
+
+  protected SparkPersistedDatasets getPersistedDatasets() {
+    return persistedDatasets;
   }
 
   /**
