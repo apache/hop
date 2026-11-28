@@ -1132,6 +1132,65 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
   }
 
+  /**
+   * A writer for the values of one row layout at any parameter position, with the binding of every
+   * column looked up once when it is created: for statements that carry several rows of the same
+   * layout, whose parameters don't line up with the row ({@link
+   * org.apache.hop.core.database.dml.DmlStatements}). Create it for a layout and use it while that
+   * layout does not change.
+   *
+   * @param rowMeta the layout of the rows whose values are written
+   * @return a writer for this connection and layout
+   */
+  public RowValueWriter rowValueWriter(IRowMeta rowMeta) {
+    return new RowValueWriter(rowMeta);
+  }
+
+  /**
+   * Writes values of one row layout through bindings looked up once, see {@link #rowValueWriter}.
+   */
+  public final class RowValueWriter {
+    private final IRowMeta rowMeta;
+    private final IValueBinding[] bindings;
+
+    private RowValueWriter(IRowMeta rowMeta) {
+      this.rowMeta = rowMeta;
+      IDatabase iDatabase = databaseMeta.getIDatabase();
+      this.bindings = new IValueBinding[rowMeta.size()];
+      for (int i = 0; i < bindings.length; i++) {
+        bindings[i] = DatabaseTypeMapper.getBinding(iDatabase, rowMeta.getValueMeta(i));
+      }
+    }
+
+    /**
+     * Same as {@link Database#setValue(PreparedStatement, IValueMeta, Object, int)} for the value
+     * of column {@code index} of the layout.
+     *
+     * @param ps the statement
+     * @param index the column of the value in the row layout
+     * @param object the value
+     * @param pos the JDBC parameter index, one-based
+     */
+    public void setValue(PreparedStatement ps, int index, Object object, int pos)
+        throws HopDatabaseException {
+      IValueMeta v = rowMeta.getValueMeta(index);
+      IValueBinding binding = bindings[index];
+      if (binding != null) {
+        try {
+          binding.write(databaseMeta.getIDatabase(), v, ps, pos, object);
+          return;
+        } catch (UnsupportedOperationException e) {
+          // A binding declared for reading only: the value type writes this value, as setValue
+          // does.
+        } catch (SQLException | HopValueException e) {
+          throw new HopDatabaseException(
+              "Unable to write value '" + v.getName() + "' to the prepared statement", e);
+        }
+      }
+      v.setPreparedStatementValue(databaseMeta, ps, pos, object);
+    }
+  }
+
   public void setValue(PreparedStatement ps, IValueMeta v, Object object, int pos)
       throws HopDatabaseException {
     // Asked here rather than inside ValueMetaBase, so that a value type which handles its own

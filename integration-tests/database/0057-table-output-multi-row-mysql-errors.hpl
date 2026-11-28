@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0057-table-output-multi-row-mysql-errors</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Twelve rows through Table output on MySQL with batch updates, 3 rows per INSERT statement and an error hop; three of them are refused by the database. Exactly those three have to reach the error hop; every other row has to be written and reported once on the main output.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/27 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/27 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Twelve rows, three duplicates</from>
+      <to>Rows per statement 3</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Rows per statement 3</from>
+      <to>Rejects</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Rows per statement 3</from>
+      <to>Written</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Twelve rows, three duplicates</name>
+    <type>DataGrid</type>
+    <description>Rows at positions 2, 5 and 11 reuse the IDs 9000-9002 seeded by the workflow and violate the primary key: one in each of the first two statements of the first commit, and the last row of the second. The amounts have different scales within each statement.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line><item>0</item><item>r0</item><item>1</item></line>
+      <line><item>1</item><item>r1</item><item>2.25</item></line>
+      <line><item>9000</item><item>r2</item><item>300</item></line>
+      <line><item>3</item><item>r3</item><item>0.5</item></line>
+      <line><item>4</item><item>r4</item><item>-7.05</item></line>
+      <line><item>9001</item><item>r5</item><item>1</item></line>
+      <line><item>6</item><item>r6</item><item>2.25</item></line>
+      <line><item>7</item><item>r7</item><item>12345678.9</item></line>
+      <line><item>8</item><item>r8</item><item>0.01</item></line>
+      <line><item>9</item><item>r9</item><item>3</item></line>
+      <line><item>10</item><item>r10</item><item>4.75</item></line>
+      <line><item>9002</item><item>r11</item><item>1</item></line>
+    </data>
+    <fields>
+      <field>
+        <currency/>
+        <decimal></decimal>
+        <group/>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>ID</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal></decimal>
+        <group/>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>LABEL</name>
+        <type>String</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal>.</decimal>
+        <group/>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>AMOUNT</name>
+        <type>BigNumber</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Rows per statement 3</name>
+    <type>TableOutput</type>
+    <description>Batch updates, commit size 6, 3 rows per INSERT statement: four statements, three of which hold a bad row.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <commit>6</commit>
+    <connection>mysql</connection>
+    <fields>
+      <field>
+        <column_name>id</column_name>
+        <stream_name>ID</stream_name>
+      </field>
+      <field>
+        <column_name>label</column_name>
+        <stream_name>LABEL</stream_name>
+      </field>
+      <field>
+        <column_name>amount</column_name>
+        <stream_name>AMOUNT</stream_name>
+      </field>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_field/>
+    <return_keys>N</return_keys>
+    <rows_per_statement>3</rows_per_statement>
+    <schema/>
+    <specify_fields>Y</specify_fields>
+    <table>tomr_target</table>
+    <tablename_field/>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>N</truncate>
+    <use_batch>Y</use_batch>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Written</name>
+    <type>TableOutput</type>
+    <description>The rows Table output reported on its main output.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <commit>1000</commit>
+    <connection>mysql</connection>
+    <fields>
+      <field>
+        <column_name>id</column_name>
+        <stream_name>ID</stream_name>
+      </field>
+      <field>
+        <column_name>label</column_name>
+        <stream_name>LABEL</stream_name>
+      </field>
+      <field>
+        <column_name>amount</column_name>
+        <stream_name>AMOUNT</stream_name>
+      </field>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_field/>
+    <return_keys>N</return_keys>
+    <schema/>
+    <specify_fields>Y</specify_fields>
+    <table>tomr_written</table>
+    <tablename_field/>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>N</truncate>
+    <use_batch>N</use_batch>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Rejects</name>
+    <type>TableOutput</type>
+    <description>The error hop: exactly the three rows the database refused.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <commit>1000</commit>
+    <connection>mysql</connection>
+    <fields>
+      <field>
+        <column_name>id</column_name>
+        <stream_name>ID</stream_name>
+      </field>
+      <field>
+        <column_name>label</column_name>
+        <stream_name>LABEL</stream_name>
+      </field>
+      <field>
+        <column_name>amount</column_name>
+        <stream_name>AMOUNT</stream_name>
+      </field>
+      <field>
+        <column_name>err_desc</column_name>
+        <stream_name>ERR_DESC</stream_name>
+      </field>
+      <field>
+        <column_name>err_code</column_name>
+        <stream_name>ERR_CODES</stream_name>
+      </field>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_field/>
+    <return_keys>N</return_keys>
+    <schema/>
+    <specify_fields>Y</specify_fields>
+    <table>tomr_rejects</table>
+    <tablename_field/>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>N</truncate>
+    <use_batch>N</use_batch>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>Rows per statement 3</source_transform>
+      <target_transform>Rejects</target_transform>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename>ERR_COUNT</nr_valuename>
+      <descriptions_valuename>ERR_DESC</descriptions_valuename>
+      <fields_valuename>ERR_FIELDS</fields_valuename>
+      <codes_valuename>ERR_CODES</codes_valuename>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

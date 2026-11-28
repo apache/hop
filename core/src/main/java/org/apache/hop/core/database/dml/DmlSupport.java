@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.database.dml;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,18 +31,28 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
- * Picks the upsert form for a connection. Transforms ask this instead of reading the dialect's
- * {@link DmlSyntax} themselves.
+ * Picks the upsert form for a connection, and how many rows go into one INSERT. Transforms ask this
+ * instead of reading the dialect's {@link DmlSyntax} themselves.
  *
  * <p>An upsert needs a declared {@link UpsertForm}: the one asked for, or else the first declared
  * one that qualifies. A form qualifies when the server is at least its minimum version, and, for
  * {@link UpsertForm#ON_CONFLICT}, when the table has a primary key or unique index on exactly the
  * key columns; {@link UpsertForm#ON_DUPLICATE_KEY} also needs that to be the table's only unique
  * index, because it reacts to any of them. Both can only update columns they insert.
+ *
+ * <p>Several rows per INSERT ({@link #planStatements(DatabaseMeta, DatabaseMetaData, DmlSpec, int,
+ * IVariables)}) are only used when the dialect declares a {@link DmlSyntax.InsertForm}, when they
+ * are not switched off ({@link #multiRowDisabledReason}) and when the open connection doesn't rule
+ * them out for the target table ({@link IDatabase#getMultiRowDmlRefusal}). The rows per statement
+ * are capped by the dialect's maximum rows and parameters per statement, and the statements by the
+ * connection's maximum bytes per statement ({@link IDatabase#getMaxDmlStatementBytes}).
  *
  * <p>Without a connection (a dialog, a pipeline check) only the dialect is checked; a driver that
  * can't tell its version gets the benefit of the doubt.
@@ -50,6 +61,41 @@ public final class DmlSupport {
   private static final Class<?> PKG = DmlSupport.class;
 
   private DmlSupport() {}
+
+  /**
+   * Connection attribute that makes the connection write one row per statement, whatever rows per
+   * statement a transform asks for: {@code Y} to do so, absent or anything else to allow several.
+   * It is deliberately not an extra JDBC option, so it never reaches the driver.
+   */
+  public static final String ATTRIBUTE_MULTI_ROW_DML_DISABLED = "MULTI_ROW_DML_DISABLED";
+
+  /**
+   * Value of {@link Const#HOP_DATABASE_MULTI_ROW_DML} that makes every connection write one row per
+   * statement.
+   */
+  public static final String MULTI_ROW_DISABLED = "DISABLED";
+
+  /**
+   * Why statements of several rows are switched off, by {@link Const#HOP_DATABASE_MULTI_ROW_DML} or
+   * by the connection's option.
+   *
+   * @param databaseMeta the connection, may be null
+   * @param variables resolves the variable, may be null
+   * @return the reason for the log, or null when statements of several rows may be used
+   */
+  public static String multiRowDisabledReason(DatabaseMeta databaseMeta, IVariables variables) {
+    String value =
+        variables == null ? null : variables.getVariable(Const.HOP_DATABASE_MULTI_ROW_DML);
+    if (MULTI_ROW_DISABLED.equalsIgnoreCase(Const.NVL(value, "").trim())) {
+      return BaseMessages.getString(
+          PKG, "DmlSupport.Note.MultiRowDisabledByVariable", Const.HOP_DATABASE_MULTI_ROW_DML);
+    }
+    if (databaseMeta != null && databaseMeta.isMultiRowDmlDisabled()) {
+      return BaseMessages.getString(
+          PKG, "DmlSupport.Note.MultiRowDisabledByConnection", databaseMeta.getName());
+    }
+    return null;
+  }
 
   /** What the unique indexes of a table say about a set of key columns. */
   public enum UniqueKey {
@@ -155,6 +201,124 @@ public final class DmlSupport {
       reasons.table(why);
     }
     return DmlPlan.unsupported(syntax, reasons.toString());
+  }
+
+  /**
+   * Chooses the rows per INSERT for a connection, checking the connection's option only: see {@link
+   * #planStatements(DatabaseMeta, DatabaseMetaData, DmlSpec, int, IVariables)}, which transforms
+   * call with themselves as the variables.
+   */
+  public static DmlPlan planStatements(
+      DatabaseMeta databaseMeta, DatabaseMetaData metaData, DmlSpec spec, int rowsPerStatement)
+      throws HopDatabaseException {
+    return planStatements(databaseMeta, metaData, spec, rowsPerStatement, null);
+  }
+
+  /**
+   * Chooses the rows per INSERT for a connection and a table: the rows asked for, capped by the
+   * dialect's maximum rows and parameters per statement, or one row per statement when the dialect
+   * declares no INSERT of several rows, when {@link Const#HOP_DATABASE_MULTI_ROW_DML} or the
+   * connection's option switches them off, or when the open connection rules them out for the
+   * target table ({@link IDatabase#getMultiRowDmlRefusal}). The plan also carries the most bytes
+   * one statement may take on the connection ({@link IDatabase#getMaxDmlStatementBytes}).
+   *
+   * @param databaseMeta the connection
+   * @param metaData the metadata of the open connection, for the session and the target table; null
+   *     to check the dialect only
+   * @param spec what the statements do: an INSERT
+   * @param rowsPerStatement the rows per statement asked for; 1 or less is one row
+   * @param variables resolves {@link Const#HOP_DATABASE_MULTI_ROW_DML}; null to only check the
+   *     connection's option
+   * @return the plan; {@code DmlPlan.getUnsupportedReason()} says why when nothing fits, {@code
+   *     DmlPlan.getNote()} why fewer rows per statement are written than were asked for
+   * @throws HopDatabaseException when the spec is not an INSERT
+   */
+  public static DmlPlan planStatements(
+      DatabaseMeta databaseMeta,
+      DatabaseMetaData metaData,
+      DmlSpec spec,
+      int rowsPerStatement,
+      IVariables variables)
+      throws HopDatabaseException {
+    DmlOperation operation = spec.getOperation();
+    if (operation != DmlOperation.INSERT) {
+      throw new HopDatabaseException(
+          "Only an INSERT can be planned with several rows per statement, not " + operation);
+    }
+    if (databaseMeta == null) {
+      return DmlPlan.unsupported(
+          operation, null, BaseMessages.getString(PKG, "DmlSupport.Error.NoConnection"));
+    }
+    IDatabase dialect = databaseMeta.getIDatabase();
+    DmlSyntax syntax = dialect.getDmlSyntax();
+    String database = databaseMeta.getPluginName();
+
+    int asked = Math.max(1, rowsPerStatement);
+    if (asked == 1) {
+      return DmlPlan.singleRow(operation, syntax, null);
+    }
+    String disabled = multiRowDisabledReason(databaseMeta, variables);
+    if (disabled != null) {
+      return DmlPlan.singleRow(operation, syntax, disabled);
+    }
+    if (syntax == null || syntax.insertForm() == null) {
+      return DmlPlan.singleRow(
+          operation,
+          syntax,
+          BaseMessages.getString(
+              PKG, "DmlSupport.Note.NoMultiRowForm", database, operation.name()));
+    }
+    Connection connection = connection(metaData);
+    String refusal = connection == null ? null : dialect.getMultiRowDmlRefusal(connection, spec);
+    if (refusal != null) {
+      return DmlPlan.singleRow(
+          operation,
+          syntax,
+          BaseMessages.getString(
+              PKG, "DmlSupport.Note.SessionRefusesMultiRow", database, operation.name(), refusal));
+    }
+
+    int rows = asked;
+    String note = null;
+    if (syntax.maxRowsPerStatement() > 0 && rows > syntax.maxRowsPerStatement()) {
+      rows = syntax.maxRowsPerStatement();
+      note =
+          BaseMessages.getString(PKG, "DmlSupport.Note.MaxRows", database, Integer.toString(rows));
+    }
+    if (syntax.maxParameters() > 0) {
+      int perRow = Math.max(1, spec.getSourceColumns().size());
+      int fit = Math.max(1, syntax.maxParameters() / perRow);
+      if (rows > fit) {
+        rows = fit;
+        note =
+            BaseMessages.getString(
+                PKG,
+                "DmlSupport.Note.MaxParameters",
+                database,
+                Integer.toString(syntax.maxParameters()),
+                Integer.toString(rows),
+                Integer.toString(perRow));
+      }
+    }
+    if (rows <= 1) {
+      return DmlPlan.singleRow(operation, syntax, note);
+    }
+    long maxBytes = connection == null ? 0 : dialect.getMaxDmlStatementBytes(connection);
+    return DmlPlan.multiRow(operation, syntax, rows, maxBytes, note);
+  }
+
+  /**
+   * @return the open connection of the metadata; null without one
+   */
+  private static Connection connection(DatabaseMetaData metaData) {
+    if (metaData == null) {
+      return null;
+    }
+    try {
+      return metaData.getConnection();
+    } catch (SQLException | RuntimeException e) {
+      return null;
+    }
   }
 
   /**

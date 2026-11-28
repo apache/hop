@@ -123,6 +123,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private Button wPreserveCase;
   private TextVar wPreferredSchema;
   private ComboVar wBatchFailureContract;
+  private Button wMultiRowDmlDisabled;
   private TextVar wSqlStatements;
 
   private TableView wOptions;
@@ -290,6 +291,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wPreserveCase.addListener(SWT.Selection, modifyListener);
     wPreferredSchema.addListener(SWT.Modify, modifyListener);
     wBatchFailureContract.addListener(SWT.Modify, modifyListener);
+    wMultiRowDmlDisabled.addListener(SWT.Selection, modifyListener);
     wSqlStatements.addListener(SWT.Modify, modifyListener);
     wOptions.addListener(SWT.Modify, modifyListener);
     wSshTunnelEnabled.addListener(SWT.Selection, modifyListener);
@@ -909,6 +911,30 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wBatchFailureContract.setLayoutData(fdBatchFailureContract);
     lastControl = wBatchFailureContract;
 
+    // One row per statement, whatever rows per statement a transform asks for
+    //
+    Label wlMultiRowDmlDisabled = new Label(wAdvancedComp, SWT.RIGHT);
+    PropsUi.setLook(wlMultiRowDmlDisabled);
+    wlMultiRowDmlDisabled.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.MultiRowDmlDisabled"));
+    wlMultiRowDmlDisabled.setToolTipText(
+        BaseMessages.getString(PKG, "DatabaseDialog.tooltip.MultiRowDmlDisabled"));
+    FormData fdlMultiRowDmlDisabled = new FormData();
+    fdlMultiRowDmlDisabled.top = new FormAttachment(lastControl, margin);
+    fdlMultiRowDmlDisabled.left = new FormAttachment(0, 0);
+    fdlMultiRowDmlDisabled.right = new FormAttachment(middle, 0);
+    wlMultiRowDmlDisabled.setLayoutData(fdlMultiRowDmlDisabled);
+    wMultiRowDmlDisabled = new Button(wAdvancedComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wMultiRowDmlDisabled);
+    wMultiRowDmlDisabled.setToolTipText(
+        BaseMessages.getString(PKG, "DatabaseDialog.tooltip.MultiRowDmlDisabled"));
+    FormData fdMultiRowDmlDisabled = new FormData();
+    fdMultiRowDmlDisabled.top = new FormAttachment(wlMultiRowDmlDisabled, 0, SWT.CENTER);
+    fdMultiRowDmlDisabled.left = new FormAttachment(middle, margin);
+    fdMultiRowDmlDisabled.right = new FormAttachment(100, 0);
+    wMultiRowDmlDisabled.setLayoutData(fdMultiRowDmlDisabled);
+    lastControl = wMultiRowDmlDisabled;
+
     // SQL Statements to run after connecting
     //
     Label wlSqlStatements = new Label(wAdvancedComp, SWT.LEFT);
@@ -1381,6 +1407,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     } else {
       wBatchFailureContract.select(0);
     }
+    wMultiRowDmlDisabled.setSelection(databaseMeta.isMultiRowDmlDisabled());
     wSqlStatements.setText(Const.NVL(databaseMeta.getConnectSql(), ""));
 
     wOptions.clearAll(false);
@@ -1465,6 +1492,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       // A variable expression, resolved when the connection is used.
       meta.setBatchFailureContractOverride(contractText);
     }
+    meta.setMultiRowDmlDisabled(wMultiRowDmlDisabled.getSelection());
     meta.setConnectSql(wSqlStatements.getText());
 
     meta.getExtraOptions().clear();

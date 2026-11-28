@@ -85,6 +85,8 @@ SELECT * FROM SALES_200504
 |Use batch update for inserts|Enable if you want to use batch inserts.
 This feature groups inserts statements to limit round trips to the database.
 This is the fastest option and is enabled by default.
+|Rows per statement|With batch updates, the number of rows one INSERT statement carries, on a database type with a multi-row INSERT whose failed batches are recovered (see above). 100 for a new transform; a transform saved before this option existed inserts one row per statement. Variables are allowed.
+See <<multirow,Several rows per statement>>.
 |Is the name of the table defined in a field?|Use these options to split the data over one or more tables; the name of the target table is defined in the field you specify.
 For example if you store customer data in the field gender, the data might end up in tables M and F (Male and Female).
 There is an option to exclude the field containing the tablename from being inserted into the tables.
@@ -127,6 +129,32 @@ To go back to that behaviour on a measured database:
 The same option can name what the driver does, for a connection whose options change it.
 
 When a failed batch is worked out this way, rows can be sent to the database more than once, so a failed batch can use up extra sequence values and fire non-transactional triggers again.
+
+[[multirow]]
+== Several rows per statement
+
+With batch updates and *Rows per statement* above 1, the rows of a batch are written as `INSERT INTO t (a, b) VALUES (?, ?), (?, ?), ...`, each table of *Is the name of the table defined in a field?* or of the partitioning with its own batch.
+This is done on the database types whose multi-row INSERT and failed batches have been checked: PostgreSQL, MySQL, Microsoft SQL Server (native), H2, DuckDB and Apache Derby.
+Oracle writes one row per statement: there an INSERT of several rows is no faster than the batch the driver already sends, and the more values it carries, the longer Oracle takes to parse it.
+A remainder shorter than the rows per statement is sent as a few statements of smaller sizes, and a database's limits on rows or parameters per statement lower the rows per statement where needed.
+On MySQL a statement also has to fit in the server's `max_allowed_packet` (or the connection's lower `maxAllowedPacket`): a statement is cut short before its values would take it past that, so large rows go fewer to a statement.
+When a multi-row statement fails, its rows are run again one by one, so with an error hop exactly the refused rows go to the error hop (error code `TOP0002`) and the others are committed; without one the transform stops and the failed batch is rolled back.
+Work done earlier in the same transaction, such as *Truncate table*, is kept.
+A value that can't be bound is found when the batch is sent, not when the row arrives; it then goes to the error hop with error code `TOP001`, or stops the transform, as with one row per statement.
+
+Statement-level triggers fire once per statement and see all of its rows: every trigger on SQL Server, and `FOR EACH STATEMENT` triggers on PostgreSQL, H2 and Derby.
+A trigger that expects one row per INSERT needs *Rows per statement* 1.
+Row-level triggers (MySQL's, and `FOR EACH ROW` triggers elsewhere) still fire once per row.
+
+One row per statement is used, as before, without batch updates (also with *Return auto-generated key*, a commit size of 0 or a connection shared by a transactional pipeline), with *Ignore insert errors*, on a database without transactions, when two fields write the same column, on MySQL outside strict SQL mode or into a table without transactions (MyISAM, MEMORY, ...), or when the database type declares no multi-row INSERT or its limit on parameters leaves room for one row only.
+The detailed log says which, and how many rows per statement are used.
+
+On PostgreSQL, the driver option `reWriteBatchedInserts=true` also applies to these statements: the driver folds a batch of multi-row INSERTs into larger multi-row INSERTs.
+The rows written are the same.
+When a row fails, though, the driver doesn't say which statement of the batch caused it, so the rows of that batch are run again one by one, which takes more round trips than without the option.
+
+To go back to one row per statement without changing any transform, tick *Write one row per statement* on the *Advanced* tab of the connection, or set the variable `HOP_DATABASE_MULTI_ROW_DML` to `DISABLED` for every connection.
+`HOP_DATABASE_BATCH_RECOVERY=LEGACY` does the same, because several rows per statement are only written where failed batches are recovered.
 
 == Samples
 

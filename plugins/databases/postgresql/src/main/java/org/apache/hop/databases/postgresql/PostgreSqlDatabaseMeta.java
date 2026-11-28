@@ -1497,17 +1497,23 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   /**
    * PostgreSQL has MERGE since version 15 and {@code INSERT ... ON CONFLICT} since 9.5. MERGE is
    * preferred, as it needs no unique key; ON CONFLICT takes over on an older server, when the key
-   * columns are the primary key or a unique index, or when it is asked for.
+   * columns are the primary key or a unique index, or when it is asked for. An INSERT carries
+   * several rows in one {@code VALUES} list. With {@code reWriteBatchedInserts=true} pgjdbc folds a
+   * batch of Hop's multi-row INSERTs into larger ones (in powers of two) and reports {@code
+   * SUCCESS_NO_INFO}; the rows come out the same, and {@link #getFailedBatchEntry} gives no entry
+   * for a failed INSERT of several rows.
    *
    * <p>The parameters of the MERGE source are cast: pgjdbc sends a timestamp, and a string bound
    * for a non-text column, as an untyped parameter, and PostgreSQL resolves an untyped value in a
    * VALUES list to text, which then can't be written to the column ("column ts is of type timestamp
    * without time zone but expression is of type text"). The {@code VALUES} list of ON CONFLICT
-   * needs no cast: its types come from the target columns. The casts name the type without its
-   * length or precision, see {@link #getDmlCastType}.
+   * needs no cast, nor does the {@code VALUES} list of an INSERT: their types come from the target
+   * columns. The casts name the type without its length or precision, see {@link #getDmlCastType}.
+   * One statement takes at most 65535 parameters, the limit of the wire protocol that pgjdbc
+   * enforces.
    *
-   * <p>Checked against PostgreSQL 18 and 14 by {@code PostgreSqlMergeIT} and {@code
-   * PostgreSqlCastIT}. Only declared for this dialect itself: the dialects that extend it
+   * <p>Checked against PostgreSQL 18 and 14 by {@code PostgreSqlMergeIT}, {@code PostgreSqlCastIT}
+   * and {@code PostgreSqlDmlIT}. Only declared for this dialect itself: the dialects that extend it
    * (Greenplum, CockroachDB, Redshift, ...) talk to other servers.
    */
   @Override
@@ -1522,6 +1528,8 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
             DmlSyntax.Upsert.of(UpsertForm.ON_CONFLICT)
                 .withMinimumMajorVersion(9)
                 .withMinimumMinorVersion(5))
+        .insertForm(DmlSyntax.InsertForm.VALUES_LIST)
+        .maxParameters(65535)
         .build();
   }
 

@@ -21,30 +21,43 @@ import java.util.List;
 import lombok.Getter;
 
 /**
- * A DML statement for one row, with where each of its parameters comes from.
+ * A DML statement for one row or a fixed number of rows, with where each of its parameters comes
+ * from.
  *
- * <p>The value of the parameter at position {@code p} (zero-based; JDBC index {@code p + 1}) is
- * {@code bindRow[getLayout()[p]]}, where the bind row holds one value per source column of the
- * {@link DmlSpec}. {@code getRowColumns()} names the column of every parameter.
+ * <p>The value of the parameter at position {@code p} (zero-based; JDBC index {@code p + 1}) of a
+ * row is {@code bindRow[getLayout()[p]]}, where the bind row holds one value per source column of
+ * the {@link DmlSpec}. {@code getRowColumns()} names the column of every parameter of a row.
+ *
+ * <p>The parameters of one row are contiguous: row {@code r} (zero-based) of a statement of several
+ * rows binds its row columns at parameter indexes {@code r * getParametersPerRow() + 1} and up, see
+ * {@link #parameterIndex(int, int)}.
  */
 @Getter
 public final class DmlStatement {
 
   private final String sql;
 
-  /** The columns of the parameters, in parameter order. */
+  /** The number of rows the statement carries. */
+  private final int rows;
+
+  /** The columns of one row's parameters, in parameter order. */
   private final List<DmlColumn> rowColumns;
 
   private final int[] layout;
 
   public DmlStatement(String sql, List<DmlColumn> rowColumns, int[] layout) {
+    this(sql, 1, rowColumns, layout);
+  }
+
+  public DmlStatement(String sql, int rows, List<DmlColumn> rowColumns, int[] layout) {
     this.sql = sql;
+    this.rows = rows;
     this.rowColumns = List.copyOf(rowColumns);
     this.layout = layout.clone();
   }
 
   /**
-   * @return for each parameter position, the index of its value in the bind row
+   * @return for each parameter position within a row, the index of its value in the bind row
    */
   public int[] getLayout() {
     return layout.clone();
@@ -57,8 +70,27 @@ public final class DmlStatement {
     return layout[position];
   }
 
-  public int getParameterCount() {
+  /**
+   * @return the number of parameters of one row
+   */
+  public int getParametersPerRow() {
     return layout.length;
+  }
+
+  /**
+   * @return the number of parameters of the statement, of all its rows
+   */
+  public int getParameterCount() {
+    return rows * layout.length;
+  }
+
+  /**
+   * @param row the row within the statement, zero-based
+   * @param position the parameter within the row, zero-based
+   * @return the JDBC parameter index, one-based
+   */
+  public int parameterIndex(int row, int position) {
+    return row * layout.length + position + 1;
   }
 
   @Override

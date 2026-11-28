@@ -19,7 +19,10 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -37,6 +40,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -75,6 +79,29 @@ final class TableOutputRun {
    */
   private String recovery = "LEGACY";
 
+  /** Other variables to set on the transform before init, by name. */
+  private final Map<String, String> variables = new LinkedHashMap<>();
+
+  /** Whether the transform is loaded from {@link #SAVED_XML} instead of created with defaults. */
+  private boolean asSaved;
+
+  /**
+   * A Table output as Hop saved it before it had any option for several rows per statement, with
+   * every option at its default. A run {@link #asSaved()} loads it, as a pipeline saved then does.
+   */
+  static final String SAVED_XML =
+      "<table/><commit>1000</commit><truncate>N</truncate><only_when_have_rows>N</only_when_have_rows>"
+          + "<ignore_errors>N</ignore_errors><use_batch>Y</use_batch>"
+          + "<partitioning_enabled>N</partitioning_enabled><partitioning_field/>"
+          + "<partitioning_daily>N</partitioning_daily><partitioning_monthly>Y</partitioning_monthly>"
+          + "<tablename_in_field>N</tablename_in_field><tablename_field/>"
+          + "<tablename_in_table>Y</tablename_in_table><return_keys>N</return_keys>"
+          + "<specify_fields>N</specify_fields>"
+          + "<auto_update_table_structure>N</auto_update_table_structure>"
+          + "<always_drop_and_recreate>N</always_drop_and_recreate><add_columns>N</add_columns>"
+          + "<drop_columns>N</drop_columns><change_column_types>N</change_column_types>"
+          + "<fields></fields>";
+
   private TableOutputRun(DatabaseMeta databaseMeta) {
     this.databaseMeta = databaseMeta;
   }
@@ -108,6 +135,22 @@ final class TableOutputRun {
     return this;
   }
 
+  /**
+   * Loads the transform from {@link #SAVED_XML}, as saved by a Hop version without options for
+   * several rows per statement, instead of creating it with today's defaults. The connection,
+   * table, commit size, batch flag and {@link #configure} are applied on top, as a user would have
+   * set them.
+   */
+  TableOutputRun asSaved() {
+    this.asSaved = true;
+    return this;
+  }
+
+  TableOutputRun variable(String name, String value) {
+    variables.put(name, value);
+    return this;
+  }
+
   TableOutputRun configure(Consumer<TableOutputMeta> configure) {
     this.configure = configure;
     return this;
@@ -119,6 +162,13 @@ final class TableOutputRun {
     boolean batchMode;
     boolean useSafePoints;
     boolean recoveredBatches;
+
+    /** The rows per INSERT statement that were planned: 1 when the one-row INSERT was used. */
+    int rowsPerStatement = 1;
+
+    /** The simple class names of the batches the transform used, one per table. */
+    final List<String> batchClasses = new ArrayList<>();
+
     final List<Object[]> output = new ArrayList<>();
     IRowMeta outputRowMeta;
     final List<Object[]> errors = new ArrayList<>();
@@ -187,7 +237,13 @@ final class TableOutputRun {
     pipelineMeta.setMetadataProvider(metadataProvider);
 
     TableOutputMeta meta = new TableOutputMeta();
-    meta.setDefault();
+    if (asSaved) {
+      meta.loadXml(
+          XmlHandler.loadXmlString("<transform>" + SAVED_XML + "</transform>").getDocumentElement(),
+          metadataProvider);
+    } else {
+      meta.setDefault();
+    }
     meta.setConnection(databaseMeta.getName());
     meta.setSchemaName("");
     meta.setTableName(table);
@@ -246,6 +302,7 @@ final class TableOutputRun {
     if (recovery != null) {
       transform.setVariable("HOP_DATABASE_BATCH_RECOVERY", recovery);
     }
+    variables.forEach(transform::setVariable);
     result.initialized = transform.init();
     result.batchMode = data.batchMode;
     result.useSafePoints = data.useSafePoints;
@@ -257,6 +314,13 @@ final class TableOutputRun {
         }
       }
     } finally {
+      data.insertPlans.values().stream()
+          .filter(Objects::nonNull)
+          .findFirst()
+          .ifPresent(plan -> result.rowsPerStatement = plan.getRowsPerStatement());
+      if (data.batches != null) {
+        data.batches.values().forEach(b -> result.batchClasses.add(b.getClass().getSimpleName()));
+      }
       transform.dispose();
     }
 

@@ -23,34 +23,53 @@ import lombok.Singular;
 import lombok.With;
 
 /**
- * How a database writes the DML statements Hop generates beyond a plain INSERT, UPDATE or DELETE:
- * for now its upsert forms (MERGE, {@code INSERT ... ON CONFLICT}, {@code INSERT ... ON DUPLICATE
- * KEY UPDATE}), each one row per statement. A dialect returns it from {@link
- * org.apache.hop.core.database.IDatabase#getDmlSyntax()}; {@link DmlStatementBuilder} writes the
- * statements and {@link DmlSupport} picks the form for a connection.
+ * How a database writes the DML statements Hop generates beyond a plain one-row INSERT, UPDATE or
+ * DELETE: its upsert forms (MERGE, {@code INSERT ... ON CONFLICT}, {@code INSERT ... ON DUPLICATE
+ * KEY UPDATE}), each one row per statement, and an INSERT that carries several rows. A dialect
+ * returns it from {@link org.apache.hop.core.database.IDatabase#getDmlSyntax()}; {@link
+ * DmlStatementBuilder} writes the statements and {@link DmlSupport} picks the form for a
+ * connection.
  *
- * <p>Declare only what a test ran against the database. A form left out means a transform that
- * needs it refuses the connection with a clear reason instead of failing on the first row.
+ * <p>Declare only what a test ran against the database. An upsert form left out means a transform
+ * that needs it refuses the connection with a clear reason instead of failing on the first row; a
+ * multi-row INSERT left out costs speed, never correctness: Hop then inserts one row per statement.
  *
- * <p>Built with {@code builder()}, so that later options (statements of several rows, for one) can
- * be added without breaking the dialects that declare a syntax today.
+ * <p>Built with {@code builder()}, so that later options can be added without breaking the dialects
+ * that declare a syntax today.
  *
  * @param rowSource how the row of parameters is written as a derived table: the source of a MERGE
  * @param castParameters whether each parameter of the derived table is written as {@code CAST(? AS
  *     type)}, with the column types read by {@link DmlColumns#fromTable} and written by {@link
  *     org.apache.hop.core.database.IDatabase#getDmlCastType}, which must not cut or round the
  *     value. The {@code VALUES} list of an {@code ON CONFLICT} or {@code ON DUPLICATE KEY} is never
- *     cast: its types come from the target columns.
+ *     cast: its types come from the target columns, unless {@code castValuesLists} says so for an
+ *     INSERT of several rows.
  * @param upserts the upsert forms the database has, in order of preference; empty when it has none
+ * @param castValuesLists whether the parameters of the {@code VALUES} list of an INSERT of several
+ *     rows are cast as well. SQL Server types such a list as one derived table, from its
+ *     parameters, before it assigns the rows to the columns: a {@code BigDecimal} of 2.25 next to
+ *     one of 1 is rounded to 2. Takes effect only with {@code castParameters}, which is what makes
+ *     a transform read the column types.
+ * @param insertForm how several rows go into one INSERT, or null to insert one row per statement
+ * @param maxParameters the most parameters one statement may have, 0 for no limit
+ * @param maxRowsPerStatement the most rows one statement may carry, 0 for no limit
  */
 @Builder(toBuilder = true)
 @With
 public record DmlSyntax(
-    RowSource rowSource, boolean castParameters, @Singular List<Upsert> upserts) {
+    RowSource rowSource,
+    boolean castParameters,
+    @Singular List<Upsert> upserts,
+    boolean castValuesLists,
+    InsertForm insertForm,
+    int maxParameters,
+    int maxRowsPerStatement) {
 
   public DmlSyntax {
     rowSource = rowSource == null ? RowSource.VALUES : rowSource;
     upserts = upserts == null ? List.of() : List.copyOf(upserts);
+    maxParameters = Math.max(0, maxParameters);
+    maxRowsPerStatement = Math.max(0, maxRowsPerStatement);
   }
 
   /**
@@ -140,5 +159,11 @@ public record DmlSyntax(
     SELECT,
     /** {@code (SELECT ? AS a, ? AS b FROM dual) s}: Oracle. */
     SELECT_FROM_DUAL
+  }
+
+  /** How several rows go into one INSERT. */
+  public enum InsertForm {
+    /** {@code INSERT INTO t (a, b) VALUES (?, ?), (?, ?)}. */
+    VALUES_LIST
   }
 }

@@ -27,10 +27,15 @@ import static org.mockito.ArgumentMatchers.eq;
 
 import java.sql.ResultSet;
 import java.sql.Types;
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.dml.DmlColumn;
+import org.apache.hop.core.database.dml.DmlPlan;
+import org.apache.hop.core.database.dml.DmlSpec;
+import org.apache.hop.core.database.dml.DmlSupport;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -558,5 +563,25 @@ class OracleDatabaseMetaTest {
     assertTrue(oracle.isDmlComparable("VARCHAR2", Types.VARCHAR));
     assertTrue(oracle.isDmlComparable("NUMBER", Types.NUMERIC));
     assertTrue(oracle.isDmlComparable("RAW", Types.VARBINARY));
+  }
+
+  /**
+   * An INSERT stays one row per statement on Oracle, also when a transform asks for several: an
+   * INSERT of several rows is no faster than the driver's batch, and costs a parse that grows with
+   * the square of its binds (see {@link OracleDatabaseMeta#getDmlSyntax()}).
+   */
+  @Test
+  void anInsertIsOneRowPerStatement() throws Exception {
+    DatabaseMeta databaseMeta = new DatabaseMeta();
+    databaseMeta.setIDatabase(new OracleDatabaseMeta());
+    assertNull(databaseMeta.getIDatabase().getDmlSyntax().insertForm());
+    DmlPlan plan =
+        DmlSupport.planStatements(
+            databaseMeta,
+            null,
+            DmlSpec.insert("T", List.of(DmlColumn.of("A"), DmlColumn.of("B"))),
+            100);
+    assertTrue(plan.isSupported());
+    assertEquals(1, plan.getRowsPerStatement());
   }
 }

@@ -17,7 +17,6 @@
 
 package org.apache.hop.databases.derby;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -52,7 +51,7 @@ class DerbyMergeTest {
   @ParameterizedTest
   @EnumSource(DmlSyntax.RowSource.class)
   void noParameterSourceIsAccepted(DmlSyntax.RowSource sourceRow) throws Exception {
-    assertNull(new DerbyDatabaseMeta().getDmlSyntax());
+    assertTrue(new DerbyDatabaseMeta().getDmlSyntax().upserts().isEmpty());
     DatabaseMeta databaseMeta = new DatabaseMeta();
     databaseMeta.setIDatabase(new DerbyDatabaseMeta());
     List<DmlColumn> keys = List.of(new DmlColumn("ID", "INTEGER"));

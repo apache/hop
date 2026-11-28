@@ -31,6 +31,14 @@ set -u
 
 MARKER="${ORACLE_BASE}/oradata/.hop-nchar-built"
 
+# Building a database needs the DBCA templates. Images from 23.26.4.0 on ship none, and DBCA then
+# fails with DBT-10508 naming a template, which says nothing about the cause.
+if ! ls "${ORACLE_HOME}"/assistants/dbca/templates/*.dbc >/dev/null 2>&1 && [ ! -d "${ORACLE_BASE}/oradata/${ORACLE_SID}" ]; then
+  echo "hop-it: this image has no DBCA templates, so it cannot build the ${ORACLE_CHARACTERSET:-non-Unicode} database." >&2
+  echo "hop-it: use an image that ships them (23.26.3.0 or older), see integration-tests-oracle.yaml" >&2
+  exit 1
+fi
+
 if [ ! -f "${MARKER}" ]; then
   echo "hop-it: removing the database the image ships, so that one is created with ORACLE_CHARACTERSET=${ORACLE_CHARACTERSET:-unset}"
   shopt -s dotglob

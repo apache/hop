@@ -417,7 +417,8 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /**
    * H2 2.x runs the standard MERGE with a {@code VALUES} source and infers the parameter types from
-   * the target columns. It has no {@code ON CONFLICT}. Checked by {@code H2MergeTest}.
+   * the target columns. It has no {@code ON CONFLICT}. It inserts several rows with one {@code
+   * VALUES} list. Checked by {@code H2MergeTest} and {@code H2DmlTest}.
    *
    * <p>Only declared for this dialect itself, not for the ones that extend it.
    */
@@ -426,6 +427,9 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     if (getClass() != H2DatabaseMeta.class) {
       return null;
     }
-    return DmlSyntax.STANDARD_MERGE;
+    // H2 refuses a statement of more than 100,000 parameters (Constants.MAX_PARAMETER_INDEX).
+    return DmlSyntax.STANDARD_MERGE
+        .withInsertForm(DmlSyntax.InsertForm.VALUES_LIST)
+        .withMaxParameters(100_000);
   }
 }

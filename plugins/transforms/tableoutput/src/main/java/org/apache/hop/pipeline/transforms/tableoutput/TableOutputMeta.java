@@ -68,6 +68,9 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   private static final String PARTITION_PER_DAY = "DAY";
   private static final String PARTITION_PER_MONTH = "MONTH";
 
+  /** The rows per statement of a new transform. */
+  public static final String DEFAULT_ROWS_PER_STATEMENT = "100";
+
   @HopMetadataProperty(
       key = "connection",
       injectionKeyDescription = "TableOutputMeta.Injection.Connection",
@@ -119,6 +122,17 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       defaultBoolean = true,
       injectionKeyDescription = "TableOutputMeta.Injection.UseBatch.Field")
   private boolean useBatchUpdate;
+
+  /**
+   * In batch mode, how many rows one INSERT statement carries when the dialect declares a multi-row
+   * INSERT. A new transform has {@link #DEFAULT_ROWS_PER_STATEMENT}; a transform loaded without the
+   * option inserts one row per statement.
+   */
+  @HopMetadataProperty(
+      key = "rows_per_statement",
+      injectionKey = "ROWS_PER_STATEMENT",
+      injectionKeyDescription = "TableOutputMeta.Injection.RowsPerStatement.Field")
+  private String rowsPerStatement;
 
   @HopMetadataProperty(
       key = "partitioning_enabled",
@@ -259,6 +273,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   public void setDefault() {
     tableName = "";
     commitSize = "1000";
+    rowsPerStatement = DEFAULT_ROWS_PER_STATEMENT;
 
     partitioningEnabled = false;
     partitioningDaily = false;
@@ -268,6 +283,19 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     tableNameField = "";
 
     specifyFields = false;
+  }
+
+  /**
+   * @param variables resolves a variable in the rows per statement
+   * @return the rows per statement asked for; 1 when it is blank, not a number or less than 1
+   */
+  public int getRowsPerStatement(IVariables variables) {
+    String resolved = variables.resolve(Const.NVL(rowsPerStatement, ""));
+    if (Utils.isEmpty(resolved)) {
+      return 1;
+    }
+    String expanded = Const.expandIntegerString(resolved.trim());
+    return Math.max(1, Const.toInt(expanded != null ? expanded : resolved.trim(), 1));
   }
 
   @Override

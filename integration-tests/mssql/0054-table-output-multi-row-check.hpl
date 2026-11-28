@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0054-table-output-multi-row-check</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Checks what the Table output pipelines wrote, reported and, where a trigger can count them, how many INSERT statements the database ran.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/27 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/27 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Checks</from>
+      <to>got &lt;&gt; expected?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>got &lt;&gt; expected?</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>got &lt;&gt; expected?</from>
+      <to>ok</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Checks</name>
+    <type>TableInput</type>
+    <description>One row per check: what the tables hold and what they should.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>mssql-2022</connection>
+    <sql>SELECT 'clean: rows in the table' AS CHK, (SELECT COUNT(*) FROM TOMR_CLEAN) AS GOT, 2345 AS EXPECTED
+UNION ALL
+SELECT 'clean: rows as sent' AS CHK, (SELECT COUNT(*) FROM TOMR_CLEAN WHERE LABEL = 'clean' AND AMOUNT = 1.5 AND ID BETWEEN 1 AND 2345) AS GOT, 2345 AS EXPECTED
+UNION ALL
+SELECT 'clean: INSERT statements (10 + 10 + 7, not 2345)' AS CHK, (SELECT COUNT(*) FROM TOMR_STMTS WHERE TBL = 'TOMR_CLEAN') AS GOT, 27 AS EXPECTED
+UNION ALL
+SELECT 'errors: rows on the error hop' AS CHK, (SELECT COUNT(*) FROM TOMR_REJECTS) AS GOT, 3 AS EXPECTED
+UNION ALL
+SELECT 'errors: rejected rows that are the bad rows' AS CHK, (SELECT COUNT(*) FROM TOMR_REJECTS WHERE ID IN (9000, 9001, 9002) AND ERR_CODE = 'TOP0002' AND ERR_DESC IS NOT NULL) AS GOT, 3 AS EXPECTED
+UNION ALL
+SELECT 'errors: rows on the main output' AS CHK, (SELECT COUNT(*) FROM TOMR_WRITTEN) AS GOT, 9 AS EXPECTED
+UNION ALL
+SELECT 'errors: rows on the main output once' AS CHK, (SELECT COUNT(DISTINCT ID) FROM TOMR_WRITTEN) AS GOT, 9 AS EXPECTED
+UNION ALL
+SELECT 'errors: rows in the table' AS CHK, (SELECT COUNT(*) FROM TOMR_TARGET) AS GOT, 12 AS EXPECTED
+UNION ALL
+SELECT 'errors: good rows as sent, scale kept' AS CHK, (SELECT COUNT(*) FROM TOMR_TARGET WHERE (ID = 0 AND LABEL = 'r0' AND AMOUNT = 1) OR (ID = 1 AND LABEL = 'r1' AND AMOUNT = 2.25) OR (ID = 3 AND LABEL = 'r3' AND AMOUNT = 0.5) OR (ID = 4 AND LABEL = 'r4' AND AMOUNT = -7.05) OR (ID = 6 AND LABEL = 'r6' AND AMOUNT = 2.25) OR (ID = 7 AND LABEL = 'r7' AND AMOUNT = 12345678.9) OR (ID = 8 AND LABEL = 'r8' AND AMOUNT = 0.01) OR (ID = 9 AND LABEL = 'r9' AND AMOUNT = 3) OR (ID = 10 AND LABEL = 'r10' AND AMOUNT = 4.75)) AS GOT, 9 AS EXPECTED
+UNION ALL
+SELECT 'errors: seed rows untouched' AS CHK, (SELECT COUNT(*) FROM TOMR_TARGET WHERE ID IN (9000, 9001, 9002) AND LABEL = 'seed' AND AMOUNT = 9.99) AS GOT, 3 AS EXPECTED
+UNION ALL
+SELECT 'errors: reported rows that are in the table' AS CHK, (SELECT COUNT(*) FROM TOMR_WRITTEN w WHERE EXISTS (SELECT 1 FROM TOMR_TARGET t WHERE t.ID = w.ID AND t.LABEL = w.LABEL AND t.AMOUNT = w.AMOUNT)) AS GOT, 9 AS EXPECTED</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <specify_fields>N</specify_fields>
+    <validate_specified_fields>N</validate_specified_fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>got &lt;&gt; expected?</name>
+    <type>FilterRows</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Abort</send_true_to>
+    <send_false_to>ok</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>GOT</leftvalue>
+        <function>&lt;&gt;</function>
+        <rightvalue>EXPECTED</rightvalue>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description>A check failed: the row is logged.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <row_threshold>0</row_threshold>
+    <message>A Table output several rows per statement check failed</message>
+    <always_log_rows>Y</always_log_rows>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>48</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ok</name>
+    <type>Dummy</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -24,6 +24,7 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.batch.BatchFailureContract;
+import org.apache.hop.core.database.dml.DmlSyntax;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -500,5 +501,29 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return Utils.isEmpty(getHostname())
         ? BatchFailureContract.KEEPS_PREFIX
         : BatchFailureContract.MARKS_FAILED_ROWS;
+  }
+
+  /**
+   * Derby inserts several rows with one {@code VALUES} list. It has MERGE since 10.11, but its
+   * source must be a base table or a table function, not a subquery or a VALUES list ("The source
+   * table of a MERGE statement must be a base table or table function"), so rows of parameters
+   * can't be the source, and Derby has no other upsert. Checked by {@code DerbyDmlTest}.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != DerbyDatabaseMeta.class) {
+      return null;
+    }
+    // Derby compiles a statement to Java bytecode and refuses one that is too complex (42ZA0).
+    // Measured, the budget is about 6 per row plus 1 per parameter, some 97,500 in all: 4 columns
+    // stop at 9,818 rows, 1000 columns at 97. 1000 rows and 50,000 parameters stay well inside it
+    // for every column type, also on the widest table Derby allows (1012 columns).
+    return DmlSyntax.builder()
+        .insertForm(DmlSyntax.InsertForm.VALUES_LIST)
+        .maxParameters(50_000)
+        .maxRowsPerStatement(1000)
+        .build();
   }
 }

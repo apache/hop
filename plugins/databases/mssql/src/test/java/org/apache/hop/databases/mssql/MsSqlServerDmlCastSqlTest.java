@@ -144,4 +144,53 @@ class MsSqlServerDmlCastSqlTest {
     // A dialect that extends it, as the native one does, inherits it.
     assertFalse(new MsSqlServerDatabaseMeta() {}.isDmlComparable("xml", Types.LONGNVARCHAR));
   }
+
+  /**
+   * The VALUES list of an INSERT of several rows is cast with the MERGE source's wide types, on
+   * every row, except that character types become {@code nvarchar(max)}: a cast to {@code varchar}
+   * would convert the value to the database's default code page rather than the column's. One row
+   * is not cast.
+   */
+  @Test
+  void anInsertOfSeveralRowsIsCastWideEnough() throws Exception {
+    List<DmlColumn> all =
+        columns(
+            "id", "name", "uname", "code", "ucode", "bytes", "fixed", "amount", "label", "text",
+            "ts", "price");
+    List<String> types =
+        List.of(
+            "int",
+            "nvarchar(max)",
+            "nvarchar(max)",
+            "nvarchar(max)",
+            "nvarchar(max)",
+            "varbinary(max)",
+            "varbinary(max)",
+            "decimal(38,30)",
+            "nvarchar(max)",
+            "nvarchar(max)",
+            "datetime2",
+            "money");
+    List<String> twice = new ArrayList<>(types);
+    twice.addAll(types);
+    assertEquals(twice, casts(insertSql(DmlSpec.insert("target", all), 2)));
+    assertEquals(List.of(), casts(insertSql(DmlSpec.insert("target", all), 1)));
+  }
+
+  @Test
+  void characterTypesOfAValuesListAreUnicode() {
+    for (String type : new String[] {"varchar(max)", "VARCHAR(MAX)", "char(10)", "text"}) {
+      assertEquals("nvarchar(max)", DIALECT.getDmlValuesListCastType(type), type);
+    }
+    for (String type :
+        new String[] {"nvarchar(max)", "ntext", "varbinary(max)", "decimal(38,30)", "int"}) {
+      assertEquals(type, DIALECT.getDmlValuesListCastType(type), type);
+    }
+    // The MERGE source keeps varchar(max): an nvarchar key would cost the index seek.
+    assertEquals("varchar(max)", DIALECT.getDmlCastType("varchar", Types.VARCHAR, 5, 0));
+  }
+
+  private static String insertSql(DmlSpec spec, int rows) throws Exception {
+    return DmlStatementBuilder.insert(databaseMeta(), DIALECT.getDmlSyntax(), spec, rows).getSql();
+  }
 }

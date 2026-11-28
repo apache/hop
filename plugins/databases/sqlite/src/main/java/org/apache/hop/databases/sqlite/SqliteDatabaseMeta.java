@@ -378,8 +378,10 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /**
    * SQLite has no MERGE. It has {@code INSERT ... ON CONFLICT ... DO UPDATE} since 3.24, which
-   * needs a primary key or unique index on exactly the key columns. The driver bundles its own
-   * SQLite, which is newer. Checked by {@code SqliteMergeTest}.
+   * needs a primary key or unique index on exactly the key columns. It inserts several rows with
+   * one {@code VALUES} list; 32766 is its default maximum number of parameters since 3.32, and a
+   * statement carries at most 500 rows, the most a test ran. The driver bundles its own SQLite,
+   * which is newer than all of these. Checked by {@code SqliteMergeTest} and {@code SqliteDmlTest}.
    *
    * <p>Only declared for this dialect itself, not for the ones that extend it.
    */
@@ -393,6 +395,9 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
             DmlSyntax.Upsert.of(UpsertForm.ON_CONFLICT)
                 .withMinimumMajorVersion(3)
                 .withMinimumMinorVersion(24))
+        .insertForm(DmlSyntax.InsertForm.VALUES_LIST)
+        .maxParameters(32766)
+        .maxRowsPerStatement(500)
         .build();
   }
 }
