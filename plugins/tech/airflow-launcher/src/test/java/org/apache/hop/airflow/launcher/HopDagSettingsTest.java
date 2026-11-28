@@ -19,6 +19,7 @@ package org.apache.hop.airflow.launcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -28,6 +29,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import org.apache.airflow.sdk.DagDef;
+import org.apache.airflow.sdk.execution.SerdeKt;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -351,5 +354,214 @@ class HopDagSettingsTest {
     // One task has the default trigger rule
     assertNull(dags.get(1).settings().error());
     assertEquals(true, dags.get(1).settings().config().get("fail_fast"));
+  }
+
+  /**
+   * The Airflow Java SDK refuses a schedule that is no preset or cron expression while it lists the
+   * DAGs, which would fail every DAG of the bundle: the object fails instead.
+   */
+  @Test
+  void refusesAScheduleAirflowCannotParse() throws Exception {
+    for (String schedule :
+        List.of(
+            "@daily",
+            "@once",
+            "@continuous",
+            "@midnight",
+            "0 6 * * *",
+            "*/15 6-18 * * MON-FRI",
+            "0 0 L * *",
+            "0 0 15W * *",
+            "0 0 * * 5#2",
+            "0 0 1 JAN,jul *",
+            "0 0 * * 7",
+            "0 0 * * * 30")) {
+      assertNull(HopDagSettings.scheduleProblem(schedule), schedule);
+      // The SDK serializes what the launcher takes
+      SerdeKt.serializeDag(new DagDef("d").config("schedule", schedule), "d", "d");
+    }
+    // What the launcher refuses, the SDK would refuse while listing every DAG of the bundle
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SerdeKt.serializeDag(new DagDef("d").config("schedule", "@dayly"), "d", "d"));
+    for (String schedule :
+        List.of(
+            "@dayly",
+            "daily",
+            "every tuesday",
+            "0 6 * *",
+            "0 6 * * * * *",
+            "60 * * * *",
+            "0 24 * * *",
+            "0 0 0 * *",
+            "0 0 * 13 *",
+            "0 0 * * 8",
+            "0 0 * MON *",
+            "0 0 * * JAN",
+            "0 0 1,,2 * *",
+            "0 0 999999999999 * *")) {
+      assertTrue(HopDagSettings.scheduleProblem(schedule) != null, schedule);
+    }
+
+    dagFile("typo", "{\"name\":\"typo\",\"workflow\":\"flows/load.hwf\",\"schedule\":\"@dayly\"}");
+    HopDagSettings settings = HopDagSettings.read(project).get(0);
+
+    assertTrue(
+        settings.error().contains("schedule @dayly is not one of the presets"), settings.error());
+    assertEquals(Map.of(), settings.config());
+  }
+
+  /**
+   * An object with an error keeps the settings of when it runs: its scheduled runs come and fail
+   * with the error, where Airflow alerts on them, instead of stopping without a trace.
+   */
+  @Test
+  void keepsTheScheduleOfAnObjectWithAnError() throws Exception {
+    HopWorkflowFile load = workflow("flows/load.hwf", TWO_ACTIONS);
+    dagFile(
+        "a-daily",
+        """
+        {"name":"daily","workflow":"flows/load.hwf","schedule":"@daily",
+         "start_date":"2026-01-01","end_date":"31/12/2026","catchup":"YES",
+         "paused_on_creation":"NO","max_active_runs":"2","display_name":"Daily"}
+        """);
+    dagFile(
+        "b-moved",
+        """
+        {"name":"moved","workflow":"flows/old.hwf","dag_id":"moved","schedule":"0 6 * * *",
+         "max_active_runs":"2"}
+        """);
+
+    List<HopWorkflowFile> dags =
+        HopBundleMain.dags(List.of(load), HopDagSettings.read(project), manifest("PER_ACTION"));
+
+    HopWorkflowFile daily = dags.get(0);
+    assertTrue(daily.settings().error().contains("end date 31/12/2026"), daily.settings().error());
+    assertEquals(
+        Map.of(
+            "schedule",
+            "@daily",
+            "start_date",
+            OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+            "catchup",
+            true,
+            "is_paused_upon_creation",
+            false),
+        daily.settings().config());
+    assertTrue(daily.tasks().isEmpty());
+    HopWorkflowFile moved = dags.get(1);
+    assertTrue(
+        moved.settings().error().endsWith("workflow flows/old.hwf is not in the project"),
+        moved.settings().error());
+    assertEquals(Map.of("schedule", "0 6 * * *"), moved.settings().config());
+    // The SDK takes what is left
+    HopBundleMain.dagDef(daily, manifest("PER_ACTION"));
+    HopBundleMain.dagDef(moved, manifest("PER_ACTION"));
+
+    // Without its start date, catchup would make Airflow refuse the DAG
+    assertEquals(
+        Map.of("schedule", "@daily"),
+        HopDagSettings.whenToRun(Map.of("schedule", "@daily", "catchup", true)));
+    assertEquals(
+        Map.of("schedule", "@continuous", "max_active_runs", 1),
+        HopDagSettings.whenToRun(Map.of("schedule", "@continuous", "max_active_runs", 4)));
+  }
+
+  /** Values that Airflow refuses in a DAG of its own. */
+  @Test
+  void namesWhatAirflowRefusesInADag() throws Exception {
+    dagFile(
+        "a-catchup",
+        "{\"workflow\":\"flows/load.hwf\",\"schedule\":\"@daily\",\"catchup\":\"YES\"}");
+    dagFile("b-continuous", "{\"workflow\":\"flows/load.hwf\",\"schedule\":\"@continuous\"}");
+    dagFile(
+        "c-continuous-one",
+        "{\"workflow\":\"flows/load.hwf\",\"schedule\":\"@continuous\",\"max_active_runs\":\"1\"}");
+    dagFile("d-tag", "{\"workflow\":\"flows/load.hwf\",\"tags\":\"ok, " + "x".repeat(101) + "\"}");
+
+    List<HopDagSettings> all = HopDagSettings.read(project);
+
+    assertTrue(all.get(0).error().contains("catchup needs a start date"), all.get(0).error());
+    assertTrue(all.get(1).error().contains("set max active runs to 1"), all.get(1).error());
+    assertEquals(Map.of("schedule", "@continuous", "max_active_runs", 1), all.get(1).config());
+    assertNull(all.get(2).error());
+    assertTrue(all.get(3).error().contains("longer than 100 characters"), all.get(3).error());
+    assertEquals(List.of("ok"), all.get(3).tags());
+  }
+
+  /** Hop GUI writes BUNDLE_DEFAULT for an object that leaves the tasks to the bundle. */
+  @Test
+  void followsTheTasksOfTheBundleForTheBundleDefault() throws Exception {
+    HopWorkflowFile load = workflow("flows/load.hwf", TWO_ACTIONS);
+    dagFile("daily", "{\"workflow\":\"flows/load.hwf\",\"tasks\":\"BUNDLE_DEFAULT\"}");
+
+    HopDagSettings settings = HopDagSettings.read(project).get(0);
+    assertNull(settings.error());
+    assertNull(settings.tasks());
+
+    List<HopWorkflowFile> dags =
+        HopBundleMain.dags(List.of(load), List.of(settings), manifest("WHOLE_WORKFLOW"));
+    assertTrue(dags.get(0).tasks().isEmpty());
+    assertEquals(
+        HopAirflowBundle.DAG_DOC_TASKS + "WHOLE_WORKFLOW",
+        HopBundleMain.dagDoc(dags.get(0), HopAirflowBundle.TASKS_WHOLE_WORKFLOW)
+            .lines()
+            .filter(line -> line.startsWith(HopAirflowBundle.DAG_DOC_TASKS))
+            .findFirst()
+            .orElseThrow());
+  }
+
+  /**
+   * Two DAGs with the same id would make the SDK refuse the bundle, and Airflow then lists none of
+   * its DAGs: one is left out. An object's own DAG id never takes the DAG of another workflow.
+   */
+  @Test
+  void leavesOutASecondDagOfTheSameId() throws Exception {
+    HopWorkflowFile load = workflow("flows/load.hwf", TWO_ACTIONS);
+    HopWorkflowFile other = workflow("flows/other.hwf", TWO_ACTIONS);
+    HopWorkflowFile daily = workflow("load_daily.hwf", TWO_ACTIONS);
+    dagFile("a-first", "{\"name\":\"first\",\"workflow\":\"flows/load.hwf\"}");
+    dagFile("b-second", "{\"name\":\"second\",\"workflow\":\"flows/load.hwf\"}");
+    dagFile(
+        "c-other",
+        "{\"name\":\"other\",\"workflow\":\"flows/load.hwf\",\"dag_id\":\"flows__other\"}");
+    dagFile(
+        "d-daily",
+        "{\"name\":\"daily\",\"workflow\":\"flows/load.hwf\",\"dag_id\":\"load daily\"}");
+
+    List<HopWorkflowFile> dags =
+        HopBundleMain.unique(
+            HopBundleMain.dags(
+                List.of(load, other, daily), HopDagSettings.read(project), manifest("PER_ACTION")));
+
+    assertEquals(
+        List.of("p__flows__load", "p__flows__other", "p__load_daily"),
+        dags.stream().map(HopWorkflowFile::dagId).toList());
+    assertEquals("first", dags.get(0).settings().name());
+    assertEquals(other, dags.get(1));
+    assertEquals(daily, dags.get(2));
+  }
+
+  /**
+   * The documentation of the object comes after the lines the run configuration reads, so a {@code
+   * Tasks:} in it is never taken for the tasks of the DAG.
+   */
+  @Test
+  void putsTheDocumentationAfterTheLinesTheRunConfigurationReads() throws Exception {
+    HopWorkflowFile load = workflow("flows/load.hwf", TWO_ACTIONS);
+    dagFile(
+        "daily",
+        "{\"workflow\":\"flows/load.hwf\",\"documentation\":\"Daily load. Tasks: extract\"}");
+
+    HopWorkflowFile dag =
+        HopBundleMain.dags(List.of(load), HopDagSettings.read(project), manifest("PER_ACTION"))
+            .get(0);
+    String doc = HopBundleMain.dagDoc(dag, HopAirflowBundle.TASKS_PER_ACTION);
+
+    assertTrue(doc.startsWith("Hop workflow `flows/load.hwf`"), doc);
+    assertTrue(doc.endsWith("\n\nDaily load. Tasks: extract"), doc);
+    assertEquals(
+        doc.indexOf(HopAirflowBundle.DAG_DOC_TASKS + "PER_ACTION"),
+        doc.indexOf(HopAirflowBundle.DAG_DOC_TASKS));
   }
 }

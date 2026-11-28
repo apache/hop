@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0016-airflow-dag-settings</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Airflow DAG objects of greeting.hwf: greeting-daily has its own DAG id, schedule, display name, tags, limits and parameter value; greeting-whole keeps the DAG id of the workflow and runs it as one task; greeting-wrong-date is a DAG that fails with the reason.</description>
+  <description>Airflow DAG objects of greeting.hwf: greeting-daily has its own DAG id, schedule, display name, tags, limits and parameter value; greeting-whole keeps the DAG id of the workflow and runs it as one task; greeting-wrong-date is a DAG that fails with the reason and keeps its schedule; greeting-typo has a schedule Airflow can't parse, which fails only that DAG.</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -51,7 +51,7 @@ limitations under the License.
     </action>
     <action>
       <name>Run the DAG in Airflow and check it</name>
-      <description>Airflow DAG objects of greeting.hwf: greeting-daily has its own DAG id, schedule, display name, tags, limits and parameter value; greeting-whole keeps the DAG id of the workflow and runs it as one task; greeting-wrong-date is a DAG that fails with the reason.</description>
+      <description>Airflow DAG objects of greeting.hwf: greeting-daily has its own DAG id, schedule, display name, tags, limits and parameter value; greeting-whole keeps the DAG id of the workflow and runs it as one task; greeting-wrong-date is a DAG that fails with the reason and keeps its schedule; greeting-typo has a schedule Airflow can't parse, which fails only that DAG.</description>
       <type>SHELL</type>
       <attributes/>
       <filename/>
@@ -65,7 +65,7 @@ limitations under the License.
       <add_date>N</add_date>
       <add_time>N</add_time>
       <insertScript>Y</insertScript>
-      <script>python3 "${PROJECT_HOME}/airflow_dag_run.py" --dag hopit__greeting_daily --schedule "0 6 * * *" --detail 'dag_display_name="Greeting, daily"' --detail max_active_runs=1 --detail max_active_tasks=2 --detail catchup=false --tag hop --tag daily --tag greeting --log-contains "Greeting: from the Airflow DAG object" --xcom success=true &amp;&amp; python3 "${PROJECT_HOME}/airflow_dag_run.py" --dag hopit__greeting --conf '{"GREETING": "from the run conf"}' --task-ids run_workflow --log-contains "Greeting: from the run conf" --xcom success=true &amp;&amp; python3 "${PROJECT_HOME}/airflow_dag_run.py" --dag hopit__greeting_wrong_date --expect failed --task-ids run_workflow --log-contains "start date soon"</script>
+      <script>python3 "${PROJECT_HOME}/airflow_dag_run.py" --dag hopit__greeting_daily --schedule "0 6 * * *" --detail 'dag_display_name="Greeting, daily"' --detail max_active_runs=1 --detail max_active_tasks=2 --detail catchup=false --tag hop --tag daily --tag greeting --log-contains "Greeting: from the Airflow DAG object" --xcom success=true &amp;&amp; python3 "${PROJECT_HOME}/airflow_dag_run.py" --dag hopit__greeting --conf '{"GREETING": "from the run conf"}' --task-ids run_workflow --log-contains "Greeting: from the run conf" --xcom success=true &amp;&amp; python3 "${PROJECT_HOME}/airflow_dag_run.py" --dag hopit__greeting_wrong_date --schedule "0 6 1 1 *" --expect failed --task-ids run_workflow --log-contains "start date soon" &amp;&amp; python3 "${PROJECT_HOME}/airflow_dag_run.py" --dag hopit__greeting_typo --schedule None --expect failed --task-ids run_workflow --log-contains "schedule @dayly is not one of the presets"</script>
       <arguments>
       </arguments>
       <loglevel>Basic</loglevel>

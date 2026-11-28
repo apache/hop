@@ -86,4 +86,12 @@ run_on_airflow fails-on-airflow.hwf 1
 contains "This workflow fails on purpose"
 contains "The run of DAG airflowgui__fails-on-airflow ended: failed"
 
+# Unpausing a DAG with a schedule would also start the schedule: the run configuration leaves it
+# paused and starts no run
+run_on_airflow scheduled-paused.hwf 1
+contains "DAG airflowgui__scheduled-paused is paused and has a schedule"
+if grep -qF "Started run " "${LOG}"; then
+  fail "a run of the paused DAG with a schedule was started"
+fi
+
 echo "The Airflow run configuration published, ran and followed the workflows as expected"

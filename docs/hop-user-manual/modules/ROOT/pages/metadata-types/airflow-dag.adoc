@@ -45,12 +45,14 @@ The Apache Airflow run configuration refers to it.
 
 |Workflow
 |The workflow the DAG runs, in the project: `${PROJECT_HOME}/flows/load.hwf`, or a path relative to the project.
+When you rename or move the workflow in Hop GUI, a `${PROJECT_HOME}` path (as the file dialog fills it in) follows it.
 
 |DAG id
 |The DAG id, after the DAG id prefix of the bundle.
 Leave it empty to keep the DAG id the workflow has without an Airflow DAG: the prefix and the path of the workflow.
 Its runs and history in Airflow then stay with the DAG.
-A second Airflow DAG of the same workflow needs its own DAG id: two DAGs with the same id are an import error.
+A second Airflow DAG of the same workflow needs its own DAG id.
+Hop refuses to publish a bundle with two DAGs of the same id (see <<_when_something_is_wrong>>).
 
 |Display name
 |The name Airflow shows instead of the DAG id.
@@ -60,14 +62,15 @@ A second Airflow DAG of the same workflow needs its own DAG id: two DAGs with th
 The DAG also gets the tags `hop` and the project name.
 
 |Tasks
-|One task per action, or one task for the whole workflow (see xref:hop-tools/hop-airflow-bundle.adoc#_one_task_for_the_whole_workflow[One task for the whole workflow]).
-This replaces the tasks setting of the bundle for this DAG.
+|*The tasks of the bundle* (default): the tasks setting of the run configuration or of `hop airflow-bundle --tasks`.
+*One task per action* or *One task for the whole workflow* (see xref:hop-tools/hop-airflow-bundle.adoc#_one_task_for_the_whole_workflow[One task for the whole workflow]) replace that setting for this DAG.
 
 |Documentation
-|Markdown that Airflow shows with the DAG, above the name and version of the workflow.
+|Markdown that Airflow shows with the DAG, below the name and version of the workflow.
 
 |Schedule
-|A cron expression, such as `0 6 * * *`, or an Airflow preset, such as `@daily`.
+|A cron expression of five fields, such as `0 6 * * *`, or an Airflow preset: `@hourly`, `@daily`, `@weekly`, `@monthly`, `@quarterly`, `@yearly`, `@once`, `@continuous`, `@midnight` or `@annually`.
+`@continuous` needs *Max active runs* 1, and *Catch up* *Yes* needs a start date.
 Leave it empty to start the DAG only from Airflow, its REST API or Hop.
 
 |Start date (UTC), End date (UTC)
@@ -110,7 +113,14 @@ The Airflow Java SDK cannot give a DAG a time zone, so Airflow reads the schedul
 
 == When something is wrong
 
-An Airflow DAG that Hop can't use still becomes a DAG, so that you see it in Airflow: a date it can't read, a number that is not a whole number, a workflow that is not in the project, or fail fast with failure hops.
+An Airflow DAG that Hop can't use still becomes a DAG, so that you see it in Airflow: a schedule or a date it can't read, a number that is not a whole number, a workflow that is not in the project, or fail fast with failure hops.
 Its description says what is wrong, and every run fails with that message.
+The DAG keeps the schedule, start and end date, catch up and paused setting that Hop could read, so its scheduled runs still come, and fail, and Airflow alerts on them as on any failed run.
+A file that is not JSON gives a DAG without a schedule: it fails when it is started.
+
+Two DAGs with the same DAG id can't both be in Airflow: two Airflow DAGs of one workflow without a DAG id of their own, a DAG id that is also the DAG id of another workflow, or two DAG ids that only differ in characters a DAG id can't hold (`load daily` and `load_daily`).
+A publish from Hop GUI or `hop airflow-bundle` fails and names both, and leaves the bundle as it was.
+In a bundle that Hop did not publish, such as a Git bundle, the launcher leaves one of them out and writes why in the log of the DAG processor.
+The DAG a workflow has without an Airflow DAG keeps its id over an Airflow DAG with a DAG id of its own.
 
 An Airflow DAG whose workflow is not one of the workflows of the bundle (`--workflows`) is left out.

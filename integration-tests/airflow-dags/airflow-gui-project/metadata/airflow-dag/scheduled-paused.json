@@ -1,0 +1,11 @@
+{
+  "name": "scheduled-paused",
+  "workflow": "${PROJECT_HOME}/scheduled-paused.hwf",
+  "tasks": "PER_ACTION",
+  "schedule": "0 6 1 1 *",
+  "start_date": "2099-01-01",
+  "catchup": "AIRFLOW_DEFAULT",
+  "paused_on_creation": "YES",
+  "fail_fast": false,
+  "parameters": []
+}

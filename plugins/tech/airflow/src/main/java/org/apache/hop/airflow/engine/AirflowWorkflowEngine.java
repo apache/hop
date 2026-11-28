@@ -162,6 +162,11 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
         throw new HopException(
             BaseMessages.getString(PKG, "AirflowWorkflowEngine.Error.DagPaused", dagId));
       }
+      if (dag.scheduled()) {
+        // Unpausing would also start the schedule, and catch up on the runs it missed
+        throw new HopException(
+            BaseMessages.getString(PKG, "AirflowWorkflowEngine.Error.ScheduledDagPaused", dagId));
+      }
       client.setDagPaused(dagId, false);
       logChannel.logBasic(BaseMessages.getString(PKG, "AirflowWorkflowEngine.Log.Unpaused", dagId));
     }

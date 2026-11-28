@@ -1,0 +1,10 @@
+{
+  "name": "greeting-typo",
+  "workflow": "greeting.hwf",
+  "dag_id": "greeting_typo",
+  "tasks": "PER_ACTION",
+  "schedule": "@dayly",
+  "paused_on_creation": "NO",
+  "fail_fast": false,
+  "parameters": []
+}

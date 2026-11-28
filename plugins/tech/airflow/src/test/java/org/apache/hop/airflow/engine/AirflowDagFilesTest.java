@@ -33,6 +33,7 @@ import java.util.Set;
 import org.apache.hop.airflow.launcher.HopDagSettings;
 import org.apache.hop.airflow.launcher.HopWorkflowFile;
 import org.apache.hop.airflow.metadata.AirflowDagDefinition;
+import org.apache.hop.airflow.metadata.AirflowDagObjectTasks;
 import org.apache.hop.airflow.metadata.AirflowDagParameter;
 import org.apache.hop.airflow.metadata.AirflowDagSwitch;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -65,7 +66,7 @@ class AirflowDagFilesTest {
     daily.setDagId("load_daily");
     daily.setDisplayName("Daily load");
     daily.setTags("sales, daily");
-    daily.setTasks(AirflowDagTasks.WHOLE_WORKFLOW);
+    daily.setTasks(AirflowDagObjectTasks.WHOLE_WORKFLOW);
     daily.setDocumentation("Loads the orders.");
     daily.setSchedule("0 6 * * *");
     daily.setStartDate("2026-01-31");
@@ -124,9 +125,10 @@ class AirflowDagFilesTest {
       assertEquals(launcher.get(i).version(), hop.get(i).version());
       assertEquals(launcher.get(i).parameters().keySet(), hop.get(i).parameters());
     }
-    // The Hop GUI field stores PER_ACTION by default: the object sets its own tasks
-    assertEquals("PER_ACTION", hop.get(1).tasks());
-    assertEquals(launcher.get(1).tasks(), hop.get(1).tasks());
+    // Hop GUI stores BUNDLE_DEFAULT by default: the object follows the tasks of the bundle
+    assertNull(launcher.get(1).tasks());
+    assertNull(hop.get(1).tasks());
+    assertEquals(launcher.get(0).tasks(), hop.get(0).tasks());
   }
 
   @Test

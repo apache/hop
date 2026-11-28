@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * An {@value HopAirflowBundle#DAG_METADATA_KEY} metadata object of the project: one DAG of a
@@ -81,25 +82,90 @@ public record HopDagSettings(
   static final List<String> FAIL_FAST_TRIGGER_RULES =
       List.of("all_success", "all_done_setup_success");
 
+  /** Presets that Airflow expands to a cron expression. */
+  static final List<String> CRON_PRESETS =
+      List.of("@hourly", "@daily", "@weekly", "@monthly", "@quarterly", "@yearly");
+
+  /** Schedules that are no cron expression, and aliases Airflow keeps as they are. */
+  static final List<String> OTHER_SCHEDULES =
+      List.of("@once", "@continuous", "@midnight", "@annually");
+
+  static final String CONTINUOUS = "@continuous";
+
+  /** Airflow refuses a DAG with a longer tag. */
+  static final int TAG_MAX_LENGTH = 100;
+
+  /** One value of a cron field: a number, {@code *}, {@code ?} or a three-letter name. */
+  private static final String CRON_VALUE = "(\\d+|\\*|\\?|[A-Za-z]{3})";
+
+  /**
+   * One element of a cron field, as the Airflow Java SDK checks it: a value or a range, maybe with
+   * a step, and croniter's {@code L}, {@code W} and {@code #}.
+   */
+  private static final Pattern CRON_ELEMENT =
+      Pattern.compile(
+          CRON_VALUE + "(-" + CRON_VALUE + ")?([/#]\\d+)?[LWlw]*|[Ll](-\\d+)?|[Ll][Ww]");
+
+  private static final List<String> CRON_FIELDS =
+      List.of("minutes", "hours", "days", "months", "weekdays", "seconds");
+
+  /** The lowest and highest number of each field of {@link #CRON_FIELDS}. */
+  private static final int[][] CRON_RANGES = {{0, 59}, {0, 23}, {1, 31}, {1, 12}, {0, 7}, {0, 59}};
+
+  private static final List<String> MONTHS =
+      List.of("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
+  private static final List<String> WEEKDAYS =
+      List.of("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT");
+
+  /**
+   * The settings of when a DAG runs. An object with an error keeps those it could read, so its
+   * scheduled runs still come, and fail with the error, instead of stopping without a trace.
+   */
+  static final List<String> WHEN_KEYS =
+      List.of("schedule", "start_date", "end_date", "catchup", "is_paused_upon_creation");
+
   /** True when the DAG fails fast: Airflow then allows only the default trigger rule. */
   public boolean failFast() {
     return Boolean.TRUE.equals(config.get("fail_fast"));
   }
 
-  /** The same settings with an error, for a DAG that only fails. */
+  /**
+   * The same settings with an error, for a DAG that only fails. The settings of when it runs stay,
+   * see {@link #WHEN_KEYS}.
+   */
   HopDagSettings withError(String newError) {
     return new HopDagSettings(
         name,
         file,
         workflow,
         dagId,
-        Map.of(),
+        whenToRun(config),
         tags,
         documentation,
         tasks,
         Map.of(),
         version,
         newError);
+  }
+
+  /**
+   * The settings of {@link #WHEN_KEYS} of a DAG, without what Airflow would then refuse: catchup
+   * without a start date, or a {@value #CONTINUOUS} schedule with more than one active run.
+   */
+  static Map<String, Object> whenToRun(Map<String, Object> config) {
+    Map<String, Object> when = new LinkedHashMap<>();
+    for (String key : WHEN_KEYS) {
+      if (config.containsKey(key)) {
+        when.put(key, config.get(key));
+      }
+    }
+    if (!when.containsKey("start_date")) {
+      when.remove("catchup");
+    }
+    if (CONTINUOUS.equals(when.get("schedule"))) {
+      when.put("max_active_runs", 1);
+    }
+    return when;
   }
 
   /**
@@ -199,7 +265,12 @@ public record HopDagSettings(
     Map<String, Object> config = new LinkedHashMap<>();
     String schedule = text(node, "schedule");
     if (schedule != null) {
-      config.put("schedule", schedule);
+      String problem = scheduleProblem(schedule);
+      if (problem == null) {
+        config.put("schedule", schedule);
+      } else {
+        errors.add("schedule " + schedule + " " + problem);
+      }
     }
     date(node, "start_date", "start date", config, errors);
     date(node, "end_date", "end date", config, errors);
@@ -237,18 +308,34 @@ public record HopDagSettings(
     if (displayName != null) {
       config.put("dag_display_name", displayName);
     }
+    if (Boolean.TRUE.equals(config.get("catchup"))
+        && config.containsKey("schedule")
+        && !config.containsKey("start_date")) {
+      errors.add("catchup needs a start date, the date Airflow catches up from");
+    }
+    if (CONTINUOUS.equals(config.get("schedule"))
+        && !Integer.valueOf(1).equals(config.get("max_active_runs"))) {
+      errors.add(
+          "Airflow runs a " + CONTINUOUS + " schedule one run at a time: set max active runs to 1");
+    }
 
     List<String> tags = new ArrayList<>();
     String tagsText = text(node, "tags");
     if (tagsText != null) {
       for (String tag : tagsText.split(",")) {
-        if (!tag.isBlank() && !tags.contains(tag.trim())) {
-          tags.add(tag.trim());
+        String trimmed = tag.trim();
+        if (trimmed.length() > TAG_MAX_LENGTH) {
+          errors.add("tag " + trimmed + " is longer than " + TAG_MAX_LENGTH + " characters");
+        } else if (!trimmed.isEmpty() && !tags.contains(trimmed)) {
+          tags.add(trimmed);
         }
       }
     }
 
     String tasks = text(node, "tasks");
+    if (HopAirflowBundle.TASKS_BUNDLE_DEFAULT.equals(tasks)) {
+      tasks = null;
+    }
     if (tasks != null
         && !HopAirflowBundle.TASKS_PER_ACTION.equals(tasks)
         && !HopAirflowBundle.TASKS_WHOLE_WORKFLOW.equals(tasks)) {
@@ -256,6 +343,8 @@ public record HopDagSettings(
           "tasks "
               + tasks
               + " is not "
+              + HopAirflowBundle.TASKS_BUNDLE_DEFAULT
+              + ", "
               + HopAirflowBundle.TASKS_PER_ACTION
               + " or "
               + HopAirflowBundle.TASKS_WHOLE_WORKFLOW
@@ -279,7 +368,7 @@ public record HopDagSettings(
         relative,
         workflow,
         text(node, "dag_id"),
-        error == null ? config : Map.of(),
+        error == null ? config : whenToRun(config),
         tags,
         text(node, "documentation"),
         tasks,
@@ -322,6 +411,73 @@ public record HopDagSettings(
       }
     }
     return String.join("/", parts);
+  }
+
+  /**
+   * What is wrong with a schedule, or null when Airflow takes it: one of {@link #CRON_PRESETS} or
+   * {@link #OTHER_SCHEDULES}, or a cron expression of five fields (or six, with seconds last). The
+   * Airflow Java SDK refuses any other schedule while it lists the DAGs, which fails every DAG of
+   * the bundle. The numbers are checked against the range of their field as well, as croniter does
+   * when Airflow schedules the DAG.
+   */
+  static String scheduleProblem(String schedule) {
+    if (schedule.startsWith("@")) {
+      return CRON_PRESETS.contains(schedule) || OTHER_SCHEDULES.contains(schedule)
+          ? null
+          : "is not one of the presets "
+              + String.join(", ", CRON_PRESETS)
+              + ", "
+              + String.join(", ", OTHER_SCHEDULES);
+    }
+    String[] fields = schedule.split("\\s+");
+    if (fields.length < 5 || fields.length > 6) {
+      return "is not a cron expression of 5 fields, such as 0 6 * * *, or a preset, such as"
+          + " @daily";
+    }
+    for (int i = 0; i < fields.length; i++) {
+      for (String element : fields[i].split(",", -1)) {
+        if (!CRON_ELEMENT.matcher(element).matches() || !inRange(element, i)) {
+          return "is not a cron expression: "
+              + fields[i]
+              + " is not a value, range or step of "
+              + CRON_FIELDS.get(i)
+              + " ("
+              + CRON_RANGES[i][0]
+              + "-"
+              + CRON_RANGES[i][1]
+              + ")";
+        }
+      }
+    }
+    return null;
+  }
+
+  /** True when the numbers and names of one element of a cron field fit that field. */
+  private static boolean inRange(String element, int field) {
+    // The step, and the n of L-n or #n, are no values of the field
+    String values = element.replaceAll("[/#]\\d+$", "").replaceAll("^[Ll]-\\d+$", "");
+    for (String value : values.split("-")) {
+      // L and W after a day number, or L and LW on their own
+      String plain = value.replaceAll("(?<=\\d)[LWlw]+$", "");
+      if (plain.isEmpty() || plain.equals("*") || plain.equals("?") || plain.matches("[LWlw]+")) {
+        continue;
+      }
+      if (Character.isLetter(plain.charAt(0))) {
+        String upper = plain.toUpperCase();
+        if (!(field == 3 && MONTHS.contains(upper)) && !(field == 4 && WEEKDAYS.contains(upper))) {
+          return false;
+        }
+        continue;
+      }
+      if (plain.length() > 2) {
+        return false;
+      }
+      int number = Integer.parseInt(plain);
+      if (number < CRON_RANGES[field][0] || number > CRON_RANGES[field][1]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

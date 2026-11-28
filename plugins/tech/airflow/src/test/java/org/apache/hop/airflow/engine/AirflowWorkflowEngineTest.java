@@ -620,6 +620,29 @@ class AirflowWorkflowEngineTest {
     server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
   }
 
+  /**
+   * Unpausing a DAG with a schedule would also start the schedule, and catch up on the runs it
+   * missed: Hop leaves such a DAG paused and starts no run.
+   */
+  @Test
+  void neverUnpausesADagWithASchedule() throws Exception {
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":true,\"doc_md\":\""
+                            + DOC
+                            + "\",\"timetable_summary\":\"0 6 * * *\"}")));
+    assertTrue(config.isUnpausingDag());
+
+    HopException e = assertThrows(HopException.class, () -> engine().submitToRemoteServer());
+
+    assertTrue(e.getMessage().contains("has a schedule"), e.getMessage());
+    server.verify(0, patchRequestedFor(urlEqualTo(DAG + "?update_mask=is_paused")));
+    server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
   /** The launcher of an older Hop on the workers writes no Tasks line, and one task per action. */
   @Test
   void runsTheDagOfAnOlderHopOnTheWorkers() throws Exception {
@@ -654,6 +677,13 @@ class AirflowWorkflowEngineTest {
         AirflowWorkflowEngine.docTasks("Workflow version: abc\n\nTasks: WHOLE_WORKFLOW\n"));
     assertEquals("PER_ACTION", AirflowWorkflowEngine.docTasks("Tasks: PER_ACTION"));
     assertEquals("PER_ACTION", AirflowWorkflowEngine.docTasks("Workflow version: abc"));
+    // The documentation of an Airflow DAG object comes after the lines Hop reads
+    assertEquals(
+        "PER_ACTION",
+        AirflowWorkflowEngine.docTasks(
+            "Hop workflow `flows/load.hwf`\n\nWorkflow version: abc\n\nTasks: PER_ACTION\n\n"
+                + "Settings: def (`metadata/airflow-dag/daily.json`)\n\n"
+                + "Daily load. Tasks: extract, transform"));
   }
 
   @Test

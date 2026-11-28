@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.hop.airflow.engine.AirflowDagTasks;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -31,6 +30,7 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 /**
@@ -71,7 +71,9 @@ public class AirflowDagDefinition extends HopMetadataBase implements Serializabl
       groupType = GuiWidgetGroupType.TABS,
       group = GROUP_DAG,
       groupOrder = "010")
-  @HopMetadataProperty(key = "workflow")
+  @HopMetadataProperty(
+      key = "workflow",
+      hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_FILE)
   private String workflow;
 
   @GuiWidgetElement(
@@ -128,7 +130,7 @@ public class AirflowDagDefinition extends HopMetadataBase implements Serializabl
       group = GROUP_DAG,
       groupOrder = "010")
   @HopMetadataProperty(key = "tasks", storeWithCode = true)
-  private AirflowDagTasks tasks = AirflowDagTasks.PER_ACTION;
+  private AirflowDagObjectTasks tasks = AirflowDagObjectTasks.BUNDLE_DEFAULT;
 
   @GuiWidgetElement(
       id = "airflow-dag-documentation",

@@ -83,6 +83,12 @@ public final class HopAirflowBundle {
   /** One task, {@code run_workflow}, that runs the whole workflow. */
   public static final String TASKS_WHOLE_WORKFLOW = "WHOLE_WORKFLOW";
 
+  /**
+   * The tasks of an Airflow DAG object that follows {@link #ATTRIBUTE_TASKS} of the bundle, as an
+   * object without tasks does.
+   */
+  public static final String TASKS_BUNDLE_DEFAULT = "BUNDLE_DEFAULT";
+
   public static final String DEFAULT_RUN_CONFIGURATION = "local";
   public static final String DEFAULT_LOG_LEVEL = "Basic";
 

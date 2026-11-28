@@ -3,6 +3,7 @@
   "workflow": "greeting.hwf",
   "dag_id": "greeting_wrong_date",
   "tasks": "PER_ACTION",
+  "schedule": "0 6 1 1 *",
   "start_date": "soon",
   "paused_on_creation": "NO",
   "fail_fast": false,

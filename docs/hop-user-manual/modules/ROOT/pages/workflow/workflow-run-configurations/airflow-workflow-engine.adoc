@@ -23,7 +23,7 @@ under the License.
 The Apache Airflow run configuration runs a workflow on Airflow from Hop GUI or `hop run`:
 
 . It publishes the project as a DAG bundle, as xref:hop-tools/hop-airflow-bundle.adoc[hop airflow-bundle] with `--target` does.
-. It waits until Airflow shows the DAG of the workflow as it was just published, and unpauses it when it is paused.
+. It waits until Airflow shows the DAG of the workflow as it was just published, and unpauses it when it is paused and has no schedule.
 Airflow reads a changed file again every 30 seconds by default (`min_file_process_interval`).
 . It starts a DAG run. The workflow's parameters become the run conf.
 . It follows the run until it ends: the logs of the tasks appear in the log of the workflow, and the canvas shows which actions run and how they ended.
@@ -69,7 +69,7 @@ Default: the project name followed by two underscores.
 |Tasks
 |One task per action, or one task for the whole workflow: see xref:hop-tools/hop-airflow-bundle.adoc#_one_task_for_the_whole_workflow[One task for the whole workflow].
 The setting applies to every workflow in the bundle: a publish with another setting changes the DAGs of all of them.
-An xref:metadata-types/airflow-dag.adoc[Airflow DAG] sets its own tasks.
+An xref:metadata-types/airflow-dag.adoc[Airflow DAG] can set its own tasks.
 Default: one task per action.
 
 |Airflow DAG
@@ -81,6 +81,8 @@ Parameter values you set for the run win over those of the Airflow DAG; a parame
 |Unpause a paused DAG?
 |Airflow can pause new DAGs, and a run of a paused DAG stays queued.
 With this option the DAG is unpaused before the run starts; without it the workflow fails without starting a run.
+A paused DAG with a schedule, from an xref:metadata-types/airflow-dag.adoc[Airflow DAG], is never unpaused: that would also start its schedule, and with catch up Airflow would start a run for every interval since the start date.
+The workflow then fails without starting a run: unpause the DAG in Airflow when its schedule should start.
 
 |Wait for a new DAG (seconds)
 |How long to wait for Airflow to show the DAG of a workflow that was not published before.

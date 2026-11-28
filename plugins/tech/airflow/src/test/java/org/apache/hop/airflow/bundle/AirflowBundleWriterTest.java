@@ -238,6 +238,52 @@ class AirflowBundleWriterTest {
     writer.write();
   }
 
+  /**
+   * The launcher would leave one of two DAGs with the same id out: a publish from Hop refuses the
+   * bundle, before it replaces the one Airflow reads.
+   */
+  @Test
+  void refusesAirflowDagsThatWouldGetTheSameDagId() throws Exception {
+    Path dags = Files.createDirectories(project.resolve("metadata/airflow-dag"));
+    Files.writeString(project.resolve("other.hwf"), "<workflow/>");
+    Path target = temp.resolve("bundle");
+    AirflowBundleWriter writer = writer();
+    writer.setTargetFolder(target.toString());
+
+    // Two objects of a workflow, without a DAG id of their own
+    Files.writeString(dags.resolve("a.json"), "{\"name\":\"a\",\"workflow\":\"main.hwf\"}");
+    Files.writeString(
+        dags.resolve("b.json"), "{\"name\":\"b\",\"workflow\":\"${PROJECT_HOME}/main.hwf\"}");
+    HopException e = assertThrows(HopException.class, writer::write);
+    assertTrue(e.getMessage().contains("Airflow DAG a of workflow main.hwf"), e.getMessage());
+    assertTrue(e.getMessage().contains("Airflow DAG b of workflow main.hwf"), e.getMessage());
+    assertTrue(e.getMessage().contains("sales__main"), e.getMessage());
+    assertFalse(Files.exists(target));
+
+    // The DAG id of another workflow
+    Files.writeString(
+        dags.resolve("b.json"), "{\"name\":\"b\",\"workflow\":\"main.hwf\",\"dag_id\":\"other\"}");
+    e = assertThrows(HopException.class, writer::write);
+    assertTrue(e.getMessage().contains("Workflow other.hwf"), e.getMessage());
+    assertTrue(e.getMessage().contains("give the Airflow DAG a DAG id of its own"), e.getMessage());
+
+    // Two DAG ids that only differ in characters a DAG id cannot hold
+    Files.writeString(
+        dags.resolve("a.json"),
+        "{\"name\":\"a\",\"workflow\":\"main.hwf\",\"dag_id\":\"load daily\"}");
+    Files.writeString(
+        dags.resolve("b.json"),
+        "{\"name\":\"b\",\"workflow\":\"other.hwf\",\"dag_id\":\"load_daily\"}");
+    e = assertThrows(HopException.class, writer::write);
+    assertTrue(e.getMessage().contains("sales__load_daily"), e.getMessage());
+
+    Files.writeString(
+        dags.resolve("b.json"),
+        "{\"name\":\"b\",\"workflow\":\"other.hwf\",\"dag_id\":\"load_hourly\"}");
+    writer.write();
+    assertTrue(Files.isRegularFile(target.resolve("metadata/airflow-dag/b.json")));
+  }
+
   /** A publish that fails must leave the folder Airflow reads as it was. */
   @Test
   void checksEverythingBeforeItReplacesTheBundle() throws Exception {

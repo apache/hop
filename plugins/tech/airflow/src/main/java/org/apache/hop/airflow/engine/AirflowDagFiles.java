@@ -65,9 +65,13 @@ public final class AirflowDagFiles {
 
   /** The objects of the bundle, sorted by file name as the launcher reads them. */
   public static List<PublishedDag> read(String bundleFolder) throws HopException {
+    return read(HopVfs.getFileObject(bundleFolder));
+  }
+
+  /** The objects of a project or bundle folder, sorted by file name as the launcher reads them. */
+  public static List<PublishedDag> read(FileObject project) throws HopException {
     List<PublishedDag> dags = new ArrayList<>();
     try {
-      FileObject project = HopVfs.getFileObject(bundleFolder);
       FileObject metadata = metadataFolder(project);
       if (metadata == null) {
         return dags;
@@ -107,19 +111,21 @@ public final class AirflowDagFiles {
             parameters.add(parameterName);
           }
         }
+        String tasks = text(node, "tasks");
         dags.add(
             new PublishedDag(
                 name,
                 workflow,
                 text(node, "dag_id"),
-                text(node, "tasks"),
+                HopAirflowBundle.TASKS_BUNDLE_DEFAULT.equals(tasks) ? null : tasks,
                 version(content),
                 parameters));
       }
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
-      throw new HopException("Unable to read the Airflow DAGs of bundle " + bundleFolder, e);
+      throw new HopException(
+          "Unable to read the Airflow DAGs of " + project.getName().getFriendlyURI(), e);
     }
     return dags;
   }
