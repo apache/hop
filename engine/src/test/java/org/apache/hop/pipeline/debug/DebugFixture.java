@@ -62,11 +62,23 @@ public class DebugFixture extends BaseTransform<DebugFixtureMeta, DebugFixtureDa
       setOutputDone();
       return false;
     }
+
+    if (meta.getDelayMillis() > 0 && data.generated > 0) {
+      try {
+        Thread.sleep(meta.getDelayMillis());
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        setOutputDone();
+        return false;
+      }
+    }
+
     if (first) {
       first = false;
       data.outputRowMeta = new RowMeta();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, null);
     }
+
     putRow(data.outputRowMeta, new Object[] {Long.valueOf(data.generated + 1L)});
     data.generated++;
     return true;

@@ -47,11 +47,13 @@ public class DebugFixtureMeta extends BaseTransformMeta<DebugFixture, DebugFixtu
 
   private Mode mode = Mode.PASS;
   private int rowsToGenerate = 1;
+  private long delayMillis;
 
   @Override
   public void setDefault() {
     mode = Mode.PASS;
     rowsToGenerate = 1;
+    delayMillis = 0;
   }
 
   @Override

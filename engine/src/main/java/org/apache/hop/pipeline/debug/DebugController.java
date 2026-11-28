@@ -33,8 +33,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 /**
  * Steps a local pipeline one {@code processRow} at a time.
@@ -395,25 +397,33 @@ public class DebugController {
   }
 
   /**
-   * Runs upstream copies until {@code target} has a new unread input row, or the upstream copies
-   * finish. {@code target} itself stays parked.
+   * Runs upstream copies until {@code target} has a new unread input row and all informational
+   * source copies have finished, or the upstream copies finish. {@code target} itself stays parked.
    */
   public StepResult runToHere(ITransform target, long timeoutMs) {
     List<ITransform> upstream = upstreamOf(target);
+    List<ITransform> infoSources = infoSourcesOf(target);
     int before = unreadInputs(target);
     runSelected(upstream);
+
     long deadline = System.nanoTime() + Math.max(1L, timeoutMs) * 1_000_000L;
     boolean arrived = false;
     boolean upstreamDone = upstream.isEmpty();
+
     while (System.nanoTime() < deadline && !isStopped(target)) {
-      if (unreadInputs(target) > before) {
+      boolean inputArrived = unreadInputs(target) > before;
+      boolean infoSourcesFinished = allFinished(infoSources);
+
+      if (inputArrived && infoSourcesFinished) {
         arrived = true;
         break;
       }
-      if (allFinished(upstream)) {
+
+      if (allFinished(upstream) && infoSourcesFinished) {
         upstreamDone = true;
         break;
       }
+
       try {
         Thread.sleep(10L);
       } catch (InterruptedException e) {
@@ -422,6 +432,7 @@ public class DebugController {
       }
     }
     pause();
+
     if (isStopped(target)) {
       return result(
           target, Activity.STOPPED, 0, 0, text(CONST_DEBUG_CONTROLLER_DETAIL_PIPELINE_STOPPED));
@@ -609,6 +620,34 @@ public class DebugController {
       }
     }
     return found;
+  }
+
+  private List<ITransform> infoSourcesOf(ITransform target) {
+    List<ITransform> infoSources = new ArrayList<>();
+
+    if (target.getTransformMeta() == null || target.getTransformMeta().getTransform() == null) {
+      return infoSources;
+    }
+
+    ITransformIOMeta ioMeta = target.getTransformMeta().getTransform().getTransformIOMeta();
+
+    if (ioMeta == null) {
+      return infoSources;
+    }
+
+    for (IStream stream : ioMeta.getInfoStreams()) {
+      TransformMeta infoMeta = stream.getTransformMeta();
+
+      if (infoMeta != null) {
+        List<ITransform> copies = pipeline.getTransforms(infoMeta.getName());
+
+        if (copies != null) {
+          infoSources.addAll(copies);
+        }
+      }
+    }
+
+    return infoSources;
   }
 
   private boolean allFinished(List<ITransform> transforms) {

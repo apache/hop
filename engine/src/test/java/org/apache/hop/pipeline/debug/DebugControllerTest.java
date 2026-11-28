@@ -373,6 +373,43 @@ class DebugControllerTest {
     }
   }
 
+  @Test
+  void runToHereWaitsForInformationalUpstreamTransformsToFinish() throws Exception {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setName("debug-slow-info-stream");
+
+    DebugFixtureMeta mainMeta = new DebugFixtureMeta();
+    mainMeta.setMode(DebugFixtureMeta.Mode.GENERATE);
+    mainMeta.setRowsToGenerate(1);
+    TransformMeta main = new TransformMeta("main", mainMeta);
+
+    DebugFixtureMeta infoMeta = new DebugFixtureMeta();
+    infoMeta.setMode(DebugFixtureMeta.Mode.GENERATE);
+    infoMeta.setRowsToGenerate(5);
+    infoMeta.setDelayMillis(100);
+    TransformMeta info = new TransformMeta("info", infoMeta);
+
+    DebugFixtureMeta targetMeta = new DebugFixtureMeta();
+    targetMeta.setMode(DebugFixtureMeta.Mode.PASS);
+    targetMeta.getTransformIOMeta().getInfoStreams().getFirst().setTransformMeta(info);
+    TransformMeta target = new TransformMeta("target", targetMeta);
+
+    meta.addTransform(main);
+    meta.addTransform(info);
+    meta.addTransform(target);
+    meta.addPipelineHop(new PipelineHopMeta(main, target));
+    meta.addPipelineHop(new PipelineHopMeta(info, target));
+
+    try (Session session = Session.start(meta)) {
+      StepResult arrived = session.controller.runToHere(session.transform("target", 0), 5_000L);
+
+      assertEquals(Activity.STEPPED, arrived.activity());
+      assertTrue(session.hop("main", "target", 0).size() >= 1);
+      assertEquals(5, session.hop("info", "target", 0).size());
+      assertEquals(0, session.transform("target", 0).getLinesRead());
+    }
+  }
+
   private static final class Session implements AutoCloseable {
     private final LocalPipelineEngine pipeline;
     private final DebugController controller;
