@@ -24,7 +24,10 @@ import lombok.Setter;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.failure.FailurePhase;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
@@ -253,8 +256,8 @@ public class SingleThreadedPipelineExecutor {
           tLogString
               .append(
                   String.format(
-                      "exiting outer loop because no "
-                          + "change was detected going forward or backward. index:%s  min:%s  max:%s",
+                      "exiting outer loop because no change was detected going forward or backward."
+                          + " index:%s  min:%s  max:%s",
                       x, transformsMinSize, transformsSize))
               .append("\n");
         }
@@ -296,9 +299,19 @@ public class SingleThreadedPipelineExecutor {
     // Initialize all the transforms...
     //
     for (TransformMetaDataCombi combi : transforms) {
-      boolean ok = combi.transform.init();
-      if (!ok) {
-        return false;
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
+        try {
+          boolean ok = combi.transform.init();
+          if (!ok) {
+            combi.transform.setErrors(combi.transform.getErrors() + 1);
+            pipeline.reportTransformFailure(combi.transform, FailurePhase.INIT, null);
+            return false;
+          }
+        } catch (Throwable t) {
+          pipeline.reportTransformFailure(combi.transform, FailurePhase.INIT, t);
+          throw t;
+        }
       }
     }
     return true;
@@ -353,7 +366,8 @@ public class SingleThreadedPipelineExecutor {
         continue;
       }
       TransformMetaDataCombi combi = transforms.get(s);
-      try {
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
         int nrRows = getTotalRows(combi.transform.getInputRowSets());
         for (int i = 0; i < nrRows && !done[s]; i++) {
           if (!combi.transform.processRow()) {
@@ -390,115 +404,122 @@ public class SingleThreadedPipelineExecutor {
 
           TransformMetaDataCombi combi = transforms.get(s);
           this.inProcessCombi = combi;
+          try (ExecutionScope executionScope =
+              ExecutionContexts.activate(combi.transform.getLogChannelId())) {
 
-          // If this transform is waiting for data (text, db, and so on), we simply read all the
-          // data
-          // This means that it is impractical to use this pipeline type to load large files.
-          //
-          boolean transformDone = false;
-          // A transform that finishes at the end of its input already wrote what it held there:
-          // batchComplete() would write it again (Group by, Memory group by, Unique rows)
-          //
-          boolean finishedAtEndOfInput = false;
-          // For every input row we call the processRow() method of the transform.
-          //
-          List<IRowSet> infoRowSets = transformInfoRowSets.get(s);
-
-          // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform and
-          // so
-          // on.
-          //
-          for (IRowSet rowSet : infoRowSets) {
-            boolean once = true;
-            while (once || (rowSet.size() > 0 && !transformDone)) {
-              once = false;
-              transformDone = !combi.transform.processRow();
-              if (combi.transform.getErrors() > 0) {
-                return false;
-              }
-            }
-          }
-
-          // Do normal processing of input rows...
-          //
-          List<IRowSet> rowSets = combi.transform.getInputRowSets();
-
-          // If there are no input row sets, we read all rows until finish.
-          // This applies to transforms like "Table Input", "Text File Input" and so on.
-          // If they do have an input row set, to get filenames or other parameters,
-          // we need to handle this in the batchComplete() methods.
-          //
-          if (rowSets.isEmpty()) {
-            while (!transformDone && !pipeline.isStopped()) {
-              transformDone = !combi.transform.processRow();
-              if (combi.transform.getErrors() > 0) {
-                return false;
-              }
-            }
-          } else {
-            // Since we can't be sure that the transform actually reads from the row sets where we
-            // measure rows,
-            // we simply count the total nr of rows on input. The transforms will find the rows in
-            // either row set.
+            // If this transform is waiting for data (text, db, and so on), we simply read all the
+            // data
+            // This means that it is impractical to use this pipeline type to load large files.
             //
-            int nrRows = 0;
-            for (IRowSet rowSet : rowSets) {
-              nrRows += rowSet.size();
-            }
-
-            // Now do the number of processRows() calls.
+            boolean transformDone = false;
+            // A transform that finishes at the end of its input already wrote what it held there:
+            // batchComplete() would write it again (Group by, Memory group by, Unique rows)
             //
-            for (int i = 0; i < nrRows; i++) {
-              transformDone = !combi.transform.processRow();
-              if (combi.transform.getErrors() > 0) {
-                return false;
-              }
-            }
-
-            // All input arrived and was read, but the transform can still have work: a reader
-            // going through the file a row named, a mapping, the rows a Table output still holds.
-            // Like a transform without input, it is called until it says it is done. Otherwise it
-            // never sees the end of its input, and the single-threaded engine, which runs one
-            // iteration, disposes it with that work undone.
+            boolean finishedAtEndOfInput = false;
+            // For every input row we call the processRow() method of the transform.
             //
-            if (!transformDone && isAllInputRead(combi.transform.getInputRowSets())) {
-              while (!transformDone && !pipeline.isStopped()) {
+            List<IRowSet> infoRowSets = transformInfoRowSets.get(s);
+
+            // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform
+            // and
+            // so
+            // on.
+            //
+            for (IRowSet rowSet : infoRowSets) {
+              boolean once = true;
+              while (once || (rowSet.size() > 0 && !transformDone)) {
+                once = false;
                 transformDone = !combi.transform.processRow();
                 if (combi.transform.getErrors() > 0) {
                   return false;
                 }
               }
             }
-            finishedAtEndOfInput = transformDone;
-          }
 
-          // Signal the transform that a batch of rows has passed for this iteration (sort rows and
-          // all)
-          //
-          try {
-            if (batchCompleteAfterIteration && !finishedAtEndOfInput) {
-              combi.transform.batchComplete();
+            // Do normal processing of input rows...
+            //
+            List<IRowSet> rowSets = combi.transform.getInputRowSets();
+
+            // If there are no input row sets, we read all rows until finish.
+            // This applies to transforms like "Table Input", "Text File Input" and so on.
+            // If they do have an input row set, to get filenames or other parameters,
+            // we need to handle this in the batchComplete() methods.
+            //
+            if (rowSets.isEmpty()) {
+              while (!transformDone && !pipeline.isStopped()) {
+                transformDone = !combi.transform.processRow();
+                if (combi.transform.getErrors() > 0) {
+                  return false;
+                }
+              }
+            } else {
+              // Since we can't be sure that the transform actually reads from the row sets where we
+              // measure rows,
+              // we simply count the total nr of rows on input. The transforms will find the rows in
+              // either row set.
+              //
+              int nrRows = 0;
+              for (IRowSet rowSet : rowSets) {
+                nrRows += rowSet.size();
+              }
+
+              // Now do the number of processRows() calls.
+              //
+              for (int i = 0; i < nrRows; i++) {
+                transformDone = !combi.transform.processRow();
+                if (combi.transform.getErrors() > 0) {
+                  return false;
+                }
+              }
+
+              // All input arrived and was read, but the transform can still have work: a reader
+              // going through the file a row named, a mapping, the rows a Table output still holds.
+              // Like a transform without input, it is called until it says it is done. Otherwise it
+              // never sees the end of its input, and the single-threaded engine, which runs one
+              // iteration, disposes it with that work undone.
+              //
+              if (!transformDone && isAllInputRead(combi.transform.getInputRowSets())) {
+                while (!transformDone && !pipeline.isStopped()) {
+                  transformDone = !combi.transform.processRow();
+                  if (combi.transform.getErrors() > 0) {
+                    return false;
+                  }
+                }
+              }
+              finishedAtEndOfInput = transformDone;
             }
-          } catch (Exception e) {
-            combi.transform.setErrors(1);
-            throw e;
-          }
 
-          if (transformDone) {
-            nrDone++;
-          }
+            // Signal the transform that a batch of rows has passed for this iteration (sort rows
+            // and
+            // all)
+            //
+            try {
+              if (batchCompleteAfterIteration && !finishedAtEndOfInput) {
+                combi.transform.batchComplete();
+              }
+            } catch (Exception e) {
+              combi.transform.setErrors(1);
+              throw e;
+            }
 
-          done[s] = transformDone;
+            if (transformDone) {
+              nrDone++;
+            }
+
+            done[s] = transformDone;
+          }
         }
       }
     } catch (Exception e) {
+      pipeline.reportTransformFailure(inProcessCombi.transform, FailurePhase.RUN, e);
       if (handleExceptionsExternally) {
         log.logDebug(
             "An exception was raised during a transform's execution: "
                 + inProcessCombi.transformName);
         this.exceptionsRaisedCounter += 1;
-      } else
+      } else {
         throw new HopException("Error performing an iteration in a single threaded pipeline", e);
+      }
     }
     return nrDone < transforms.size() && !pipeline.isStopped();
   }
@@ -525,29 +546,65 @@ public class SingleThreadedPipelineExecutor {
 
   public void startBundle() throws HopException {
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      combi.transform.startBundle();
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
+        combi.transform.startBundle();
+      }
     }
   }
 
   public void finishBundle() throws HopException {
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      combi.transform.finishBundle();
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
+        combi.transform.finishBundle();
+      }
     }
   }
 
   public void dispose() {
-
-    // Call output done.
-    //
+    Throwable failure = null;
+    // Signal every copy before disposing any of them, as downstream cleanup can depend on it.
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      combi.transform.setOutputDone();
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
+        combi.transform.setOutputDone();
+      } catch (Throwable t) {
+        combi.transform.setErrors(combi.transform.getErrors() + 1);
+        pipeline.reportTransformFailure(combi.transform, FailurePhase.FINISH, t);
+        if (failure == null) {
+          failure = t;
+        } else if (failure != t) {
+          failure.addSuppressed(t);
+        }
+      }
     }
-
-    // Finalize all the transforms...
-    //
     for (TransformMetaDataCombi combi : transforms) {
-      combi.transform.dispose();
-      combi.transform.markStop();
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
+        try {
+          combi.transform.dispose();
+        } catch (Throwable t) {
+          combi.transform.setErrors(combi.transform.getErrors() + 1);
+          pipeline.reportTransformFailure(combi.transform, FailurePhase.FINISH, t);
+          throw t;
+        } finally {
+          combi.transform.markStop();
+        }
+      } catch (Throwable t) {
+        // One copy's cleanup or finished listener must not strand the remaining copies.
+        if (failure == null) {
+          failure = t;
+        } else if (failure != t) {
+          failure.addSuppressed(t);
+        }
+      }
+    }
+    if (failure instanceof Error error) {
+      throw error;
+    }
+    if (failure instanceof RuntimeException runtimeException) {
+      throw runtimeException;
     }
   }
 

@@ -52,20 +52,82 @@ public class AuditPipelineCompletedXp implements IExtensionPoint<IPipelineEngine
 
 == Key Architectural Rules
 
-=== 1. Bind to Interfaces, Not Implementations
+=== Bind to Interfaces, Not Implementations
 [IMPORTANT]
 ====
 **Always bind to the engine interface (`IPipelineEngine` or `IWorkflowEngine`), never concrete classes (`Pipeline` or `Workflow`).**
 Declaring `IExtensionPoint<Pipeline>` will function on the local engine but crash with a `ClassCastException` on remote engines or Apache Beam engines.
 ====
 
-=== 2. Inline Synchronous Execution
+=== Inline Synchronous Execution
 Extension points execute on the thread that triggered the event.
-Keep your logic fast and non-blocking. If your extension point needs to perform heavy I/O, network requests, or database writes, offload the workload to a background worker queue.
+Keep your logic fast and non-blocking.
+If your extension point needs to perform heavy I/O, network requests, or database writes, offload the workload to a background worker queue.
 
-=== 3. Discovering Available Extension Points
+=== Discovering Available Extension Points
 All core extension point IDs are defined as constants in the `org.apache.hop.core.extension.HopExtensionPoint` enum.
 xref:architecture/extension-points.adoc[Extension points and when they fire] lists them all, with the moment each one fires, the object it hands over and the engines that fire it.
+
+== Execution Events and Thread Context
+
+Existing lifecycle and failure extension points remain the source of execution notifications.
+Their payloads and timing are distinct from activating a logging or tracing context on a worker thread.
+The following timing describes the local engines; an interface-based payload does not guarantee equivalent worker callbacks on remote, Beam or Spark engines.
+
+[cols="1,2,3",options="header"]
+|===
+|Extension point |Payload |Timing and caveats
+
+|`PipelineStart`
+|`IPipelineEngine<PipelineMeta>`
+|The pipeline start notification is not a per-transform worker entry hook.
+
+|`TransformBeforeStart`
+|`TransformMetaDataCombi`
+|Fires before worker dispatch on the coordinating thread, not inside the transform's processing thread.
+
+|`TransformFinished`
+|`TransformMetaDataCombi`
+|Normally fires through `markStop()` on the worker.
+For single-threaded execution, the finished notification occurs during disposal.
+It is not a scope paired with `TransformBeforeStart` on the same thread.
+
+|`PipelineCompleted`
+|`IPipelineEngine<PipelineMeta>`
+|Fires after execution-finished listeners.
+It does not mean every enclosing method or resource-release `finally` block has returned.
+
+|`WorkflowStart` / `WorkflowFinish`
+|`IWorkflowEngine<WorkflowMeta>`
+|Announce workflow start and finish.
+The engine's `WorkflowFinish` dispatch precedes execution-finished listeners and subsequent resource release, so it is not an all-cleanup-completed notification.
+The asynchronous `ActionWorkflowRunner` does not dispatch `WorkflowFinish` again after the engine returns.
+
+|`WorkflowBeforeActionExecution`
+|`WorkflowExecutionExtension`
+|Fires before the executable action is cloned.
+The payload exposes `workflow`, `result`, `actionMeta` and `executeAction`, not the executable clone.
+
+|`WorkflowAfterActionExecution`
+|`WorkflowExecutionExtension`
+|Provides `actionExecutionResult` and, when available, `actionLogChannelId` for the action that ran.
+The hook also fires for a skipped action, so it does not by itself prove that a clone executed.
+
+|`TransformFailed` / `ActionFailed` / `PipelineFailed` / `WorkflowFailed`
+|`ExecutionFailure`
+|Report existing failure semantics, not a separate context lifecycle.
+See xref:plugin-types/execution-observability.adoc[Execution and observability] for failure details.
+|===
+
+For action callbacks that need the actual executable clone, use `IActionListener.beforeExecution(workflow, actionMeta, action)` rather than the action definition in `WorkflowBeforeActionExecution`.
+Use the existing `ILogChannel` / `logChannelId` and logging parent hierarchy for correlation.
+Do not keep a thread-local context open from a before event until a finish event: the notifications can run on different threads.
+
+For scoped context activation, register an `ExecutionContextListener` with `org.apache.hop.execution.context.ExecutionContexts.addListener(listener)`.
+The returned `ExecutionScope` unregisters that listener registration when closed.
+Hop internally calls `ExecutionContexts.activate(String logChannelId)` around actual execution boundaries; this is separate from start, completion and failure notifications.
+The listener's `activate(String logChannelId)` returns a nullable `ExecutionScope` that restores its own backend context.
+See xref:plugin-types/execution-observability.adoc#execution-context-activation[Scoped execution context activation] for scope ownership, failure isolation and engine limitations.
 
 == Concrete Codebase Examples
 

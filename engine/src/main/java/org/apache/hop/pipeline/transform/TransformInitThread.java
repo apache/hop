@@ -23,6 +23,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.failure.FailurePhase;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
@@ -56,6 +58,13 @@ public class TransformInitThread implements Runnable {
 
   @Override
   public void run() {
+    try (ExecutionScope executionScope =
+        ExecutionContexts.activate(combi.transform.getLogChannelId())) {
+      runActivated();
+    }
+  }
+
+  private void runActivated() {
     // Set the internal variables also on the initialization thread!
 
     if (!doIt) {

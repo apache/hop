@@ -46,6 +46,7 @@ import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
 import org.apache.hop.execution.caching.CacheEntry;
+import org.apache.hop.execution.context.ExecutionContexts;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
@@ -203,11 +204,11 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
   @Override
   public void prepareExecution() throws HopException {
-
     if (!(pipelineRunConfiguration.getEngineRunConfiguration()
         instanceof LocalPipelineRunConfiguration config)) {
       throw new HopException(
-          "A local pipeline execution expects a local pipeline configuration, not an instance of class "
+          "A local pipeline execution expects a local pipeline configuration, not an instance of"
+              + " class "
               + pipelineRunConfiguration.getEngineRunConfiguration().getClass().getName());
     }
 
@@ -333,43 +334,44 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       throw e;
     }
 
-    // Log buffer-deadlock analysis now that Pipeline.prepareExecution created the log channel
-    if (pipelineRunConfiguration.getEngineRunConfiguration()
-        instanceof LocalPipelineRunConfiguration localConfig) {
-      logPendingBufferDeadlockRisks(localConfig);
-    }
-
-    // The transforms are initialized at this point, which means they can hold on to database
-    // connections, files, ... If anything below fails we never get to start the transform threads,
-    // so nothing would ever dispose them. Clean up explicitly to avoid leaking those resources.
-    //
-    try {
-      // Do the lookup of the execution information only once
+    // Preparation can still fail after transforms acquired their resources in init().
+    try (final var scope = ExecutionContexts.activate(getLogChannelId())) {
+      // The log channel is available now that super.prepareExecution() completed.
+      if (pipelineRunConfiguration.getEngineRunConfiguration()
+          instanceof LocalPipelineRunConfiguration localConfig) {
+        logPendingBufferDeadlockRisks(localConfig);
+      }
       lookupExecutionInformationLocation();
-
-      // Register the pipeline
       registerPipelineExecutionInformation();
-
-      // Attach samplers to the transforms if needed
-      //
       addTransformExecutionSamplers();
-    } catch (Exception e) {
-      disposeInitializedTransforms();
-
-      // Just for safety, fire the pipeline finished listeners...
-      //
+    } catch (Throwable e) {
+      // Record before notifying completion: listeners must see the failed result.
+      try {
+        flagPreparationFailure(e);
+      } catch (Throwable cleanupFailure) {
+        if (cleanupFailure != e) {
+          e.addSuppressed(cleanupFailure);
+        }
+      }
+      try {
+        disposeInitializedTransforms();
+      } catch (Throwable cleanupFailure) {
+        if (cleanupFailure != e) {
+          e.addSuppressed(cleanupFailure);
+        }
+      }
       try {
         fireExecutionFinishedListeners();
-      } catch (HopException listenerException) {
+      } catch (Throwable listenerException) {
+        if (listenerException != e) {
+          e.addSuppressed(listenerException);
+        }
         log.logError(
             "Error firing the execution finished listeners after a failed preparation",
             listenerException);
       } finally {
-        // Flag the pipeline as finished even if an exception was thrown
         setFinished(true);
       }
-      // Record the failure so the pipeline is reported as failed rather than as a clean finish.
-      flagPreparationFailure(e);
       throw e;
     }
   }

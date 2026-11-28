@@ -256,10 +256,11 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     //
     getPipeline().addActiveSubWorkflow(getTransformName(), data.executorWorkflow);
 
+    final var childWorkflow = data.executorWorkflow;
     AtomicReference<Result> resultRef = new AtomicReference<>();
     Thread runner =
         new Thread(
-            () -> resultRef.set(data.executorWorkflow.startExecution()),
+            () -> resultRef.set(childWorkflow.startExecution()),
             "WorkflowExecutor-" + getTransformName());
     runner.start();
 
@@ -274,7 +275,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
             BaseMessages.getString(
                 PKG, "WorkflowExecutor.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
       }
-      data.executorWorkflow.stopExecution();
+      childWorkflow.stopExecution();
       ExecutionWait.joinQuietly(runner);
     }
 
@@ -397,7 +398,8 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
                 BaseMessages.getString(
                     PKG, "WorkflowExecutor.IncorrectDataTypePassed", currentTypes, expectedTypes));
             throw new HopException(
-                "We got into troubles while performing a consistency check on incoming result rows!");
+                "We got into troubles while performing a consistency check on incoming result"
+                    + " rows!");
           }
         }
 

@@ -27,7 +27,7 @@ public class ActionWorkflowRunner implements Runnable {
   private Result result;
   private ILogChannel log;
   private int entryNr;
-  private boolean finished;
+  private volatile boolean finished;
 
   /** */
   public ActionWorkflowRunner(
@@ -48,13 +48,19 @@ public class ActionWorkflowRunner implements Runnable {
       }
       result = workflow.startExecution();
     } finally {
-      // Remember the result. The workflow engine fired WorkflowFinish itself, at the end of
-      // startExecution(), as for a workflow that runs on its own: firing it here too called every
-      // listener twice for a child workflow.
-      workflow.setResult(result);
-      workflow.setFinished(true);
+      try {
+        // The workflow engine fires WorkflowFinish at the end of startExecution(); do not
+        // dispatch it again here for child workflows.
+        workflow.setResult(result);
+      } finally {
+        try {
+          workflow.setFinished(true);
+        } finally {
+          // Publish completion even after an early return or a failing setter.
+          finished = true;
+        }
+      }
     }
-    finished = true;
   }
 
   /**

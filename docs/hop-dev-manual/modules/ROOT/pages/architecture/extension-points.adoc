@@ -163,8 +163,8 @@ The remote workflow engine fires none of these on the client: the Hop Server run
 
 [NOTE]
 ====
-A child workflow that a Workflow action runs fires `WorkflowFinish` twice: once at the end of its own run, and once more from the thread the action runs it on (`ActionWorkflowRunner`).
-A listener on `WorkflowFinish` should not assume it is called once per run.
+A child workflow that a Workflow action runs fires `WorkflowFinish` once, at the end of its own run.
+`ActionWorkflowRunner` does not dispatch it again after the engine returns.
 ====
 
 == Before and around a run
