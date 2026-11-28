@@ -879,7 +879,42 @@ public class Condition implements Cloneable {
       if (valueMeta.isDate()) {
         return convertDateConstant(valueMeta, stringValueMeta);
       }
+      if (valueMeta.isNumeric()) {
+        return convertNumericConstant(valueMeta, stringValueMeta);
+      }
 
+      stringValueMeta.setConversionMetadata(valueMeta);
+      return stringValueMeta.convertDataUsingConversionMetaData(text);
+    }
+
+    /**
+     * Numeric constants are parsed with the JVM decimal separator. Text saved before that change,
+     * and values such as {@code 0.0}, still use {@code '.'}. When locale parsing fails, try that
+     * dot-decimal form once. Locale text such as {@code 0,0} keeps working because it is tried
+     * first.
+     */
+    Object convertNumericConstant(IValueMeta valueMeta, IValueMeta stringValueMeta)
+        throws HopException {
+      try {
+        return convertWithValueMeta(valueMeta, stringValueMeta);
+      } catch (HopValueException firstError) {
+        if (text == null || text.indexOf('.') < 0 || ".".equals(valueMeta.getDecimalSymbol())) {
+          throw firstError;
+        }
+        IValueMeta compatible = valueMeta.clone();
+        compatible.setDecimalSymbol(".");
+        compatible.setGroupingSymbol(",");
+        compatible.setCurrencySymbol(null);
+        try {
+          return convertWithValueMeta(compatible, stringValueMeta);
+        } catch (HopValueException ignored) {
+          throw firstError;
+        }
+      }
+    }
+
+    private Object convertWithValueMeta(IValueMeta valueMeta, IValueMeta stringValueMeta)
+        throws HopException {
       stringValueMeta.setConversionMetadata(valueMeta);
       return stringValueMeta.convertDataUsingConversionMetaData(text);
     }
