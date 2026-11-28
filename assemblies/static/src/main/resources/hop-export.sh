@@ -116,6 +116,13 @@ if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK
   CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
 fi
 
+# Class data sharing: the JVM maps the classes of earlier runs instead of loading them
+# again. See lib/hop-cds.sh (HOP_CDS=auto|use|off).
+if [ -f lib/hop-cds.sh ]; then
+  . lib/hop-cds.sh
+  HOP_OPTIONS="${HOP_OPTIONS} $(hop_cds_options export)"
+fi
+
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Dhop.origin.dir="${ORIGINDIR}" -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.diagram.command.DiagramExportCommand "$@"
 EXITCODE=$?
 
