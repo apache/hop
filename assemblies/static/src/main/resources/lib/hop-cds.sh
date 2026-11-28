@@ -26,8 +26,9 @@
 #
 # The archives are in the cds folder of the audit folder (HOP_AUDIT_FOLDER, ./audit by
 # default), one per tool and class path: hop-<tool>-<checksum>.jsa. The checksum is of the
-# java command and the class path, so setups with other plugin folders (whose lib/core
-# goes on the class path) or another JDK each keep their own archive.
+# installation folder, the java binary (its path, size and date) and the class path. So
+# installations that share an audit folder, setups with other plugin folders (whose
+# lib/core goes on the class path) and another or updated JDK each keep their own archive.
 #
 # The JVM decides whether an archive can be used. It uses an archive only when the JDK
 # and the jars of the class path (lib/core, the Spark client, SWT, the lib/core beside an
@@ -36,10 +37,18 @@
 # uses an archived class when the class file is unchanged, so a changed, added or removed
 # plugin is always loaded from its jar.
 #
-# The JVM writes a new archive by itself only when the old one was written by another
-# JDK, not when a jar of the class path changed. So with HOP_CDS=auto an archive older
-# than a class path folder or one of its jars is removed first, and the tool writes a
-# new one: after an upgrade, or jars added to or removed from lib/core.
+# With HOP_CDS=auto a tool without an archive writes one when it exits. Each JVM writes a
+# file of its own, <archive>.<host>.<pid>: the JVM writes an archive by removing the file
+# and creating it again read-only, so two JVMs that write the same file at the same moment
+# make one of them exit with 1 after a successful run. The next start of the tool moves a
+# finished file into place. The JVM writes the first bytes of the file, its header, last,
+# so the file of a JVM that was stopped while writing is never used: it is removed once
+# that JVM is gone.
+#
+# The JVM never replaces an archive that no longer fits. Another or updated JDK gets
+# another archive name. An archive older than a class path folder or one of its jars is
+# removed first, and the tool writes a new one: after an upgrade, or jars added to or
+# removed from lib/core.
 #
 # HOP_CDS controls it:
 #   auto (default) The first run of a tool writes its archive when it exits, a few
@@ -69,7 +78,12 @@ hop_cds_options() {
   *[[:space:]]*) return 0 ;;
   esac
 
-  _hop_cds_key=$(printf '%s\n%s' "${_HOP_JAVA}" "${CLASSPATH}" | cksum | cut -d' ' -f1)
+  # The class path is relative to the installation folder, the launchers run from there
+  _hop_cds_key=$( (
+    pwd -P
+    LC_ALL=C ls -lL "$(command -v "${_HOP_JAVA}")"
+    printf '%s' "${CLASSPATH}"
+  ) 2>/dev/null | cksum | cut -d' ' -f1)
   _hop_cds_archive="${_hop_cds_folder}/hop-$1-${_hop_cds_key}.jsa"
   case "${_hop_cds_mode}" in
   use | USE)
@@ -79,12 +93,41 @@ hop_cds_options() {
   *)
     mkdir -p "${_hop_cds_folder}" 2>/dev/null || return 0
     [ -w "${_hop_cds_folder}" ] || return 0
-    if [ -f "${_hop_cds_archive}" ] && hop_cds_class_path_changed "${_hop_cds_archive}"; then
+    if [ -f "${_hop_cds_archive}" ] && {
+      ! hop_cds_complete "${_hop_cds_archive}" || hop_cds_class_path_changed "${_hop_cds_archive}"
+    }; then
       rm -f "${_hop_cds_archive}"
     fi
-    printf '%s' "-XX:SharedArchiveFile=${_hop_cds_archive} -XX:+AutoCreateSharedArchive -Xlog:cds=off -Xlog:cds+dynamic=off"
+    hop_cds_promote "${_hop_cds_archive}"
+    if [ -f "${_hop_cds_archive}" ]; then
+      printf '%s' "-XX:SharedArchiveFile=${_hop_cds_archive} -Xlog:cds=off -Xlog:cds+dynamic=off"
+    else
+      printf '%s' "-XX:ArchiveClassesAtExit=${_hop_cds_archive}.$(uname -n).$$ -Xlog:cds=off -Xlog:cds+dynamic=off"
+    fi
     ;;
   esac
+}
+
+# Moves a finished archive of an earlier run into place, and removes the files of JVMs
+# that stopped before they finished writing.
+#   $1  the archive
+# The launchers exec the JVM, so the process id in a file name is the writing JVM's.
+hop_cds_promote() {
+  for _hop_cds_tmp in "$1".*; do
+    [ -f "${_hop_cds_tmp}" ] || continue
+    if hop_cds_complete "${_hop_cds_tmp}"; then
+      [ -f "$1" ] || mv -f "${_hop_cds_tmp}" "$1" 2>/dev/null
+      rm -f "${_hop_cds_tmp}"
+    elif ! kill -0 "${_hop_cds_tmp##*.}" 2>/dev/null; then
+      rm -f "${_hop_cds_tmp}"
+    fi
+  done
+}
+
+# Whether the JVM finished writing an archive: it writes the header, the first bytes of
+# the file, last.
+hop_cds_complete() {
+  [ -s "$1" ] && [ "$(od -An -tx1 -N4 "$1" 2>/dev/null | tr -d ' \n')" != 00000000 ]
 }
 
 # Whether a folder or jar of the class path (CLASSPATH) is newer than the given file: a

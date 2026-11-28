@@ -37,7 +37,8 @@ cd "$(dirname "$0")/.." || exit 1
 
 archives="${HOP_CDS_FOLDER:-${HOP_AUDIT_FOLDER:-./audit}/cds}"
 mkdir -p "${archives}" || exit 1
-rm -f "${archives}"/hop-conf-*.jsa "${archives}"/hop-run-*.jsa
+rm -f "${archives}"/hop-conf-*.jsa "${archives}"/hop-run-*.jsa \
+  "${archives}"/hop-conf-*.jsa.* "${archives}"/hop-run-*.jsa.*
 
 work=$(mktemp -d 2>/dev/null || mktemp -d -t hop-cds)
 cp -R config "${work}/config" || exit 1
@@ -51,6 +52,13 @@ cp -R config "${work}/config" || exit 1
   ./hop-run.sh -j samples -r local \
     -f '${PROJECT_HOME}/loops/loops-process-rows-from-memory.hwf' >"${work}/run.log" 2>&1
 )
+
+# Each JVM wrote a file of its own, which a tool moves into place at its next start: do
+# that now, so that HOP_CDS=use finds the archives.
+. lib/hop-cds.sh
+for written in "${archives}"/hop-conf-*.jsa.* "${archives}"/hop-run-*.jsa.*; do
+  [ -f "${written}" ] && hop_cds_promote "${written%.jsa.*}.jsa"
+done
 
 status=0
 for tool in conf run; do

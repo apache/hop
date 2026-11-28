@@ -194,12 +194,12 @@ A tool then starts about half a second faster.
 The archives are in the `cds` folder of the audit folder (`HOP_AUDIT_FOLDER`, `audit` in the Hop folder by default), one per tool and class path.
 
 The first run of a tool writes its archive when it exits, which takes a few seconds longer than a normal run.
-Commands that start at the same moment, before the archive exists, each write it.
+Commands that start at the same moment, before the archive exists, each write a file of their own, and the next start uses one of them.
 
 Java decides whether an archive can be used.
 It uses one only when the Java version and the jars on the class path are the same as when it was written: those in `lib/core`, the Spark client and SWT folders, and the `lib/core` folder beside an extra plugins folder (`HOP_PLUGIN_BASE_FOLDERS`).
 Otherwise the tool starts normally, and the next run writes the archive again.
-A setup with other plugin folders, or another Java, gets an archive of its own.
+Another Hop installation that shares the audit folder, a setup with other plugin folders, and another or updated Java each get an archive of their own.
 
 Plugins are loaded by Hop itself, not from the class path.
 For their classes, Java only uses the archived copy when the class file is unchanged.
