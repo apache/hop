@@ -27,9 +27,9 @@ import java.util.Set;
  * ({@link HopPipelineMetaToSparkConverter#HARD_BANNED_PLUGIN_IDS}), nor handled natively ({@link
  * HopPipelineMetaToSparkConverter#EXPLICIT_HANDLER_PLUGIN_IDS}) may work, but no test shows it.
  *
- * <p>Add sequence, Sample rows and Reservoir sampling are not listed: the integration test baseline
- * ran them on one partition only, and on several partitions they give other rows (Add sequence
- * repeats its values per partition, Sample rows samples each partition).
+ * <p>Transforms that need the rows of the whole stream in their order (Analytic query, Repeat
+ * fields, Reservoir sampling ...) are listed: the engine runs them on one ordered stream of all
+ * rows, see {@code SparkGenericTransformHandler#needsOneOrderedStream}.
  */
 public final class SparkVerifiedTransforms {
 
@@ -40,6 +40,7 @@ public final class SparkVerifiedTransforms {
           "AccessOutput",
           "AddXML",
           "AdvancedXMLOutput",
+          "AnalyticQuery",
           "AvroDecode",
           "AvroEncode",
           "AvroFileInput",
@@ -71,9 +72,9 @@ public final class SparkVerifiedTransforms {
           "Delay",
           "Delete",
           "Denormaliser",
+          "DetectEmptyStream",
           "DetectLanguage",
           "DimensionLookup",
-          "Dummy",
           "DynamicSqlRow",
           "EnhancedJsonOutput",
           "ExcelInput",
@@ -83,6 +84,7 @@ public final class SparkVerifiedTransforms {
           "ExecuteTests",
           "Fake",
           "FieldSplitter",
+          "FieldsChangeSequence",
           "FileExists",
           "FileLocked",
           "FileMetadataPlugin",
@@ -142,7 +144,9 @@ public final class SparkVerifiedTransforms {
           "RedisInput",
           "RedisOutput",
           "RegexEval",
+          "RepeatFields",
           "ReplaceString",
+          "ReservoirSampling",
           "Rest",
           "RowGenerator",
           "RuleExecutor",

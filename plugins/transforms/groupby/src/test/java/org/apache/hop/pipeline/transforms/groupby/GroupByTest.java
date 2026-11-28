@@ -338,6 +338,31 @@ class GroupByTest {
     assertTrue(data.newBatch);
   }
 
+  /** On Beam or Spark a batch is a bundle of rows: the group goes on until the input ends. */
+  @Test
+  void batchCompleteInABundleKeepsTheGroup() throws Exception {
+    data.setBeamContext(true);
+    QueueRowSet input = new QueueRowSet();
+    input.putRow(inputRowMeta, new Object[] {"A", 10.0});
+    input.putRow(inputRowMeta, new Object[] {"A", 20.0});
+    groupBy.addRowSetToInputRowSets(input);
+    QueueRowSet output = new QueueRowSet();
+    groupBy.addRowSetToOutputRowSets(output);
+
+    assertTrue(groupBy.processRow());
+    groupBy.batchComplete();
+    assertTrue(groupBy.processRow());
+    groupBy.batchComplete();
+    assertTrue(drain(output).isEmpty());
+
+    input.setDone();
+    groupBy.processRow();
+    List<Object[]> rows = drain(output);
+    assertEquals(1, rows.size());
+    assertEquals(30.0, ((Number) rows.getFirst()[1]).doubleValue(), 1e-9);
+    assertEquals(2L, ((Number) rows.getFirst()[2]).longValue());
+  }
+
   private GroupBy createGroupBy(GroupByMeta transformMeta, GroupByData transformData) {
     GroupBy transform =
         new GroupBy(

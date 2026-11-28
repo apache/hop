@@ -52,4 +52,12 @@ public interface ISparkPipelineTransformHandler {
       List<TransformMeta> previousTransforms,
       Dataset<Row> input)
       throws HopException;
+
+  /**
+   * Whether the transform keeps running as Hop's own transform, whose rows with errors can go to an
+   * error hop. A transform with a Spark implementation of its own has none.
+   */
+  default boolean supportsErrorHops() {
+    return false;
+  }
 }

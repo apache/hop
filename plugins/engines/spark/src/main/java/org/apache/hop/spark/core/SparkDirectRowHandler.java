@@ -19,21 +19,23 @@ package org.apache.hop.spark.core;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
-import org.apache.spark.sql.Row;
 
 /**
- * Row handler for the plain generic case (one main input, no info or target streams): the partition
- * loop hands the current input row to the transform through a one-slot buffer and takes what the
- * transform writes straight into the Spark output queue, already converted.
+ * Row handler for the plain generic case (one main input, no info or target streams): {@code
+ * getRow()} takes the next row of the Spark partition and {@code putRow()} puts what the transform
+ * writes straight into the Spark output queue, already converted.
  *
- * <p>This keeps the per-row protocol of the row-set based path — {@code processRow()} is called
- * once per input row and once more with an empty slot at the end so {@code getRow()} returns null —
- * but skips the Injector transform, the two row sets and the executor bookkeeping in between.
+ * <p>The transform pulls its input, as on the local engine: it may read several rows in one {@code
+ * processRow()} (CSV input collects all file names first) and keep writing after the last one, and
+ * {@code getRow()} returns null only at the real end of the partition. The partition loop calls
+ * {@code processRow()} until it returns false. No Injector transform, row sets or executor
+ * bookkeeping in between.
  */
 public class SparkDirectRowHandler extends SparkRowHandler {
 
@@ -41,32 +43,54 @@ public class SparkDirectRowHandler extends SparkRowHandler {
   private final IRowMeta inputRowMeta;
   private final IRowMeta outputRowMeta;
   private final HopSparkRowConverter.RowCodec outputCodec;
-  private final Consumer<Row> output;
-  private Object[] slot;
+  private final Consumer<Object[]> output;
+  private final boolean handOff;
+  private final Supplier<Object[]> input;
   private boolean inputRowMetaSet;
 
   public SparkDirectRowHandler(
       BaseTransform transform,
       IRowMeta inputRowMeta,
       IRowMeta outputRowMeta,
-      Consumer<Row> output) {
+      Supplier<Object[]> input,
+      Consumer<Object[]> output) {
+    this(transform, inputRowMeta, outputRowMeta, input, output, false);
+  }
+
+  private SparkDirectRowHandler(
+      BaseTransform transform,
+      IRowMeta inputRowMeta,
+      IRowMeta outputRowMeta,
+      Supplier<Object[]> input,
+      Consumer<Object[]> output,
+      boolean handOff) {
     super(transform);
+    this.input = input;
     this.transform = transform;
     this.inputRowMeta = inputRowMeta;
     this.outputRowMeta = outputRowMeta;
     this.outputCodec = HopSparkRowConverter.RowCodec.of(outputRowMeta);
     this.output = output;
+    this.handOff = handOff;
   }
 
-  /** Make {@code row} the next row {@link #getRow()} returns; null means end of input. */
-  public void offer(Object[] row) {
-    this.slot = row;
+  /**
+   * A handler for a transform inside a fused chain that is not the last one: what it writes goes to
+   * the next transform of the chain as Hop rows, in the layout {@code outputRowMeta} declares (see
+   * {@link HopSparkRowConverter.RowCodec#handOff}).
+   */
+  public static SparkDirectRowHandler toNextTransform(
+      BaseTransform transform,
+      IRowMeta inputRowMeta,
+      IRowMeta outputRowMeta,
+      Supplier<Object[]> input,
+      Consumer<Object[]> next) {
+    return new SparkDirectRowHandler(transform, inputRowMeta, outputRowMeta, input, next, true);
   }
 
   @Override
   public Object[] getRow() throws HopException {
-    Object[] row = slot;
-    slot = null;
+    Object[] row = input.get();
     if (!inputRowMetaSet) {
       transform.setInputRowMeta(inputRowMeta);
       inputRowMetaSet = true;
@@ -92,7 +116,8 @@ public class SparkDirectRowHandler extends SparkRowHandler {
       }
     }
     try {
-      output.accept(outputCodec.toSpark(row));
+      Object[] normal = HopSparkRowConverter.toNormalStorage(rowMeta, row);
+      output.accept(handOff ? outputCodec.handOff(normal) : normal);
     } catch (HopException e) {
       throw new HopTransformException(e);
     }

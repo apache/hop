@@ -321,6 +321,59 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   @HopMetadataProperty(key = "generic_transform_run_mode")
   private String genericTransformRunMode;
 
+  /**
+   * Partitions a source transform's rows are spread over. A source transform runs once and produces
+   * one partition; empty or 1 keeps it that way.
+   */
+  @GuiWidgetElement(
+      id = "sourcePartitions",
+      order = "50200",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n::SparkEngine.OptionsSourcePartitions.Label",
+      toolTip = "i18n::SparkEngine.OptionsSourcePartitions.ToolTip",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::SparkEngine.Group.HopOnSpark",
+      groupOrder = "50")
+  @HopMetadataProperty(key = "source_partitions")
+  private String sourcePartitions;
+
+  /**
+   * Runs neighbouring generic transforms (one input, one output, no info, target or error hops) in
+   * one Hop mini-pipeline per partition: one conversion between Spark and Hop rows for the chain
+   * instead of one per transform.
+   */
+  @GuiWidgetElement(
+      id = "fuseGenericTransforms",
+      order = "50300",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::SparkEngine.OptionsFuseGenericTransforms.Label",
+      toolTip = "i18n::SparkEngine.OptionsFuseGenericTransforms.ToolTip",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::SparkEngine.Group.HopOnSpark",
+      groupOrder = "50")
+  @HopMetadataProperty(key = "fuse_generic_transforms", defaultBoolean = true)
+  private boolean fuseGenericTransforms;
+
+  /**
+   * Hands rows to and from generic transforms in Spark's internal row format instead of Spark's
+   * external {@code Row}: the same values, less conversion work. Falls back to {@code Row} when the
+   * Spark build doesn't offer the internal API.
+   */
+  @GuiWidgetElement(
+      id = "internalRowConversion",
+      order = "50400",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::SparkEngine.OptionsInternalRowConversion.Label",
+      toolTip = "i18n::SparkEngine.OptionsInternalRowConversion.ToolTip",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::SparkEngine.Group.HopOnSpark",
+      groupOrder = "50")
+  @HopMetadataProperty(key = "internal_row_conversion", defaultBoolean = true)
+  private boolean internalRowConversion;
+
   @GuiWidgetElement(
       id = WIDGET_ID_DEPLOY_MODE,
       order = "10200",
@@ -443,6 +496,8 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.sparkAppName = "Apache Hop";
     this.genericTransformRunMode = SparkRunMode.DISTRIBUTED.name();
     this.deployMode = SparkDeployMode.CLIENT;
+    this.fuseGenericTransforms = true;
+    this.internalRowConversion = true;
     setEnginePluginId(SparkConst.PLUGIN_ID);
     setEnginePluginName(SparkConst.PLUGIN_NAME);
   }
@@ -568,6 +623,9 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.executorCores = config.executorCores;
     this.storedPathSchemeMap = config.getStoredPathSchemeMap();
     this.genericTransformRunMode = config.genericTransformRunMode;
+    this.sourcePartitions = config.sourcePartitions;
+    this.fuseGenericTransforms = config.fuseGenericTransforms;
+    this.internalRowConversion = config.internalRowConversion;
     this.deployMode = config.deployMode;
     this.clusterType = config.clusterType;
     this.stagingFolder = config.stagingFolder;

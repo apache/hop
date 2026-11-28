@@ -239,6 +239,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-addsequence</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-detectlastrow</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-groupby</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Transform metadata for native shuffle-aware handlers (driver-side only) -->
         <dependency>
@@ -250,6 +268,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-mergejoin</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-samplerows</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -268,6 +292,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-uniquerows</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-uniquerowsbyhashset</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -400,12 +430,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-detectlastrow</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-drools</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -432,13 +456,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-filterrows</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- Hard-banned transform metas for annotation lockstep tests only -->
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-groupby</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -487,6 +504,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-repeatfields</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-reservoirsampling</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -543,12 +566,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-textfile</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-uniquerowsbyhashset</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

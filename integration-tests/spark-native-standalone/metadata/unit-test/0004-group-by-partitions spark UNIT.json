@@ -1,0 +1,192 @@
+{
+  "variableValues": [
+    {
+      "key": "IT_ENGINE",
+      "value": "spark"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        },
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        },
+        {
+          "transform_field": "amounts",
+          "data_set_field": "amounts"
+        },
+        {
+          "transform_field": "sum_amount",
+          "data_set_field": "sum_amount"
+        },
+        {
+          "transform_field": "avg_amount",
+          "data_set_field": "avg_amount"
+        },
+        {
+          "transform_field": "median_amount",
+          "data_set_field": "median_amount"
+        },
+        {
+          "transform_field": "p90_amount",
+          "data_set_field": "p90_amount"
+        },
+        {
+          "transform_field": "p90_rank_amount",
+          "data_set_field": "p90_rank_amount"
+        },
+        {
+          "transform_field": "min_amount",
+          "data_set_field": "min_amount"
+        },
+        {
+          "transform_field": "max_amount",
+          "data_set_field": "max_amount"
+        },
+        {
+          "transform_field": "first_amount",
+          "data_set_field": "first_amount"
+        },
+        {
+          "transform_field": "first_amount_incl_null",
+          "data_set_field": "first_amount_incl_null"
+        },
+        {
+          "transform_field": "last_order",
+          "data_set_field": "last_order"
+        },
+        {
+          "transform_field": "products",
+          "data_set_field": "products"
+        },
+        {
+          "transform_field": "distinct_products",
+          "data_set_field": "distinct_products"
+        },
+        {
+          "transform_field": "stddev_amount",
+          "data_set_field": "stddev_amount"
+        },
+        {
+          "transform_field": "stddev_sample_amount",
+          "data_set_field": "stddev_sample_amount"
+        }
+      ],
+      "field_order": [
+        "customer"
+      ],
+      "data_set_name": "0004-group-by-partitions-aggregates-golden",
+      "transform_name": "verify aggregates"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "order_id",
+          "data_set_field": "order_id"
+        },
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        },
+        {
+          "transform_field": "amount",
+          "data_set_field": "amount"
+        },
+        {
+          "transform_field": "line_in_group",
+          "data_set_field": "line_in_group"
+        },
+        {
+          "transform_field": "cum_sum",
+          "data_set_field": "cum_sum"
+        },
+        {
+          "transform_field": "cum_avg",
+          "data_set_field": "cum_avg"
+        },
+        {
+          "transform_field": "moving_avg",
+          "data_set_field": "moving_avg"
+        },
+        {
+          "transform_field": "group_sum",
+          "data_set_field": "group_sum"
+        },
+        {
+          "transform_field": "group_rows",
+          "data_set_field": "group_rows"
+        }
+      ],
+      "field_order": [
+        "order_id"
+      ],
+      "data_set_name": "0004-group-by-partitions-running-golden",
+      "transform_name": "verify running"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        },
+        {
+          "transform_field": "sum_amount",
+          "data_set_field": "sum_amount"
+        },
+        {
+          "transform_field": "avg_amount",
+          "data_set_field": "avg_amount"
+        },
+        {
+          "transform_field": "first_order",
+          "data_set_field": "first_order"
+        },
+        {
+          "transform_field": "last_order",
+          "data_set_field": "last_order"
+        }
+      ],
+      "field_order": [
+        "rows"
+      ],
+      "data_set_name": "0004-group-by-partitions-total-golden",
+      "transform_name": "verify total"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        },
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        },
+        {
+          "transform_field": "sum_amount",
+          "data_set_field": "sum_amount"
+        }
+      ],
+      "field_order": [
+        "rows"
+      ],
+      "data_set_name": "0004-group-by-partitions-empty-golden",
+      "transform_name": "verify empty"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0004-group-by-partitions spark UNIT",
+  "description": "The rows of 0004-group-by-partitions on the standalone Spark cluster against the local engine's golden rows",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0004-group-by-partitions-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

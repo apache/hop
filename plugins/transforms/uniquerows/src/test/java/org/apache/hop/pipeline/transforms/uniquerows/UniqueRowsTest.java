@@ -17,8 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.uniquerows;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -267,6 +269,35 @@ class UniqueRowsTest {
     // Verify that putRow was called and previous was cleared
     verify(uniqueRows).putRow(any(IRowMeta.class), any(Object[].class));
     assertNull(transformMockHelper.iTransformData.previous);
+  }
+
+  /** On Beam or Spark a batch is a bundle of rows: the set goes on until the input ends. */
+  @Test
+  void testBatchCompleteInABundleKeepsTheSet() throws Exception {
+    when(transformMockHelper.iTransformMeta.getCompareFields()).thenReturn(new ArrayList<>());
+    when(transformMockHelper.iTransformMeta.isCountRows()).thenReturn(false);
+
+    UniqueRows uniqueRows =
+        new UniqueRows(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+
+    assertTrue(uniqueRows.init());
+    Object[] previous = new Object[] {"Alice"};
+    transformMockHelper.iTransformData.previous = previous;
+    transformMockHelper.iTransformData.counter = 2;
+    when(transformMockHelper.iTransformData.isBeamContext()).thenReturn(true);
+    uniqueRows = spy(uniqueRows);
+
+    uniqueRows.batchComplete();
+
+    verify(uniqueRows, never()).putRow(any(IRowMeta.class), any(Object[].class));
+    assertSame(previous, transformMockHelper.iTransformData.previous);
+    assertEquals(2, transformMockHelper.iTransformData.counter);
   }
 
   @Test

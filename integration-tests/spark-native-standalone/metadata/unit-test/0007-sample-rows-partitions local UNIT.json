@@ -1,0 +1,41 @@
+{
+  "variableValues": [
+    {
+      "key": "IT_ENGINE",
+      "value": "local"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "order_id",
+          "data_set_field": "order_id"
+        },
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        },
+        {
+          "transform_field": "line_nr",
+          "data_set_field": "line_nr"
+        }
+      ],
+      "field_order": [
+        "line_nr"
+      ],
+      "data_set_name": "0007-sample-rows-partitions-sampled-golden",
+      "transform_name": "verify sampled"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0007-sample-rows-partitions local UNIT",
+  "description": "The rows of 0007-sample-rows-partitions on the local engine against the local engine's golden rows",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0007-sample-rows-partitions-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

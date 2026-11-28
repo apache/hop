@@ -51,6 +51,26 @@ Use the provided button in the graph model editor to generate the Graph index an
 
 With *Create indexes*, the indexes are created once per run, before any row is written: on the native Spark and Beam engines on the driver, before the job starts, so the partitions or bundles don't create the same constraints at the same time.
 
+[[native-spark]]
+== Native Spark
+
+On the xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[native Spark] engine every Spark partition writes its own rows, at the same time, in its own transactions.
+A node that appears in rows on several partitions is merged by each of them.
+`MERGE` only stays one node under that concurrency when a uniqueness constraint covers the node's primary properties: without one, two partitions can both find no node and both create it, and every relationship to that node is then created once per copy.
+
+* Create a uniqueness constraint on the primary properties of every node label before the pipeline runs, for example with the xref:workflow/actions/graph-constraint.adoc[Graph constraint] action:
++
+[source,cypher]
+----
+CREATE CONSTRAINT IF NOT EXISTS FOR (n:Person) REQUIRE n.id IS UNIQUE
+----
+* *Create indexes* creates that constraint for a node with a single primary property, once per run on the driver; a node with several primary properties only gets an index, which doesn't prevent the duplicates.
+* A node keyed on several properties needs one constraint on all of them together: `REQUIRE (n.a, n.b) IS UNIQUE` on Neo4j 5.
+* Without a constraint, run the pipeline on the local engine.
+When the transform writes nodes of one label only, xref:pipeline/partitioning.adoc[partitioning] it on the key fields also keeps every node on one partition; that does not work for the two nodes of a relationship.
+
+The local engine has the same issue when the transform runs in more than one copy.
+
 == Notable options
 
 |===

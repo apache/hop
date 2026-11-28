@@ -1,0 +1,32 @@
+{
+  "base_filename": "0010-unique-rows-count-partitions-counted-golden.csv",
+  "name": "0010-unique-rows-count-partitions-counted-golden",
+  "description": "What the local engine writes for counted of 0010-unique-rows-count-partitions",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "customer",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "product",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "orders",
+      "field_format": "0"
+    }
+  ],
+  "folder_name": ""
+}

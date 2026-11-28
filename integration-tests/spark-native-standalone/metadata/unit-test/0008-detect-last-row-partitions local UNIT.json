@@ -1,0 +1,37 @@
+{
+  "variableValues": [
+    {
+      "key": "IT_ENGINE",
+      "value": "local"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "order_id",
+          "data_set_field": "order_id"
+        },
+        {
+          "transform_field": "is_last",
+          "data_set_field": "is_last"
+        }
+      ],
+      "field_order": [
+        "order_id"
+      ],
+      "data_set_name": "0008-detect-last-row-partitions-flagged-golden",
+      "transform_name": "verify flagged"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0008-detect-last-row-partitions local UNIT",
+  "description": "The rows of 0008-detect-last-row-partitions on the local engine against the local engine's golden rows",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0008-detect-last-row-partitions-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

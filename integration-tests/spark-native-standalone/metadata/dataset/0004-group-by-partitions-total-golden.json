@@ -1,0 +1,48 @@
+{
+  "base_filename": "0004-group-by-partitions-total-golden.csv",
+  "name": "0004-group-by-partitions-total-golden",
+  "description": "What the local engine writes for total of 0004-group-by-partitions",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "rows",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "sum_amount",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "avg_amount",
+      "field_format": "0.000000"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "first_order",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "last_order",
+      "field_format": "0"
+    }
+  ],
+  "folder_name": ""
+}

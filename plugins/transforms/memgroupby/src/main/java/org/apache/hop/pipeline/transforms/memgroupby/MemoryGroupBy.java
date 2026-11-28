@@ -573,6 +573,11 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
 
   @Override
   public void batchComplete() throws HopException {
+    if (data.isBeamContext()) {
+      // On Beam or Spark a batch is a bundle of rows, not a set of its own: the groups go on, and
+      // are written when the input ends
+      return;
+    }
     // Empty the hash table
     //
     handleLastOfGroup();

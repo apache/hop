@@ -31,6 +31,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -170,6 +171,7 @@ class TransformPrepareOnceTest {
     TransformMeta lonely = new TransformMeta("lonely", new PrepareOnceTestMeta());
     lonely.setTransformPluginId(PrepareOnceTestMeta.ID);
     pipelineMeta.addTransform(lonely);
+    int namespaces = HopVfsNamespaces.size();
 
     List<String> names =
         TransformPrepareOnce.prepareOnDriver(
@@ -182,5 +184,10 @@ class TransformPrepareOnceTest {
     assertEquals(
         List.of("id", "name"), List.of(PrepareOnceTestTransform.preparedWith.getFieldNames()));
     assertTrue(TransformPrepareOnce.preparedOnDriver("a\nb\n").containsAll(List.of("a", "b")));
+    assertEquals(
+        namespaces,
+        HopVfsNamespaces.size(),
+        "the pipeline that prepared the transform never runs: nothing else would close its"
+            + " VFS namespace");
   }
 }

@@ -65,6 +65,26 @@ The transform will automatically split and convert these to array types based on
 separator and enclosure settings.
 ====
 
+[[native-spark]]
+== Native Spark
+
+On the xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[native Spark] engine every Spark partition writes its own rows, at the same time, in its own transactions.
+A node that appears in rows on several partitions is merged by each of them.
+`MERGE` only stays one node under that concurrency when a uniqueness constraint covers the node's primary properties: without one, two partitions can both find no node and both create it, and every relationship to that node is then created once per copy.
+
+* Create a uniqueness constraint on the primary properties of every node label before the pipeline runs, for example with the xref:workflow/actions/graph-constraint.adoc[Graph constraint] action:
++
+[source,cypher]
+----
+CREATE CONSTRAINT IF NOT EXISTS FOR (n:Person) REQUIRE n.id IS UNIQUE
+----
+* *Create indexes* creates that constraint for the primary property of each fixed label, once per run on the driver; a node with several primary properties, or labels taken from a field, need it created beforehand.
+* A node keyed on several properties needs one constraint on all of them together: `REQUIRE (n.a, n.b) IS UNIQUE` on Neo4j 5.
+* Without a constraint, run the pipeline on the local engine.
+When the transform writes nodes of one label only, xref:pipeline/partitioning.adoc[partitioning] it on the key fields also keeps every node on one partition; that does not work for the two nodes of a relationship.
+
+The local engine has the same issue when the transform runs in more than one copy.
+
 == Notable options
 
 |===

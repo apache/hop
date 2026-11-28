@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Analytic Query transform allows you to peek forward and backwards across rows in a pipeline.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/analyticquery.svg[Analytic Query Icon, role="image-doc-icon"] Analytic Query
 

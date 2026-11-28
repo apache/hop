@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -41,13 +42,18 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.spark.core.HopSparkUtil;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
+import org.apache.hop.spark.core.SparkHopPartitioning;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
+import org.apache.hop.spark.pipeline.handler.SparkAddSequenceHandler;
 import org.apache.hop.spark.pipeline.handler.SparkBaseTransformHandler;
+import org.apache.hop.spark.pipeline.handler.SparkDetectLastRowHandler;
+import org.apache.hop.spark.pipeline.handler.SparkDummyHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkGenericTransformHandler;
+import org.apache.hop.spark.pipeline.handler.SparkGroupByHandler;
 import org.apache.hop.spark.pipeline.handler.SparkJdbcInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableMaintenanceHandler;
@@ -55,15 +61,16 @@ import org.apache.hop.spark.pipeline.handler.SparkLakeTableMergeHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMemoryGroupByHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMergeJoinHandler;
+import org.apache.hop.spark.pipeline.handler.SparkSampleRowsHandler;
 import org.apache.hop.spark.pipeline.handler.SparkSortRowsHandler;
 import org.apache.hop.spark.pipeline.handler.SparkSqlHandler;
+import org.apache.hop.spark.pipeline.handler.SparkUniqueRowsByHashSetHandler;
 import org.apache.hop.spark.pipeline.handler.SparkUniqueRowsHandler;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.hop.spark.util.SparkJobNames;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.storage.StorageLevel;
 
 /**
  * Converts a Hop {@link PipelineMeta} into a Spark {@link Dataset} lineage. Stateless transforms
@@ -89,7 +96,23 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID,
           SparkConst.SPARK_SQL_PLUGIN_ID,
-          SparkConst.TABLE_INPUT_PLUGIN_ID);
+          SparkConst.TABLE_INPUT_PLUGIN_ID,
+          SparkConst.DUMMY_PLUGIN_ID,
+          SparkConst.GROUP_BY_PLUGIN_ID,
+          SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
+          SparkConst.ADD_SEQUENCE_PLUGIN_ID,
+          SparkConst.SAMPLE_ROWS_PLUGIN_ID,
+          SparkConst.DETECT_LAST_ROW_PLUGIN_ID);
+
+  /**
+   * Native handlers that combine several input hops into one stream, like a generic transform,
+   * instead of resolving named inputs themselves.
+   */
+  static final Set<String> UNION_INPUT_NATIVE_PLUGIN_IDS =
+      Set.of(
+          SparkConst.DUMMY_PLUGIN_ID,
+          SparkConst.GROUP_BY_PLUGIN_ID,
+          SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID);
 
   /**
    * Plugin ids that must not run as partition-local Hop mini-pipelines, with the reason shown to
@@ -99,12 +122,6 @@ public class HopPipelineMetaToSparkConverter {
    */
   public static final Map<String, String> HARD_BANNED_PLUGIN_IDS =
       Map.ofEntries(
-          Map.entry(
-              SparkConst.GROUP_BY_PLUGIN_ID,
-              "Group By is not supported on the native Spark engine. Use Memory Group By (native Spark shuffle) instead, or run on the Local engine."),
-          Map.entry(
-              SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
-              "Unique Rows By Hashset is not supported on the native Spark engine. Every partition would keep its own hash set, so duplicates spread over different partitions would survive. Use Unique Rows (native Spark distinct) or Memory Group By instead."),
           Map.entry(
               SparkConst.JOIN_ROWS_PLUGIN_ID,
               "Join Rows is not supported on the native Spark engine. A cartesian product needs every row of every input in one place, but every partition would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use Merge Join on that field instead."),
@@ -117,9 +134,6 @@ public class HopPipelineMetaToSparkConverter {
           Map.entry(
               "ClosureGenerator",
               "Closure generator is not supported on the native Spark engine. It needs every parent-child row in one place, and on Spark every partition only sees its own rows."),
-          Map.entry(
-              "FieldsChangeSequence",
-              "Add value fields changing sequence is not supported on the native Spark engine. Its counter restarts in every partition, so the sequence is wrong once the rows are spread over partitions."),
           Map.entry(
               "FilesFromResult",
               "Get files from result is not supported on the native Spark engine. The files of the previous result are not passed to the Spark partitions, so it reads no files."),
@@ -160,20 +174,11 @@ public class HopPipelineMetaToSparkConverter {
               "XMLJoin",
               "XML join is not supported on the native Spark engine. It reads the target XML from another transform's stream, which a Spark partition doesn't have."),
           Map.entry(
-              "AnalyticQuery",
-              "Analytic query is not supported on the native Spark engine. Its LAG and LEAD read the rows before and after in one ordered stream, and every Spark partition only has its own rows."),
-          Map.entry(
               "Append",
               "Append streams is not supported on the native Spark engine. It outputs every row of the head stream before those of the tail stream, an order Spark partitions don't keep."),
           Map.entry(
               "BlockingTransform",
               "Blocking transform is not supported on the native Spark engine. It waits for every input row, or passes only the last one, and every Spark partition only has its own rows."),
-          Map.entry(
-              "DetectEmptyStream",
-              "Detect empty stream is not supported on the native Spark engine. Every Spark partition without rows would report an empty stream."),
-          Map.entry(
-              "DetectLastRow",
-              "Identify last row in a stream is not supported on the native Spark engine. Every Spark partition would mark its own last row."),
           Map.entry(
               "Injector",
               "Injector is not supported on the native Spark engine. It receives the rows an application hands to Hop's own pipeline engine."),
@@ -186,9 +191,6 @@ public class HopPipelineMetaToSparkConverter {
           Map.entry(
               "MultiwayMergeJoin",
               "Multiway merge join is not supported on the native Spark engine. It joins sorted streams row by row in one place, which Spark partitions don't give it. Use Merge join (native Spark join) instead."),
-          Map.entry(
-              "RepeatFields",
-              "Repeat fields is not supported on the native Spark engine. It copies values from the rows before it in one ordered stream, and every Spark partition only has its own rows."),
           Map.entry(
               "StreamSchema",
               "Stream schema merge is not supported on the native Spark engine. When Spark combines inputs with different layouts, rows go missing."));
@@ -209,8 +211,8 @@ public class HopPipelineMetaToSparkConverter {
   /** Datasets of the transforms without successors, in topological order (see createDataset). */
   private final Map<String, Dataset<Row>> leafDatasets = new LinkedHashMap<>();
 
-  /** Datasets read by more than one transform, persisted so they are computed once. */
-  private final List<Dataset<Row>> persistedDatasets = new ArrayList<>();
+  /** The Datasets this run keeps, by the converter and the handlers; released by unpersistAll. */
+  private final SparkPersistedDatasets persistedDatasets = new SparkPersistedDatasets();
 
   public HopPipelineMetaToSparkConverter(
       IVariables variables,
@@ -239,6 +241,7 @@ public class HopPipelineMetaToSparkConverter {
     this.sparkRunConfiguration = sparkConfig;
     this.transformHandlers = new HashMap<>();
     this.genericTransformHandler = new SparkGenericTransformHandler();
+    this.genericTransformHandler.setPersistedDatasets(persistedDatasets);
     addDefaultTransformHandlers();
   }
 
@@ -260,26 +263,55 @@ public class HopPipelineMetaToSparkConverter {
     this.sparkRunConfiguration = sparkRunConfiguration;
     this.transformHandlers = new HashMap<>();
     this.genericTransformHandler = new SparkGenericTransformHandler();
+    this.genericTransformHandler.setPersistedDatasets(persistedDatasets);
     addDefaultTransformHandlers();
   }
 
   protected void addDefaultTransformHandlers() {
-    transformHandlers.put(SparkConst.MEMORY_GROUP_BY_PLUGIN_ID, new SparkMemoryGroupByHandler());
-    transformHandlers.put(SparkConst.MERGE_JOIN_PLUGIN_ID, new SparkMergeJoinHandler());
-    transformHandlers.put(SparkConst.UNIQUE_ROWS_PLUGIN_ID, new SparkUniqueRowsHandler());
-    transformHandlers.put(SparkConst.SORT_ROWS_PLUGIN_ID, new SparkSortRowsHandler());
-    transformHandlers.put(SparkConst.SPARK_FILE_INPUT_PLUGIN_ID, new SparkFileInputHandler());
-    transformHandlers.put(SparkConst.SPARK_FILE_OUTPUT_PLUGIN_ID, new SparkFileOutputHandler());
-    transformHandlers.put(
-        SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID, new SparkLakeTableInputHandler());
-    transformHandlers.put(
-        SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID, new SparkLakeTableOutputHandler());
-    transformHandlers.put(
-        SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID, new SparkLakeTableMergeHandler());
-    transformHandlers.put(
-        SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID, new SparkLakeTableMaintenanceHandler());
-    transformHandlers.put(SparkConst.SPARK_SQL_PLUGIN_ID, new SparkSqlHandler());
-    transformHandlers.put(SparkConst.TABLE_INPUT_PLUGIN_ID, new SparkJdbcInputHandler());
+    // Lambdas, not constructor references: a constructor reference is linked here, which loads the
+    // handler's class, and a handler of a transform plugin that isn't installed would stop the run
+    // before register() can skip it
+    register(SparkConst.MEMORY_GROUP_BY_PLUGIN_ID, () -> new SparkMemoryGroupByHandler());
+    register(SparkConst.MERGE_JOIN_PLUGIN_ID, () -> new SparkMergeJoinHandler());
+    register(SparkConst.UNIQUE_ROWS_PLUGIN_ID, () -> new SparkUniqueRowsHandler());
+    register(SparkConst.SORT_ROWS_PLUGIN_ID, () -> new SparkSortRowsHandler());
+    register(SparkConst.SPARK_FILE_INPUT_PLUGIN_ID, () -> new SparkFileInputHandler());
+    register(SparkConst.SPARK_FILE_OUTPUT_PLUGIN_ID, () -> new SparkFileOutputHandler());
+    register(SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID, () -> new SparkLakeTableInputHandler());
+    register(SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID, () -> new SparkLakeTableOutputHandler());
+    register(SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID, () -> new SparkLakeTableMergeHandler());
+    register(
+        SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID,
+        () -> new SparkLakeTableMaintenanceHandler());
+    register(SparkConst.SPARK_SQL_PLUGIN_ID, () -> new SparkSqlHandler());
+    register(SparkConst.TABLE_INPUT_PLUGIN_ID, () -> new SparkJdbcInputHandler());
+    register(SparkConst.DUMMY_PLUGIN_ID, () -> new SparkDummyHandler());
+    register(SparkConst.GROUP_BY_PLUGIN_ID, () -> new SparkGroupByHandler(genericTransformHandler));
+    register(
+        SparkConst.ADD_SEQUENCE_PLUGIN_ID,
+        () -> new SparkAddSequenceHandler(genericTransformHandler));
+    register(SparkConst.SAMPLE_ROWS_PLUGIN_ID, () -> new SparkSampleRowsHandler());
+    register(
+        SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
+        () -> new SparkUniqueRowsByHashSetHandler(genericTransformHandler));
+    register(SparkConst.DETECT_LAST_ROW_PLUGIN_ID, () -> new SparkDetectLastRowHandler());
+  }
+
+  /**
+   * Adds the handler of a transform. A handler that reads its transform's metadata class can't be
+   * loaded when that transform plugin isn't installed; the transform isn't in any pipeline then.
+   */
+  private void register(String pluginId, Supplier<ISparkPipelineTransformHandler> handler) {
+    try {
+      ISparkPipelineTransformHandler created = handler.get();
+      if (created instanceof SparkBaseTransformHandler baseHandler) {
+        baseHandler.setPersistedDatasets(persistedDatasets);
+      }
+      transformHandlers.put(pluginId, created);
+    } catch (LinkageError e) {
+      LogChannel.GENERAL.logDebug(
+          "No native Spark handler for transform plugin " + pluginId + ": " + e.getMessage());
+    }
   }
 
   public void validatePipeline() throws HopException {
@@ -311,8 +343,20 @@ public class HopPipelineMetaToSparkConverter {
 
       Map<String, Dataset<Row>> transformDatasetMap = new HashMap<>();
       List<TransformMeta> transforms = getSortedTransformsList();
+      Map<String, List<TransformMeta>> fusedChains =
+          sparkRunConfiguration == null || sparkRunConfiguration.isFuseGenericTransforms()
+              ? findFusedChains(transforms)
+              : Map.of();
+      Set<String> fusedFollowers = new HashSet<>();
+      for (List<TransformMeta> followers : fusedChains.values()) {
+        followers.forEach(f -> fusedFollowers.add(f.getName()));
+      }
 
       for (TransformMeta transformMeta : transforms) {
+        if (fusedFollowers.contains(transformMeta.getName())) {
+          // Runs inside the mini-pipeline of the first transform of its chain
+          continue;
+        }
         String pluginId = transformMeta.getTransformPluginId();
 
         List<TransformMeta> previousTransforms =
@@ -342,7 +386,9 @@ public class HopPipelineMetaToSparkConverter {
         IRowMeta rowMeta;
         if (previousTransforms.isEmpty()) {
           rowMeta = new org.apache.hop.core.row.RowMeta();
-        } else if (nativeHandler && previousTransforms.size() > 1) {
+        } else if (nativeHandler
+            && previousTransforms.size() > 1
+            && !UNION_INPUT_NATIVE_PLUGIN_IDS.contains(pluginId)) {
           // Merge Join (etc.) resolves named inputs itself from transformDatasetMap
           TransformMeta previous = previousTransforms.get(0);
           input = lookupPreviousDataset(transformDatasetMap, previous, transformMeta, log);
@@ -350,6 +396,13 @@ public class HopPipelineMetaToSparkConverter {
               input != null
                   ? pipelineMeta.getTransformFields(variables, previous, transformMeta, null)
                   : new org.apache.hop.core.row.RowMeta();
+        } else if (!nativeHandler
+            && previousTransforms.size() > 1
+            && SparkGenericTransformHandler.readsInputsSeparately(transformMeta)) {
+          // Sorted merge, Stream schema merge, Multiway merge join ... read each input on its
+          // own (by name, or row set by row set): no union, the generic handler gives every input
+          // a stream of its own
+          rowMeta = new org.apache.hop.core.row.RowMeta();
         } else {
           // One or more main predecessors: resolve each Dataset (incl. target-stream keys) and
           // union when layouts match (Hop multi-hop merge semantics).
@@ -376,6 +429,28 @@ public class HopPipelineMetaToSparkConverter {
         // Writers and info streams start Spark jobs while the graph is built: name them
         SparkJobNames.forTransform(
             spark, pipelineMeta.getName(), transformMeta.getName(), pluginId);
+        if (transformMeta.isPartitioned()) {
+          input = placeOnHopPartitions(log, transformMeta, previousTransforms, input);
+        }
+
+        List<TransformMeta> followers = fusedChains.get(transformMeta.getName());
+        if (followers != null) {
+          genericTransformHandler.handleFusedTransforms(
+              log,
+              variables,
+              runConfigName,
+              sparkRunConfiguration,
+              metaStoreJson,
+              pipelineMeta,
+              transformMeta,
+              followers,
+              transformDatasetMap,
+              spark,
+              rowMeta,
+              input);
+          persistIfShared(log, followers.get(followers.size() - 1), transformDatasetMap);
+          continue;
+        }
         handler.handleTransform(
             log,
             variables,
@@ -430,6 +505,96 @@ public class HopPipelineMetaToSparkConverter {
   }
 
   /**
+   * Chains of neighbouring generic transforms that can run in one Hop mini-pipeline per partition,
+   * keyed by the first transform of the chain; the value holds the transforms after it, in order. A
+   * link is fused when both transforms qualify ({@link SparkGenericTransformHandler#canFuse}), the
+   * first has exactly one next transform and the second exactly one previous one (main or info).
+   */
+  Map<String, List<TransformMeta>> findFusedChains(List<TransformMeta> transforms) {
+    Map<String, List<TransformMeta>> chains = new HashMap<>();
+    Set<String> taken = new HashSet<>();
+    for (TransformMeta head : transforms) {
+      if (taken.contains(head.getName()) || !fusable(head)) {
+        continue;
+      }
+      List<TransformMeta> followers = new ArrayList<>();
+      TransformMeta current = head;
+      while (true) {
+        List<TransformMeta> next = pipelineMeta.findNextTransforms(current);
+        if (next.size() != 1) {
+          break;
+        }
+        TransformMeta candidate = next.get(0);
+        if (taken.contains(candidate.getName())
+            || !fusable(candidate)
+            || pipelineMeta.findPreviousTransforms(candidate, true).size() != 1) {
+          break;
+        }
+        followers.add(candidate);
+        taken.add(candidate.getName());
+        current = candidate;
+      }
+      if (!followers.isEmpty()) {
+        taken.add(head.getName());
+        chains.put(head.getName(), followers);
+      }
+    }
+    return chains;
+  }
+
+  /**
+   * The input of a partitioned transform, shuffled so that the rows of a key are on one Spark
+   * partition (or spread evenly, for Rebalance). The rows of the only transform before it, placed
+   * the same way, are already there: Hop hands them on partition by partition too.
+   */
+  private Dataset<Row> placeOnHopPartitions(
+      ILogChannel log,
+      TransformMeta transformMeta,
+      List<TransformMeta> previousTransforms,
+      Dataset<Row> input)
+      throws HopException {
+    String placement = SparkHopPartitioning.placement(transformMeta);
+    if (input == null) {
+      // An input transform, or one that reads each input on its own
+      return null;
+    }
+    if (previousTransforms.size() == 1
+        && keepsPartitions(previousTransforms.get(0))
+        && placement.equals(SparkHopPartitioning.placement(previousTransforms.get(0)))) {
+      log.logDetailed(
+          "Transform '"
+              + transformMeta.getName()
+              + "' keeps the partitions of '"
+              + previousTransforms.get(0).getName()
+              + "'");
+      return input;
+    }
+    log.logBasic(
+        "Transform '"
+            + transformMeta.getName()
+            + "' is partitioned: its input is shuffled ("
+            + placement
+            + ")");
+    return SparkHopPartitioning.repartition(input, transformMeta);
+  }
+
+  /**
+   * Whether the output of a transform is still on the partitions of its input: it is partitioned
+   * and runs partition by partition (a native handler other than Dummy shuffles its rows).
+   */
+  private boolean keepsPartitions(TransformMeta transformMeta) {
+    String pluginId = transformMeta.getTransformPluginId();
+    return transformMeta.isPartitioned()
+        && (!transformHandlers.containsKey(pluginId)
+            || SparkConst.DUMMY_PLUGIN_ID.equals(pluginId));
+  }
+
+  private boolean fusable(TransformMeta transformMeta) {
+    return !transformHandlers.containsKey(transformMeta.getTransformPluginId())
+        && SparkGenericTransformHandler.canFuse(pipelineMeta, transformMeta, sparkRunConfiguration);
+  }
+
+  /**
    * Persists the output of a transform that more than one transform reads (target streams of Filter
    * Rows / Switch / Case, a main and an info hop, ...). Without it every branch that runs an action
    * recomputes the transform and everything before it.
@@ -444,8 +609,7 @@ public class HopPipelineMetaToSparkConverter {
     if (shared == null) {
       return;
     }
-    shared.persist(StorageLevel.MEMORY_AND_DISK());
-    persistedDatasets.add(shared);
+    persistedDatasets.persist(shared);
     log.logDetailed("Persisted the output of transform '" + name + "': several transforms read it");
   }
 
@@ -454,16 +618,9 @@ public class HopPipelineMetaToSparkConverter {
     return leafDatasets;
   }
 
-  /** Releases the Datasets persisted by {@link #createDataset}. */
+  /** Releases the Datasets kept by {@link #createDataset}, and by the transform handlers. */
   public void unpersistAll() {
-    for (Dataset<Row> dataset : persistedDatasets) {
-      try {
-        dataset.unpersist();
-      } catch (Exception e) {
-        // The session may already be gone
-      }
-    }
-    persistedDatasets.clear();
+    persistedDatasets.unpersistAll();
   }
 
   /**

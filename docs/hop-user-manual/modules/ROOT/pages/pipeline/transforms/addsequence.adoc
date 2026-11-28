@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Add Sequence transform adds a sequence to the Hop stream.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/addsequence.svg[Add Sequence Icon, role="image-doc-icon"] Add Sequence
 
@@ -45,6 +45,16 @@ runs the transform on each worker instead.
 A database sequence stays unique, because the database hands out the values.
 With a configuration transform or an unbounded input each worker keeps its own counter, so the
 values are not unique across the pipeline.
+
+=== On the native Spark engine
+
+With a typed start, increment, and maximum, the native Spark engine numbers the rows over all partitions: one sequence with no duplicates, the values the local engine gives, and the partitions still run in parallel.
+The rows are numbered in partition order, which is the order of the source's rows when it is spread over several partitions (*Source partitions*).
+Each Add Sequence transform has a counter of its own: two transforms with the same counter name don't share their values as they do on the local engine.
+
+A database sequence or a configuration transform runs the transform on every partition instead.
+A database sequence stays unique, because the database hands out the values.
+With a configuration transform every partition keeps its own counter, so the values are not unique across the pipeline.
 
 == Options
 

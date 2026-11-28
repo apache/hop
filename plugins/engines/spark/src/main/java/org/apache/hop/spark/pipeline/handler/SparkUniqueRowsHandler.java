@@ -172,6 +172,14 @@ public class SparkUniqueRowsHandler extends SparkBaseTransformHandler {
             .groupBy(groupCols)
             .agg(count(org.apache.spark.sql.functions.lit(1)).alias(countField));
     Dataset<Row> uniqueRows = input.dropDuplicates(keyNames.toArray(new String[0]));
-    return uniqueRows.join(counts, keyNames.toArray(new String[0]), "inner");
+    // A join on column names puts those columns first: back to Hop's layout, the input fields in
+    // their order and then the count, or a later transform reads a String where it expects a
+    // number
+    Column[] layout = new Column[input.columns().length + 1];
+    for (int i = 0; i < input.columns().length; i++) {
+      layout[i] = col(input.columns()[i]);
+    }
+    layout[layout.length - 1] = col(countField);
+    return uniqueRows.join(counts, keyNames.toArray(new String[0]), "inner").select(layout);
   }
 }

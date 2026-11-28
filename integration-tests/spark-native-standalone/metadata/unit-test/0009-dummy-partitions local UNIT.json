@@ -1,0 +1,37 @@
+{
+  "variableValues": [
+    {
+      "key": "IT_ENGINE",
+      "value": "local"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "order_id",
+          "data_set_field": "order_id"
+        },
+        {
+          "transform_field": "quantity",
+          "data_set_field": "quantity"
+        }
+      ],
+      "field_order": [
+        "order_id"
+      ],
+      "data_set_name": "0009-dummy-partitions-combined-golden",
+      "transform_name": "verify combined"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0009-dummy-partitions local UNIT",
+  "description": "The rows of 0009-dummy-partitions on the local engine against the local engine's golden rows",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0009-dummy-partitions-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

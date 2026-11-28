@@ -180,6 +180,11 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {
 
   @Override
   public void batchComplete() throws HopException {
+    if (data.isBeamContext()) {
+      // On Beam or Spark a batch is a bundle of rows, not a set of its own: the transform compares
+      // on, and writes the last row when its input ends
+      return;
+    }
     // If there's a previous row, output it at the end of the batch...
     //
     if (data.previous != null) {

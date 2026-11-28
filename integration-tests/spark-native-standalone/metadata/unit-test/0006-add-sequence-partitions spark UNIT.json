@@ -1,0 +1,41 @@
+{
+  "variableValues": [
+    {
+      "key": "IT_ENGINE",
+      "value": "spark"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "order_id",
+          "data_set_field": "order_id"
+        },
+        {
+          "transform_field": "seq",
+          "data_set_field": "seq"
+        },
+        {
+          "transform_field": "wrapped",
+          "data_set_field": "wrapped"
+        }
+      ],
+      "field_order": [
+        "order_id"
+      ],
+      "data_set_name": "0006-add-sequence-partitions-numbered-golden",
+      "transform_name": "verify numbered"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-add-sequence-partitions spark UNIT",
+  "description": "The rows of 0006-add-sequence-partitions on the standalone Spark cluster against the local engine's golden rows",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0006-add-sequence-partitions-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

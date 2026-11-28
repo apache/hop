@@ -72,7 +72,7 @@ The checks follow the cluster type and deploy mode; a check whose prerequisite f
 |Check |What it looks at
 
 |Settings
-|Memory sizes (`512m`, `2g`), executor cores as a whole number, and the rows of the Spark settings and the path scheme map. A Spark setting without a key is an error, a key set twice a warning (the last row wins), and a key that does not start with `spark.` is ignored by Spark: Hadoop settings go in as `spark.hadoop.<key>`.
+|Memory sizes (`512m`, `2g`), executor cores and source partitions as whole numbers, and the rows of the Spark settings and the path scheme map. A Spark setting without a key is an error, a key set twice a warning (the last row wins), and a key that does not start with `spark.` is ignored by Spark: Hadoop settings go in as `spark.hadoop.<key>`.
 
 |Cluster type
 |The cluster type and the Spark master agree, and where the pipeline runs.
@@ -212,6 +212,18 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 |Generic transform run mode
 |Default for Hop transforms that run as `mapPartitions` mini-pipelines (Workflow Executor, most classic transforms). `DISTRIBUTED` fans work out across Spark partitions/nodes. `DRIVER_ONLY` materializes the transform input on the Spark driver and runs the mini-pipeline once there, so nested workflows do not execute on multiple nodes. Override per transform with the *Spark Run Mode* context action on the canvas.
 |`DISTRIBUTED`
+
+|Source partitions
+|A source transform that is not a native Spark input (Data grid, Generate rows, CSV file input, ...) runs once and produces one Spark partition, so every transform after it runs in one task. Set a number to spread its rows over that many partitions, for example the number of executor cores. The rows keep their order: the first rows go to the first partition, the next ones to the second, and so on. Spreading costs a shuffle. Writers after it then write one file per partition, with `_<transform id>_<partition>` added to the file name.
+|empty (one partition)
+
+|Fuse generic transforms
+|A transform without a Spark implementation of its own runs as a Hop transform on every partition, and its rows are converted from Spark to Hop and back. With this option, neighbouring transforms like that (one input, one output, no info, target or error hops) run together on every partition, so the rows are converted once for the whole chain. The rows are the same either way; clear it to run every transform on its own. Dummy never costs a conversion: the engine passes its rows on.
+|on
+
+|Internal row conversion
+|Hands the rows to and from those transforms in Spark's internal row format instead of Spark's regular rows, which saves converting every value twice. The values are the same either way. When the Spark build doesn't offer that format (another Spark version, a vendor runtime), the engine says so in the log and uses Spark's regular rows.
+|on
 |===
 
 Also configure *Execution information location* and *Execution data profile* on the run configuration main tab when you want GUI metrics history and row samples.
@@ -330,12 +342,41 @@ The override is stored on the transform (`attributes` group `spark` / key `run_m
 
 image::pipeline/spark/native-spark-run-mode-force-driver.png[Transform with Force Driver Only Spark run-mode badge,width=70%]
 
-Native Dataset handlers (Spark File / Lake Table, Memory Group By, Sort, Unique, Merge Join) ignore this setting.
+Native Dataset handlers (Spark File / Lake Table, Memory Group By, Group By, Sort, Unique, Merge Join, Add Sequence with a counter) ignore this setting.
 
 [NOTE]
 ====
 `DRIVER_ONLY` collects that transform's input rows on the driver. Prefer `DISTRIBUTED` for high-volume data; use driver-only for nested execution control (for example a Workflow Executor over a modest set of control rows).
 ====
+
+==== Row numbers and the whole stream
+
+On the Local engine a transform sees all rows of the pipeline in one stream.
+On Native Spark the rows are spread over partitions, and a transform that runs as a Hop transform sees the rows of one partition.
+The transforms that number, sample or compare the rows of the whole stream are handled so that they give the Local engine's results:
+
+* *Add Sequence* (with a counter), *Sample Rows* and *Identify last row in a stream* number the rows over all partitions, in partition order, and keep running in parallel.
+* *Analytic Query*, *Add value fields changing sequence* and *Reservoir Sampling* run on one partition with all rows in their order. The rows are spread over the partitions again after them.
+* *Combination lookup/update*, and *Dimension lookup/update* when it updates the dimension, run on one partition as well: partitions would otherwise look up the same new row at the same time and each add it, and the table maximum key method would hand out the same key twice.
+
+The order of the rows is the order of the partitions: with a source spread over several partitions (*Source partitions*) that is the order of the source's rows.
+
+Some numbers still count per partition:
+
+* The row number of a transform that reads files whose names come from a hop (Text File Input, JSON Input, Get File Names ...): every partition reads its own files and counts their rows. Reset the row number for every file to get the same numbers as the Local engine.
+* The row counters in scripts: `rowNumber` in *Script* and `getProcessCount()` in *JavaScript* count the rows of the partition.
+* *Write to log* with a row limit logs that many rows of every partition.
+
+==== Partitioning
+
+A xref:pipeline/partitioning.adoc[partitioned] transform gets its input shuffled first, so it doesn't run in a chain with its neighbours:
+
+* *Remainder of division* and *Hash on fields*: the rows with the same values in the partitioning fields are on the same Spark partition. Use it before a transform that keeps state per key itself, such as a *JavaScript* or *User Defined Java Class* transform that adds up values per customer.
+* *Rebalance*: the rows are spread evenly, the fix for skewed or lopsided partitions (after a filter, after reading one big file).
+
+Spark picks the number of partitions (`spark.sql.shuffle.partitions` in the *Spark settings*, adaptive execution), not the partition schema.
+`Internal.Transform.Partition.NR` and `Internal.Transform.Partition.ID` give the Spark partition.
+*Mirror to all partitions* is refused.
 
 ==== Nested Native Spark pipelines (orchestrator pattern)
 
@@ -386,22 +427,15 @@ Each of them gives wrong rows or no rows when it runs in Spark partitions.
 
 Transforms that need all the rows in one place, or the rows in their original order:
 
-* xref:pipeline/transforms/groupby.adoc[Group By]: use xref:pipeline/transforms/memgroupby.adoc[Memory Group By] (native Spark `groupBy`) instead
-* xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)]: use xref:pipeline/transforms/uniquerows.adoc[Unique Rows] (native Spark `distinct`) or Memory Group By instead
 * xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)]: add the same constant field to both inputs and use xref:pipeline/transforms/mergejoin.adoc[Merge Join] on that field instead
 * xref:pipeline/transforms/maskfields.adoc[Mask fields]: every partition would keep its own mapping, so the same value would not get the same token
 * xref:pipeline/transforms/closure.adoc[Closure generator]
-* xref:pipeline/transforms/addfieldschangesequence.adoc[Add value fields changing sequence]: its counter restarts in every partition
 * xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge] and xref:pipeline/transforms/sortedschemamerge.adoc[Sorted schema merge]: use xref:pipeline/transforms/sort.adoc[Sort rows] (native Spark sort) on the combined rows instead
 * xref:pipeline/transforms/rulesaccumulator.adoc[Rules accumulator]
-* xref:pipeline/transforms/analyticquery.adoc[Analytic Query]: LAG and LEAD read the rows before and after in one ordered stream
 * xref:pipeline/transforms/append.adoc[Append Streams]: the rows of the head stream come before those of the tail stream
 * xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]
-* xref:pipeline/transforms/detectemptystream.adoc[Detect Empty Stream]: every partition without rows would report an empty stream
-* xref:pipeline/transforms/identifylastrow.adoc[Identify last row in a stream]: every partition would mark its own last row
 * xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
 * xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]: use xref:pipeline/transforms/mergejoin.adoc[Merge Join] (native Spark join) instead
-* xref:pipeline/transforms/repeatfields.adoc[Repeat fields]
 * xref:pipeline/transforms/streamschemamerge.adoc[Stream schema merge]: when Spark combines inputs with different layouts, rows go missing
 
 Transforms that work with other transforms of the same Hop pipeline, which a Spark partition doesn't have:

@@ -73,6 +73,25 @@ class PipelineVfsNamespaceTest {
         "The pipeline never runs and never finishes, so nothing else would ever close this");
   }
 
+  @Test
+  @DisplayName("Cleaning up a pipeline that never finished lets go of its VFS namespace")
+  void cleanupLetsGoOfTheNamespace() throws HopException {
+    Pipeline pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    pipeline.setMetadataProvider(mock(IHopMetadataProvider.class));
+
+    // As a single-threaded executor runs it: prepared, but never through the finish of a run
+    pipeline.prepareExecution();
+    assertEquals(1, HopVfsNamespaces.size());
+
+    pipeline.cleanup();
+    assertEquals(0, HopVfsNamespaces.size(), "nothing else would ever close it");
+
+    // A pipeline that is cleaned up twice, or after its finish, lets go of it only once
+    pipeline.cleanup();
+    assertEquals(0, HopVfsNamespaces.size());
+  }
+
   /** Distinct type so the assertion cannot pass on some other failure. */
   private static class HopRuntimeExceptionForTest extends RuntimeException {}
 }

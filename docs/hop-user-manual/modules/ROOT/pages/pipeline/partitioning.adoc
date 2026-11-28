@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
-:description: Partitioning routes rows to threads on the local Hop pipeline engine so related rows stay together. Beam (including Flink) and native Spark do not apply a Hop partition schema.
+:description: Partitioning routes rows to threads on the local Hop pipeline engine so related rows stay together. Native Spark keeps them together on Spark partitions; Beam (including Flink) does not apply a Hop partition schema.
 
 = Partitioning
 
@@ -36,7 +36,16 @@ Beam engines do not read the partition schema.
 That includes xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Flink], xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Spark], xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Dataflow] and the xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Direct] runner.
 Setting a schema does not group rows onto the same Flink task or Beam worker.
 Parallelism on those engines comes from the runner.
-The xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[native Spark] engine ignores the schema as well and uses Spark partitions.
+On the xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[native Spark] engine a partitioned transform gets its input shuffled first:
+
+* *Remainder of division* and *Hash on fields* put the rows with the same values in the partitioning fields on the same Spark partition.
+* *Rebalance* spreads the rows evenly over the Spark partitions.
+* *Mirror to all partitions* and other partitioning plugins are refused.
+
+Spark decides how many partitions there are (`spark.sql.shuffle.partitions`, adaptive execution), not the partition schema: a schema sizes threads on one machine.
+Which partition a key ends up on can differ from the local engine; that the rows of a key are together does not.
+`Internal.Transform.Partition.NR` and `Internal.Transform.Partition.ID` give the Spark partition.
+A partitioned transform after one that is partitioned the same way keeps its rows where they are, without a second shuffle.
 See xref:pipeline/specify-copies.adoc#supported-engines[Specify copies] for the same limit on the copy count.
 
 NOTE: This page is about routing rows to transform copies.

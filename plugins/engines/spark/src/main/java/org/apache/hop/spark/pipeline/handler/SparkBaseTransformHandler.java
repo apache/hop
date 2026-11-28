@@ -18,6 +18,7 @@
 package org.apache.hop.spark.pipeline.handler;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -27,6 +28,7 @@ import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
+import org.apache.hop.spark.pipeline.SparkPersistedDatasets;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -34,6 +36,7 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
 
   private SparkTransformMetricsAccumulator metricsAccumulator;
   private SparkNativeMetricsListener metricsListener;
+  private SparkPersistedDatasets persistedDatasets = new SparkPersistedDatasets();
 
   public void setMetricsAccumulator(SparkTransformMetricsAccumulator metricsAccumulator) {
     this.metricsAccumulator = metricsAccumulator;
@@ -45,6 +48,15 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
 
   public void setMetricsListener(SparkNativeMetricsListener metricsListener) {
     this.metricsListener = metricsListener;
+  }
+
+  /** The Datasets of the run, released when it ends: a handler keeps rows through it only. */
+  public void setPersistedDatasets(SparkPersistedDatasets persistedDatasets) {
+    this.persistedDatasets = persistedDatasets;
+  }
+
+  protected SparkPersistedDatasets getPersistedDatasets() {
+    return persistedDatasets;
   }
 
   /**
@@ -67,6 +79,36 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
   @Override
   public boolean isOutput() {
     return false;
+  }
+
+  /**
+   * The transform's settings as its own metadata class, to read and not to change. That is the
+   * pipeline's object when this engine sees the same class (one class path: the fat jar, the
+   * tests). Otherwise Hop's plugin class loaders give the engine its own copy of the class, and the
+   * object is loaded from the transform's XML by that class, so the metadata class reads its own
+   * settings.
+   */
+  public static <M extends ITransformMeta> M transformMeta(
+      Class<M> metaClass, TransformMeta transformMeta, PipelineMeta pipelineMeta)
+      throws HopException {
+    ITransformMeta live = transformMeta.getTransform();
+    if (metaClass.isInstance(live)) {
+      return metaClass.cast(live);
+    }
+    M meta;
+    try {
+      meta = metaClass.getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException e) {
+      throw new HopException("Can't create the metadata of " + metaClass.getName(), e);
+    }
+    meta.loadXml(
+        XmlHandler.getSubNode(
+            XmlHandler.loadXmlString(transformMeta.getXml()), TransformMeta.XML_TAG),
+        pipelineMeta == null ? null : pipelineMeta.getMetadataProvider());
+    if (pipelineMeta != null) {
+      meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+    }
+    return meta;
   }
 
   /**

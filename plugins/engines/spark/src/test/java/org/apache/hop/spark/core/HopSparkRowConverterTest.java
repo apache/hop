@@ -24,9 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.Date;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -34,6 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
@@ -108,5 +113,74 @@ class HopSparkRowConverterTest {
     Object[] back = HopSparkRowConverter.toHopRow(rowMeta, sparkRow);
     assertNull(back[0]);
     assertNull(back[1]);
+  }
+
+  /** ValueMetaTimestamp casts to java.sql.Timestamp: Spark gives one back, with its micros. */
+  @Test
+  void aTimestampStaysATimestampWithItsMicroseconds() throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaTimestamp("moment"));
+    rowMeta.addValueMeta(new ValueMetaDate("day"));
+    Timestamp moment = new Timestamp(1_700_000_000_123L);
+    moment.setNanos(123_456_789);
+
+    Row sparkRow =
+        HopSparkRowConverter.toSparkRow(
+            rowMeta, new Object[] {moment, new Date(1_700_000_000_000L)});
+    assertEquals(123_456_789, ((Timestamp) sparkRow.get(0)).getNanos());
+    Object[] back = HopSparkRowConverter.toHopRow(rowMeta, sparkRow);
+    assertEquals(Timestamp.class, back[0].getClass());
+    assertEquals(123_456_789, ((Timestamp) back[0]).getNanos());
+    assertEquals(moment, ((ValueMetaTimestamp) rowMeta.getValueMeta(0)).getTimestamp(back[0]));
+    assertEquals(Date.class, back[1].getClass());
+
+    // A plain Date in a Timestamp field, as some transforms write one
+    Row fromDate =
+        HopSparkRowConverter.toSparkRow(rowMeta, new Object[] {new Date(1_700_000_000_000L), null});
+    assertEquals(
+        new Timestamp(1_700_000_000_000L), HopSparkRowConverter.toHopRow(rowMeta, fromDate)[0]);
+  }
+
+  /** A value type of a plugin, such as Neo4j's Graph: a value it reads from its own text. */
+  static final class PointValueMeta extends ValueMetaBase {
+    static final int TYPE_POINT = 9901;
+
+    PointValueMeta(String name) {
+      super(name, TYPE_POINT);
+    }
+
+    @Override
+    public String getString(Object object) {
+      long[] point = (long[]) object;
+      return point[0] + "," + point[1];
+    }
+
+    @Override
+    public Object convertData(IValueMeta meta2, Object data2) throws HopValueException {
+      String[] parts = meta2.getString(data2).split(",");
+      return new long[] {Long.parseLong(parts[0]), Long.parseLong(parts[1])};
+    }
+  }
+
+  @Test
+  void aPluginValueTypeTravelsAsTextAndComesBack() throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new PointValueMeta("point"));
+
+    StructType schema = HopSparkRowConverter.toStructType(rowMeta);
+    assertEquals(DataTypes.StringType, schema.fields()[0].dataType());
+
+    Row sparkRow = HopSparkRowConverter.toSparkRow(rowMeta, new Object[] {new long[] {3, 4}});
+    assertEquals("3,4", sparkRow.getString(0));
+
+    Object[] back = HopSparkRowConverter.toHopRow(rowMeta, sparkRow);
+    assertArrayEquals(new long[] {3, 4}, (long[]) back[0]);
+    // The per-partition codec and a fused chain's hand-off give the same value
+    HopSparkRowConverter.RowCodec codec = HopSparkRowConverter.RowCodec.of(rowMeta);
+    assertArrayEquals(
+        new long[] {3, 4},
+        (long[]) codec.toHop(codec.toSpark(new Object[] {new long[] {3, 4}}))[0]);
+    assertArrayEquals(
+        new long[] {3, 4}, (long[]) codec.handOff(new Object[] {new long[] {3, 4}})[0]);
   }
 }

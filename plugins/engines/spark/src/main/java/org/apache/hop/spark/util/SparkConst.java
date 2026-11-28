@@ -41,6 +41,12 @@ public final class SparkConst {
    */
   public static final String VAR_TRANSFORM_OWNER_ID = "Internal.Spark.TransformOwnerId";
 
+  /**
+   * The Spark partition a mini-pipeline runs: set on its variables so its transforms get it as
+   * their copy number before they initialize.
+   */
+  public static final String VAR_PARTITION_NR = "Internal.Spark.PartitionNr";
+
   public static final String MEMORY_GROUP_BY_PLUGIN_ID = "MemoryGroupBy";
   public static final String MERGE_JOIN_PLUGIN_ID = "MergeJoin";
   public static final String UNIQUE_ROWS_PLUGIN_ID = "Unique";
@@ -50,6 +56,18 @@ public final class SparkConst {
   public static final String GROUP_BY_PLUGIN_ID = "GroupBy";
   public static final String JOIN_ROWS_PLUGIN_ID = "JoinRows";
   public static final String MASK_FIELDS_PLUGIN_ID = "MaskFields";
+  public static final String DUMMY_PLUGIN_ID = "Dummy";
+
+  /** Add sequence: one counter over all partitions instead of one per partition. */
+  public static final String ADD_SEQUENCE_PLUGIN_ID = "Sequence";
+
+  /** Sample rows: the line numbers count all rows, not the rows of a partition. */
+  public static final String SAMPLE_ROWS_PLUGIN_ID = "SampleRows";
+
+  /** Identify last row in a stream: the last row of all rows. */
+  public static final String DETECT_LAST_ROW_PLUGIN_ID = "DetectLastRow";
+
+  public static final String BLOCK_UNTIL_TRANSFORMS_FINISH_PLUGIN_ID = "BlockUntilTransformsFinish";
 
   public static final String SPARK_FILE_INPUT_PLUGIN_ID = "SparkFileInput";
   public static final String SPARK_FILE_OUTPUT_PLUGIN_ID = "SparkFileOutput";

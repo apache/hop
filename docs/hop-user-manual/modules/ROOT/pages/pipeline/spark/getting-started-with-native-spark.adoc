@@ -114,7 +114,7 @@ If you need streaming, windowing, or Beam-only connectors, stay on the Beam engi
 . Spark File and Lake table outputs write while the graph is built. At the end the engine runs an action on every transform without a successor, so every branch runs, including branches that end in a wrapped output such as Text File Output or Table Output.
 . The output of a transform that several transforms read, such as the true and false targets of Filter Rows or the cases of Switch / Case, is cached: that transform runs once, not once per branch.
 
-Each transform's reference page says which of the two it gets: a double check on the *Native Spark* tag means the engine has its own implementation (xref:pipeline/transforms/sort.adoc[Sort rows], xref:pipeline/transforms/mergejoin.adoc[Merge join], xref:pipeline/transforms/memgroupby.adoc[Memory group by], xref:pipeline/transforms/uniquerows.adoc[Unique rows], the Spark file and lake table transforms and xref:pipeline/transforms/spark-sql.adoc[Spark SQL]); a single check means the Hop transform runs wrapped, one partition at a time. Wrapped transforms work, but anything that needs to see the whole dataset — grouping, deduplicating, sorting — must be done by a native transform or preceded by one.
+Each transform's reference page says which of the two it gets: a double check on the *Native Spark* tag means the engine has its own implementation (xref:pipeline/transforms/sort.adoc[Sort rows], xref:pipeline/transforms/mergejoin.adoc[Merge join], xref:pipeline/transforms/memgroupby.adoc[Memory group by], xref:pipeline/transforms/groupby.adoc[Group by], xref:pipeline/transforms/uniquerows.adoc[Unique rows], the Spark file and lake table transforms and xref:pipeline/transforms/spark-sql.adoc[Spark SQL]); a single check means the Hop transform runs wrapped, one partition at a time. Wrapped transforms work, but anything that needs to see the whole dataset — grouping, deduplicating, sorting — must be done by a native transform or preceded by one.
 . Transform metrics are collected via Spark accumulators and shown in Hop like any other engine when Hop is the Spark driver (client mode). Runs in cluster mode and on Databricks show the state of the run, not yet the metrics per transform.
 
 You still design pipelines *visually* in Hop. Spark’s role is the distributed execution engine and the Dataset runtime under the hood.
@@ -584,10 +584,10 @@ Keep these in mind when moving a local pipeline to native Spark.
 |See the authoritative list on
 xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc#transforms-not-supported-on-native-spark[Native Spark Pipeline Engine — Transforms not supported].
 It is derived from each transform page’s *Supported Engines* table (*Native Spark* row).
-Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*Blocking until transforms finish*), result-row hops, *Kafka consumer*, multi-way / sorted merges.
+Examples: Beam-only I/O, barriers (*Blocking until transforms finish*), result-row hops, *Kafka consumer*, multi-way / sorted merges.
 
 |Sorted *Group By*
-|*Not supported.* Use *Memory Group By* (native `groupBy`).
+|*Native.* Spark shuffles the rows on the grouping fields and Group By aggregates every partition: the local engine's results for every aggregation type. See xref:pipeline/transforms/groupby.adoc#_native_spark[Group By].
 
 |Copy vs Distribute on multi-hop output
 |*Not implemented* (same stance as Beam). Named *target streams* route by condition; plain multi-next hops without target metadata are rejected. Round-robin distribute is not available.

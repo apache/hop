@@ -1,0 +1,24 @@
+{
+  "base_filename": "0008-detect-last-row-partitions-flagged-golden.csv",
+  "name": "0008-detect-last-row-partitions-flagged-golden",
+  "description": "What the local engine writes for flagged of 0008-detect-last-row-partitions",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "order_id",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "is_last",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
