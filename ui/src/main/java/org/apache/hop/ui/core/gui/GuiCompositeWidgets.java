@@ -1664,8 +1664,9 @@ public class GuiCompositeWidgets {
 
         switch (guiElements.getType()) {
           case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
-            if (guiElements.isVariablesEnabled()) {
-              TextVar textVar = (TextVar) control;
+            // A field with a naming scheme (every filename and folder) gets a TextVar, also when
+            // variables are off
+            if (control instanceof TextVar textVar) {
               textVar.setText(stringValue);
             } else {
               Text text = (Text) control;
@@ -1808,8 +1809,7 @@ public class GuiCompositeWidgets {
 
         switch (guiElements.getType()) {
           case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
-            if (guiElements.isVariablesEnabled()) {
-              TextVar textVar = (TextVar) control;
+            if (control instanceof TextVar textVar) {
               value = textVar.getText();
             } else {
               Text text = (Text) control;
