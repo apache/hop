@@ -18,6 +18,7 @@
 package org.apache.hop.marketplace.gui;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PendingChanges;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
+import org.apache.hop.marketplace.install.PluginVerifier;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -62,6 +64,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ShellAdapter;
@@ -80,9 +83,6 @@ import org.eclipse.swt.widgets.Text;
 
 /** Tools → Marketplace dialog: list optional plugins and install/uninstall from a Maven repo. */
 public class MarketplaceDialog extends Dialog {
-  /** Message key prefix of the install results; rollbacks use their own. */
-  private static final String PREFIX_INSTALL = "MarketplaceDialog.Install";
-
   /** Row data: true when Install would install a version that is not the installed one. */
   private static final String DATA_INSTALLABLE = "installable";
 
@@ -94,6 +94,15 @@ public class MarketplaceDialog extends Dialog {
 
   /** Row data: the earlier version Rollback would put back, or null. */
   private static final String DATA_ROLLBACK_VERSION = "rollbackVersion";
+
+  /** Row data: true when the row's plugin has an active marketplace install to reinstall. */
+  private static final String DATA_REINSTALLABLE = "reinstallable";
+
+  /** Row data: true when the row's plugin has a marketplace install receipt, readable or not. */
+  private static final String DATA_VERIFIABLE = "verifiable";
+
+  /** The files verify lists per plugin in its report; the rest are counted. */
+  private static final int MAX_VERIFY_FILES_SHOWN = 10;
 
   private static final String CONST_MARKETPLACE_DIALOG_ERROR_HEADER =
       "MarketplaceDialog.Error.Header";
@@ -123,7 +132,9 @@ public class MarketplaceDialog extends Dialog {
   private Button wInstall;
   private Button wUpdate;
   private Button wRollback;
+  private Button wReinstall;
   private Button wUninstall;
+  private Button wVerify;
 
   /** The plugins the table shows: discovery results, which also tell whether there is an update. */
   private List<OptionalPluginInfo> shownPlugins = List.of();
@@ -268,13 +279,22 @@ public class MarketplaceDialog extends Dialog {
     wRollback.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Rollback"));
     wRollback.addListener(SWT.Selection, e -> rollbackSelected());
 
+    wReinstall = new Button(comp, SWT.PUSH);
+    wReinstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Reinstall"));
+    wReinstall.addListener(SWT.Selection, e -> reinstallSelected());
+
+    wVerify = new Button(comp, SWT.PUSH);
+    wVerify.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Verify"));
+    wVerify.setToolTipText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Verify.Tooltip"));
+    wVerify.addListener(SWT.Selection, e -> verifySelected());
+
     Button wRefresh = new Button(comp, SWT.PUSH);
     wRefresh.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Refresh"));
     wRefresh.addListener(SWT.Selection, e -> refreshTable(RefreshReason.USER_REFRESH));
 
     BaseTransformDialog.positionBottomButtons(
         comp,
-        new Button[] {wInstall, wUpdate, wRollback, wUninstall, wRefresh},
+        new Button[] {wInstall, wUpdate, wRollback, wReinstall, wUninstall, wVerify, wRefresh},
         PropsUi.getMargin(),
         null);
 
@@ -625,6 +645,8 @@ public class MarketplaceDialog extends Dialog {
       item.setData(DATA_UNINSTALLABLE, installed);
       item.setData(DATA_UPDATE_VERSION, newer == null ? null : newer.getVersion());
       item.setData(DATA_ROLLBACK_VERSION, PluginInstaller.rollbackVersion(hopHome, receipt));
+      item.setData(DATA_REINSTALLABLE, installed && !receipt.isPendingActivation());
+      item.setData(DATA_VERIFIABLE, hasReceiptFile(info.getArtifactId()));
     }
     wTable.optimizeTableView();
     updateActionButtons();
@@ -632,8 +654,8 @@ public class MarketplaceDialog extends Dialog {
 
   /**
    * Each button is enabled when a selected row offers what it does (a version that is not the
-   * installed one or an install with missing files, a marketplace install to remove, a newer or an
-   * earlier version) and the user may manage plugins.
+   * installed one or an install with missing files, a marketplace install to remove, reinstall or
+   * verify, a newer or an earlier version) and, except for Verify, the user may manage plugins.
    */
   private void updateActionButtons() {
     boolean canManage = MarketplaceSecurity.canManagePlugins();
@@ -641,18 +663,25 @@ public class MarketplaceDialog extends Dialog {
     boolean canUninstall = false;
     boolean canUpdate = false;
     boolean canRollback = false;
+    boolean canReinstall = false;
+    boolean canVerify = false;
     if (wTable != null && !wTable.isDisposed()) {
       for (TableItem item : wTable.table.getSelection()) {
         canInstall |= Boolean.TRUE.equals(item.getData(DATA_INSTALLABLE));
         canUninstall |= Boolean.TRUE.equals(item.getData(DATA_UNINSTALLABLE));
         canUpdate |= item.getData(DATA_UPDATE_VERSION) != null;
         canRollback |= item.getData(DATA_ROLLBACK_VERSION) != null;
+        canReinstall |= Boolean.TRUE.equals(item.getData(DATA_REINSTALLABLE));
+        canVerify |= Boolean.TRUE.equals(item.getData(DATA_VERIFIABLE));
       }
     }
     setEnabled(wInstall, canManage && canInstall);
     setEnabled(wUninstall, canManage && canUninstall);
     setEnabled(wUpdate, canManage && canUpdate);
     setEnabled(wRollback, canManage && canRollback);
+    setEnabled(wReinstall, canManage && canReinstall);
+    // Verify changes nothing, so it needs no permission
+    setEnabled(wVerify, canVerify);
   }
 
   private static void setEnabled(Button button, boolean enabled) {
@@ -795,12 +824,45 @@ public class MarketplaceDialog extends Dialog {
     return source;
   }
 
-  /**
-   * One plugin ready to install: where to get it, and what to call it while it downloads. A
-   * rollback puts back the version that the installed one replaced instead.
-   */
+  /** What an install request does, with the message keys that report it. */
+  private enum Kind {
+    /** Install the version of the coordinates. */
+    INSTALL(
+        "MarketplaceDialog.Install",
+        "MarketplaceDialog.Status.Installing",
+        "MarketplaceDialog.Progress.Installing",
+        "Failed to install "),
+    /** Put back the version that the installed one replaced. */
+    ROLLBACK(
+        "MarketplaceDialog.Rollback",
+        "MarketplaceDialog.Status.RollingBack",
+        "MarketplaceDialog.Progress.RollingBack",
+        "Failed to roll back "),
+    /** Install the installed version again. */
+    REINSTALL(
+        "MarketplaceDialog.Reinstall",
+        "MarketplaceDialog.Status.Reinstalling",
+        "MarketplaceDialog.Progress.Reinstalling",
+        "Failed to reinstall ");
+
+    /** Prefix of the result message keys: .Done.Header, .Error, ... */
+    private final String messages;
+
+    private final String statusKey;
+    private final String progressKey;
+    private final String failureLog;
+
+    Kind(String messages, String statusKey, String progressKey, String failureLog) {
+      this.messages = messages;
+      this.statusKey = statusKey;
+      this.progressKey = progressKey;
+      this.failureLog = failureLog;
+    }
+  }
+
+  /** One plugin ready to install: where to get it, and what to call it while it downloads. */
   private record InstallRequest(
-      MavenCoordinates coordinates, String preferredRepo, String displayName, boolean rollback) {}
+      MavenCoordinates coordinates, String preferredRepo, String displayName, Kind kind) {}
 
   /** What a batch install did: what went in, what didn't, and whether the user stopped it. */
   private record InstallOutcome(
@@ -823,11 +885,11 @@ public class MarketplaceDialog extends Dialog {
         preferredRepo,
         // Same name the table shows, not the Maven coordinate.
         displayName(info),
-        false);
+        Kind.INSTALL);
   }
 
   /**
-   * Install/Update/Rollback/Uninstall tooltips for the plugin manage permission. {@link
+   * Install/Update/Rollback/Reinstall/Uninstall tooltips for the plugin manage permission. {@link
    * #updateActionButtons()} enables the buttons.
    */
   private void applyPluginManagePermissions() {
@@ -838,18 +900,9 @@ public class MarketplaceDialog extends Dialog {
               ? ""
               : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin"));
     }
-    for (Button button : new Button[] {wUpdate, wRollback}) {
-      if (button != null && !button.isDisposed()) {
-        button.setToolTipText(
-            BaseMessages.getString(
-                PKG,
-                canManage
-                    ? (button == wUpdate
-                        ? "MarketplaceDialog.Button.Update.Tooltip"
-                        : "MarketplaceDialog.Button.Rollback.Tooltip")
-                    : "MarketplaceDialog.Button.Install.RequiresAdmin"));
-      }
-    }
+    setManageTooltip(wUpdate, "MarketplaceDialog.Button.Update.Tooltip", canManage);
+    setManageTooltip(wRollback, "MarketplaceDialog.Button.Rollback.Tooltip", canManage);
+    setManageTooltip(wReinstall, "MarketplaceDialog.Button.Reinstall.Tooltip", canManage);
     if (wUninstall != null && !wUninstall.isDisposed()) {
       wUninstall.setToolTipText(
           canManage
@@ -857,6 +910,15 @@ public class MarketplaceDialog extends Dialog {
               : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall.RequiresAdmin"));
     }
     updateActionButtons();
+  }
+
+  /** The button's own tooltip, or that it needs the plugin manage permission. */
+  private static void setManageTooltip(Button button, String tooltipKey, boolean canManage) {
+    if (button != null && !button.isDisposed()) {
+      button.setToolTipText(
+          BaseMessages.getString(
+              PKG, canManage ? tooltipKey : "MarketplaceDialog.Button.Install.RequiresAdmin"));
+    }
   }
 
   private void installSelected() {
@@ -900,7 +962,7 @@ public class MarketplaceDialog extends Dialog {
               PluginUpdates.coordinates(update, config),
               PluginUpdates.preferredRepository(update, config),
               displayName(newer),
-              false));
+              Kind.INSTALL));
     }
     if (requests.isEmpty()) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
@@ -938,7 +1000,7 @@ public class MarketplaceDialog extends Dialog {
                   earlier),
               null,
               displayName(info),
-              true));
+              Kind.ROLLBACK));
       versions.add(
           BaseMessages.getString(
               PKG,
@@ -965,6 +1027,189 @@ public class MarketplaceDialog extends Dialog {
     installRequests(requests);
   }
 
+  /** Install the installed version of the selected plugins again. */
+  private void reinstallSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
+    Map<String, String> names = new LinkedHashMap<>();
+    for (OptionalPluginInfo info : selected()) {
+      InstallReceipt receipt = readReceiptOrLog(info.getArtifactId());
+      if (receipt != null
+          && !receipt.isPendingActivation()
+          && !receipt.isUninstallPending()
+          && StringUtils.isNotBlank(receipt.getVersion())) {
+        names.putIfAbsent(receipt.getArtifactId(), displayName(info));
+      }
+    }
+    if (names.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Reinstall.None.Header"));
+      box.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.Reinstall.None.Message"));
+      box.open();
+      return;
+    }
+    reinstall(names);
+  }
+
+  /**
+   * Reinstall these plugins.
+   *
+   * @param names the name the table shows, by artifact id
+   */
+  private void reinstall(Map<String, String> names) {
+    if (repositoriesPanel != null) {
+      config = repositoriesPanel.getConfig();
+    }
+    List<InstallRequest> requests = new ArrayList<>();
+    for (Map.Entry<String, String> name : names.entrySet()) {
+      InstallReceipt receipt = readReceiptOrLog(name.getKey());
+      if (receipt == null) {
+        continue;
+      }
+      requests.add(
+          new InstallRequest(
+              new MavenCoordinates(
+                  Const.NVL(receipt.getGroupId(), config.getGroupId()),
+                  receipt.getArtifactId(),
+                  receipt.getVersion()),
+              receipt.getRepositoryId(),
+              name.getValue(),
+              Kind.REINSTALL));
+    }
+    if (!requests.isEmpty()) {
+      installRequests(requests);
+    }
+  }
+
+  /**
+   * Check the files of the selected plugins against their install receipts, report what is missing
+   * or modified, and offer to reinstall those plugins. Changes nothing by itself, so it needs no
+   * permission; the reinstall does.
+   */
+  private void verifySelected() {
+    Map<String, String> names = new LinkedHashMap<>();
+    for (OptionalPluginInfo info : selected()) {
+      if (hasReceiptFile(info.getArtifactId())) {
+        names.putIfAbsent(info.getArtifactId(), displayName(info));
+      }
+    }
+    if (names.isEmpty()) {
+      return;
+    }
+    PluginVerifier verifier = new PluginVerifier(log, hopHome);
+    List<PluginVerifier.Result> results = new ArrayList<>();
+    Map<String, String> errors = new LinkedHashMap<>();
+    // Reading every file of a large plugin takes a moment
+    BusyIndicator.showWhile(
+        shell.getDisplay(),
+        () -> {
+          for (String artifactId : names.keySet()) {
+            try {
+              results.add(verifier.verify(artifactId));
+            } catch (Exception e) {
+              log.logError("Unable to verify " + artifactId, e);
+              errors.put(artifactId, Const.NVL(e.getMessage(), e.toString()));
+            }
+          }
+        });
+
+    StringBuilder report = new StringBuilder();
+    Map<String, String> damaged = new LinkedHashMap<>();
+    for (PluginVerifier.Result result : results) {
+      String name =
+          names.get(result.artifactId())
+              + (StringUtils.isBlank(result.version()) ? "" : " " + result.version());
+      report.append(verifyReport(name, result)).append(Const.CR);
+      if (result.isDamaged()) {
+        damaged.put(result.artifactId(), names.get(result.artifactId()));
+      }
+    }
+    for (Map.Entry<String, String> error : errors.entrySet()) {
+      report
+          .append(
+              BaseMessages.getString(
+                  PKG,
+                  "MarketplaceDialog.Verify.Error",
+                  names.get(error.getKey()),
+                  error.getValue()))
+          .append(Const.CR)
+          .append(Const.CR);
+    }
+    boolean problems =
+        !damaged.isEmpty()
+            || !errors.isEmpty()
+            || results.stream().anyMatch(r -> r.state() == PluginVerifier.State.UNREADABLE);
+    boolean offerReinstall = !damaged.isEmpty() && MarketplaceSecurity.canManagePlugins();
+    if (!damaged.isEmpty()) {
+      report.append(
+          BaseMessages.getString(
+              PKG,
+              offerReinstall
+                  ? "MarketplaceDialog.Verify.Reinstall.Question"
+                  : "MarketplaceDialog.Verify.Reinstall.AskAdmin"));
+    }
+    MessageBox box =
+        new MessageBox(
+            shell,
+            (offerReinstall ? SWT.YES | SWT.NO : SWT.OK)
+                | (problems ? SWT.ICON_WARNING : SWT.ICON_INFORMATION));
+    box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Verify.Header"));
+    box.setMessage(report.toString().stripTrailing());
+    if (box.open() == SWT.YES && offerReinstall) {
+      reinstall(damaged);
+    }
+  }
+
+  /** Whether the plugin has an install receipt, readable or not: verify reports both. */
+  private boolean hasReceiptFile(String artifactId) {
+    return StringUtils.isNotBlank(artifactId)
+        && Files.isRegularFile(
+            hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(artifactId + ".json"));
+  }
+
+  /** What verify found for one plugin: a line for its state, then one per file found. */
+  static String verifyReport(String name, PluginVerifier.Result result) {
+    StringBuilder text = new StringBuilder();
+    String state =
+        result.state() == PluginVerifier.State.OK && result.withoutChecksums()
+            ? "OK.NoChecksums"
+            : result.state().name();
+    text.append(
+            BaseMessages.getString(
+                PKG,
+                "MarketplaceDialog.Verify.State." + state,
+                name,
+                Const.NVL(result.error(), "")))
+        .append(Const.CR);
+    List<PluginVerifier.FileFinding> files = result.files();
+    for (int i = 0; i < files.size() && i < MAX_VERIFY_FILES_SHOWN; i++) {
+      PluginVerifier.FileFinding file = files.get(i);
+      text.append("  ")
+          .append(
+              BaseMessages.getString(
+                  PKG,
+                  "MarketplaceDialog.Verify.File." + file.finding().name(),
+                  file.path(),
+                  Const.NVL(file.detail(), "")));
+      if (file.finding() == PluginVerifier.Finding.MODIFIED && file.detail() != null) {
+        // Why the file could not be read
+        text.append(" (").append(file.detail()).append(')');
+      }
+      text.append(Const.CR);
+    }
+    if (files.size() > MAX_VERIFY_FILES_SHOWN) {
+      text.append("  ")
+          .append(
+              BaseMessages.getString(
+                  PKG,
+                  "MarketplaceDialog.Verify.MoreFiles",
+                  Integer.toString(files.size() - MAX_VERIFY_FILES_SHOWN)))
+          .append(Const.CR);
+    }
+    return text.toString();
+  }
+
   /** The receipt of a plugin, or null when there is none or it cannot be read. */
   private InstallReceipt readReceiptOrLog(String artifactId) {
     try {
@@ -980,8 +1225,9 @@ public class MarketplaceDialog extends Dialog {
    * kind.
    */
   private void installRequests(List<InstallRequest> requests) {
-    // The messages say "installed" or "rolled back".
-    String messages = requests.get(0).rollback() ? "MarketplaceDialog.Rollback" : PREFIX_INSTALL;
+    // The messages say "installed", "rolled back" or "reinstalled".
+    Kind kind = requests.get(0).kind();
+    String messages = kind.messages;
     InstallOutcome outcome;
     try {
       wStatus.setText(installingStatus(requests));
@@ -999,7 +1245,7 @@ public class MarketplaceDialog extends Dialog {
     // The table reflects what is on disk either way: a batch can be part installed.
     refreshTable(RefreshReason.AFTER_CHANGE);
     if (!outcome.failures().isEmpty()) {
-      showInstallFailures(outcome, messages);
+      showInstallFailures(outcome, kind);
       wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
       return;
     }
@@ -1027,10 +1273,7 @@ public class MarketplaceDialog extends Dialog {
   }
 
   private String installingStatus(List<InstallRequest> requests) {
-    String key =
-        requests.get(0).rollback()
-            ? "MarketplaceDialog.Status.RollingBack"
-            : "MarketplaceDialog.Status.Installing";
+    String key = requests.get(0).kind().statusKey;
     return requests.size() == 1
         ? BaseMessages.getString(PKG, key, requests.get(0).coordinates().gav())
         : BaseMessages.getString(PKG, key + "Count", Integer.toString(requests.size()));
@@ -1056,13 +1299,11 @@ public class MarketplaceDialog extends Dialog {
    * usually takes every plugin down with it, and a popup per plugin would have to be clicked away
    * as many times.
    */
-  private void showInstallFailures(InstallOutcome outcome, String messages) {
+  private void showInstallFailures(InstallOutcome outcome, Kind kind) {
+    String messages = kind.messages;
     StringBuilder detail = new StringBuilder();
     for (Map.Entry<String, Exception> failure : outcome.failures().entrySet()) {
-      log.logError(
-          (messages.equals(PREFIX_INSTALL) ? "Failed to install " : "Failed to roll back ")
-              + failure.getKey(),
-          failure.getValue());
+      log.logError(kind.failureLog + failure.getKey(), failure.getValue());
       detail
           .append("- ")
           .append(failure.getKey())
@@ -1130,11 +1371,12 @@ public class MarketplaceDialog extends Dialog {
             // Drives the "3 of 12" line and scales the bar across the batch.
             listener.item(request.displayName(), i, requests.size());
             try {
-              if (request.rollback()) {
-                installer.rollback(request.coordinates().artifactId(), listener);
-              } else {
-                installer.install(
-                    request.coordinates(), true, null, request.preferredRepo(), listener);
+              switch (request.kind()) {
+                case ROLLBACK -> installer.rollback(request.coordinates().artifactId(), listener);
+                case REINSTALL -> installer.reinstall(request.coordinates().artifactId(), listener);
+                case INSTALL ->
+                    installer.install(
+                        request.coordinates(), true, null, request.preferredRepo(), listener);
               }
               installed.add(request.coordinates().gav());
             } catch (Exception e) {
@@ -1156,10 +1398,7 @@ public class MarketplaceDialog extends Dialog {
   }
 
   private String installTaskName(List<InstallRequest> requests) {
-    String key =
-        requests.get(0).rollback()
-            ? "MarketplaceDialog.Progress.RollingBack"
-            : "MarketplaceDialog.Progress.Installing";
+    String key = requests.get(0).kind().progressKey;
     return requests.size() == 1
         ? BaseMessages.getString(PKG, key, requests.get(0).displayName())
         : BaseMessages.getString(PKG, key + "Count", Integer.toString(requests.size()));
