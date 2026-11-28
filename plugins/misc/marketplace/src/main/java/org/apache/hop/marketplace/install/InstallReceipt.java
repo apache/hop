@@ -109,8 +109,9 @@ public class InstallReceipt {
     KEPT,
     /**
      * An earlier version shipped this file and the marketplace created it, or replaced the client's
-     * copy; this version no longer ships it. Shared files are not removed on update, so the entry
-     * stays until the file is removed.
+     * copy; this version no longer ships it. A file the marketplace created is removed when no
+     * other installed plugin lists it; until the file is gone the entry stays, so a later install,
+     * apply or uninstall tries again. The client's own copy is never removed.
      */
     NOT_SHIPPED
   }

@@ -27,15 +27,19 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.marketplace.install.InstallReceipt.SharedFile;
+import org.apache.hop.marketplace.install.InstallReceipt.SharedFileAction;
 
 /**
- * Removes a marketplace-installed plugin using its receipt. Shared {@code lib/core} jars stay in
- * place so other plugins (and the system classpath) keep working.
+ * Removes a marketplace-installed plugin using its receipt. A shared {@code lib/core} jar goes only
+ * when the marketplace created it and no other installed plugin lists it (see {@link
+ * PluginInstaller#removeUnusedSharedFiles}); the client's own jars always stay.
  */
 public class PluginUninstaller {
 
@@ -66,8 +70,8 @@ public class PluginUninstaller {
               + "'. Only plugins installed via the marketplace can be uninstalled this way.");
     }
 
-    // Leave shared lib/core jars in place (sticky, may be used by others). Files of a previous
-    // version that an update could not remove yet go too, unless another marketplace artifact has
+    // Files of a previous version that an update could not remove yet go too, unless another
+    // marketplace artifact has
     // installed the same file since. Those are the files that were in use, so a failed delete is
     // logged and kept in the receipt instead of stopping the uninstall half way. On Windows, where
     // a plugin's own files are in use as well while Hop runs, Hop removes them the next time it
@@ -119,6 +123,20 @@ public class PluginUninstaller {
       }
     }
 
+    // Shared lib/core jars, the ones the installed version ships and the ones an earlier version
+    // created that it no longer ships, once the plugin files are gone.
+    Set<String> sharedFiles = new LinkedHashSet<>();
+    for (String relative : PluginInstaller.nullSafe(receipt.getPaths())) {
+      if (StringUtils.isNotBlank(relative) && PluginInstaller.isSharedCorePath(relative)) {
+        sharedFiles.add(relative);
+      }
+    }
+    sharedFiles.addAll(PluginInstaller.nullSafe(receipt.getSharedFiles()).keySet());
+    Set<String> sharedLeftovers =
+        PluginInstaller.removeUnusedSharedFiles(
+                hopHome, receipt, sharedFiles, pending, filesLockedWhileInUse, log)
+            .failed();
+
     removeEmptyPluginDirectories(hopHome, dirs, log);
     // Without the plugin there is nothing to roll back.
     PluginInstaller.pruneRollbackBackups(hopHome, artifactId, null, log);
@@ -131,7 +149,7 @@ public class PluginUninstaller {
       throw new HopException("Failed to remove the staged files of " + artifactId, e);
     }
 
-    if (!leftovers.isEmpty()) {
+    if (!leftovers.isEmpty() || !sharedLeftovers.isEmpty()) {
       // The receipt now lists only what is left, the files and the plugin folders that hold
       // them, so the next uninstall, install or apply retries it.
       List<String> remainingDirs = new ArrayList<>();
@@ -149,22 +167,29 @@ public class PluginUninstaller {
       receipt.setVersion(null);
       receipt.setPreviousVersion(null);
       receipt.setChecksums(new LinkedHashMap<>());
-      receipt.setSharedFiles(new LinkedHashMap<>());
+      // Only the shared jars that are left, which the marketplace created
+      Map<String, SharedFile> shared = new LinkedHashMap<>();
+      for (String relative : sharedLeftovers) {
+        shared.put(relative, new SharedFile(SharedFileAction.NOT_SHIPPED, null, true, null));
+      }
+      receipt.setSharedFiles(shared);
       receipt.setPaths(remainingDirs);
       receipt.setObsoletePaths(leftovers);
       PluginInstaller.writeReceipt(hopHome, receipt);
-      if (removedAtNextStart.size() == leftovers.size()) {
+      List<String> left = new ArrayList<>(leftovers);
+      left.addAll(sharedLeftovers);
+      if (removedAtNextStart.size() == left.size()) {
         log.logBasic(
             "Uninstalled "
                 + artifactId
                 + ". Hop removes the files that are in use the next time it starts: "
-                + String.join(", ", leftovers));
+                + String.join(", ", left));
       } else {
         log.logError(
             "Uninstalled "
                 + artifactId
                 + " except for files that could not be removed: "
-                + String.join(", ", leftovers));
+                + String.join(", ", left));
       }
       return;
     }
@@ -181,13 +206,12 @@ public class PluginUninstaller {
             + ". Restart Hop so the plugin registry drops the removed classes.");
   }
 
-  /** Delete one receipt path. Shared lib/core paths stay; folders go when they end up empty. */
+  /**
+   * Delete one receipt path. Shared lib/core paths are left to {@link
+   * PluginInstaller#removeUnusedSharedFiles}; folders go when they end up empty.
+   */
   private void removePath(String relative, Set<Path> dirs) throws IOException {
-    if (StringUtils.isBlank(relative)) {
-      return;
-    }
-    if (PluginInstaller.isSharedCorePath(relative)) {
-      log.logBasic("Leaving shared lib/core path in place: " + relative);
+    if (StringUtils.isBlank(relative) || PluginInstaller.isSharedCorePath(relative)) {
       return;
     }
     Path path = hopHome.resolve(relative);

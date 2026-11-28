@@ -175,8 +175,7 @@ public class PluginInstaller {
     InstallReceipt already = satisfiedInstall(coordinates);
     if (already != null) {
       // An earlier update may have left files of the previous version that were in use.
-      if (!nullSafe(already.getObsoletePaths()).isEmpty()) {
-        removeObsoleteFiles(already);
+      if (removeLeftovers(already)) {
         writeReceipt(already);
       }
       already.setAlreadyPresent(true);
@@ -1015,8 +1014,8 @@ public class PluginInstaller {
 
   /**
    * Files a previous install wrote that the new version does not have. Shared {@code lib/core} jars
-   * stay (they are sticky, see {@link #isSharedCorePath}), and so does every path another
-   * marketplace receipt lists.
+   * are not among them: the receipt lists those as {@link SharedFileAction#NOT_SHIPPED} instead,
+   * see {@link #removeUnusedSharedFiles}. Every path another marketplace receipt lists stays too.
    *
    * @param previous receipt of the version installed until now, or null for a first install
    * @param newPaths the paths the new version installs
@@ -1184,9 +1183,11 @@ public class PluginInstaller {
    * cannot be deleted stays in the receipt so a later install, apply or uninstall removes it; on
    * Windows, where that means the file is in use, Hop also removes it the next time it starts. A
    * file that another receipt lists by now, or that is one of the current version's files under a
-   * differently cased name, is no longer obsolete and is kept.
+   * differently cased name, is no longer obsolete and is kept. Shared jars the receipt's version no
+   * longer ships go too when no installed plugin needs them.
    */
   private void removeObsoleteFiles(InstallReceipt receipt) throws HopException {
+    removeSharedFilesNoLongerShipped(receipt);
     if (nullSafe(receipt.getObsoletePaths()).isEmpty()) {
       return;
     }
@@ -1250,6 +1251,23 @@ public class PluginInstaller {
   }
 
   /**
+   * Retry what an earlier install of an active version could not remove: obsolete files, and shared
+   * jars it no longer ships.
+   *
+   * @return whether the receipt changed and has to be written
+   */
+  private boolean removeLeftovers(InstallReceipt receipt) throws HopException {
+    int obsolete = nullSafe(receipt.getObsoletePaths()).size();
+    int notShipped = notShippedSharedFiles(receipt).size();
+    if (obsolete == 0 && notShipped == 0) {
+      return false;
+    }
+    removeObsoleteFiles(receipt);
+    return nullSafe(receipt.getObsoletePaths()).size() != obsolete
+        || notShippedSharedFiles(receipt).size() != notShipped;
+  }
+
+  /**
    * On a case-insensitive file system, {@code plugins/tech/Foo/a.jar} of the previous version and
    * {@code plugins/tech/foo/a.jar} of the current one are the same file.
    */
@@ -1297,12 +1315,13 @@ public class PluginInstaller {
         }
         continue;
       }
-      if (receipt.isPendingActivation() || nullSafe(receipt.getObsoletePaths()).isEmpty()) {
+      if (receipt.isPendingActivation()) {
         continue;
       }
       try {
-        removeObsoleteFiles(receipt);
-        writeReceipt(receipt);
+        if (removeLeftovers(receipt)) {
+          writeReceipt(receipt);
+        }
       } catch (HopException e) {
         log.logError(
             "Could not remove the leftover files of the previous version of "
@@ -1310,6 +1329,164 @@ public class PluginInstaller {
             e);
       }
     }
+  }
+
+  /**
+   * Remove the shared jars of the receipt that the version it installs no longer ships ({@link
+   * SharedFileAction#NOT_SHIPPED}) when no installed plugin needs them any more, see {@link
+   * #removeUnusedSharedFiles}. Their entries leave the receipt; a jar that stays keeps its entry,
+   * so a later install, apply or uninstall tries again.
+   */
+  private void removeSharedFilesNoLongerShipped(InstallReceipt receipt) {
+    List<String> notShipped = notShippedSharedFiles(receipt);
+    if (notShipped.isEmpty()) {
+      return;
+    }
+    Set<String> removed =
+        removeUnusedSharedFiles(hopHome, receipt, notShipped, pending, filesLockedWhileInUse, log)
+            .removed();
+    if (removed.isEmpty()) {
+      return;
+    }
+    Map<String, SharedFile> kept = new LinkedHashMap<>();
+    for (Map.Entry<String, SharedFile> entry : nullSafe(receipt.getSharedFiles()).entrySet()) {
+      if (!removed.contains(normalizeRelative(entry.getKey()))) {
+        kept.put(entry.getKey(), entry.getValue());
+      }
+    }
+    receipt.setSharedFiles(kept);
+  }
+
+  /** The shared files of the receipt that the version it installs does not ship. */
+  static List<String> notShippedSharedFiles(InstallReceipt receipt) {
+    List<String> paths = new ArrayList<>();
+    for (Map.Entry<String, SharedFile> entry : nullSafe(receipt.getSharedFiles()).entrySet()) {
+      if (entry.getKey() != null
+          && entry.getValue() != null
+          && entry.getValue().getAction() == SharedFileAction.NOT_SHIPPED) {
+        paths.add(normalizeRelative(entry.getKey()));
+      }
+    }
+    return paths;
+  }
+
+  /**
+   * Remove the shared {@code lib/core} jars among {@code candidates} that no installed plugin needs
+   * any more: a receipt records that the marketplace created the jar, and no receipt other than the
+   * one of {@code receipt}'s artifact lists it. Jars the client shipped with, or that only receipts
+   * without that record list, stay. When a receipt cannot be read, every jar stays: it may list
+   * them. On Windows a jar in use is removed the next time Hop starts.
+   *
+   * @param receipt the receipt of the plugin that stops using the jars, as it is in memory
+   */
+  static SharedFileRemoval removeUnusedSharedFiles(
+      Path hopHome,
+      InstallReceipt receipt,
+      Collection<String> candidates,
+      PendingChanges pending,
+      boolean filesLockedWhileInUse,
+      ILogChannel log) {
+    SharedFileRemoval result = new SharedFileRemoval(new LinkedHashSet<>(), new LinkedHashSet<>());
+    Set<String> removed = result.removed();
+    List<InstallReceipt> others = otherReceiptsOrNull(hopHome, receipt.getArtifactId(), log);
+    if (others == null) {
+      return result;
+    }
+    Set<String> listedByOthers = new HashSet<>();
+    for (InstallReceipt other : others) {
+      for (String path : nullSafe(other.getPaths())) {
+        if (StringUtils.isNotBlank(path)) {
+          listedByOthers.add(normalizeRelative(path));
+        }
+      }
+    }
+    List<InstallReceipt> all = new ArrayList<>(others);
+    all.add(receipt);
+    SharedFileHistory history = SharedFileHistory.of(all);
+    for (String candidate : new LinkedHashSet<>(candidates)) {
+      if (StringUtils.isBlank(candidate) || candidate.endsWith("/")) {
+        continue;
+      }
+      String relative = normalizeRelative(candidate);
+      if (!isSharedCorePath(relative)
+          || relative.equals("lib/core")
+          || !history.created(relative)
+          || listedByOthers.contains(relative)) {
+        continue;
+      }
+      Path target = activationTarget(hopHome, relative);
+      if (!Files.exists(target)) {
+        // A change left for the next start would create it.
+        forgetPendingChange(pending, log, target);
+        removed.add(relative);
+        continue;
+      }
+      if (!Files.isRegularFile(target)) {
+        continue;
+      }
+      try {
+        Files.delete(target);
+        forgetPendingChange(pending, log, target);
+        removed.add(relative);
+        log.logBasic(
+            "Removed shared jar " + relative + ": no installed marketplace plugin needs it");
+      } catch (IOException e) {
+        if (filesLockedWhileInUse && queueDelete(pending, log, target)) {
+          removed.add(relative);
+          log.logBasic(
+              "Shared jar "
+                  + relative
+                  + " is no longer needed and in use: Hop removes it the next time it starts.");
+        } else {
+          result.failed().add(relative);
+          log.logError(
+              "Could not remove shared jar "
+                  + relative
+                  + " that no installed marketplace plugin needs any more. The next install,"
+                  + " apply or uninstall tries again. "
+                  + e.getMessage());
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * What {@link #removeUnusedSharedFiles} did.
+   *
+   * @param removed the shared jars that are gone, or go the next time Hop starts
+   * @param failed the shared jars that no plugin needs but could not be removed
+   */
+  record SharedFileRemoval(Set<String> removed, Set<String> failed) {}
+
+  /**
+   * The receipts of every other marketplace artifact, or null when one of them cannot be read: what
+   * it lists is unknown then.
+   */
+  private static List<InstallReceipt> otherReceiptsOrNull(
+      Path hopHome, String artifactId, ILogChannel log) {
+    Path dir = hopHome.resolve(RECEIPTS_DIR);
+    List<InstallReceipt> receipts = new ArrayList<>();
+    if (!Files.isDirectory(dir)) {
+      return receipts;
+    }
+    try (var stream = Files.list(dir)) {
+      for (Path file : stream.filter(Files::isRegularFile).toList()) {
+        String name = file.getFileName().toString();
+        if (!name.endsWith(".json") || name.equals(artifactId + ".json")) {
+          continue;
+        }
+        InstallReceipt other = readReceipt(hopHome, name.substring(0, name.length() - 5));
+        if (other != null) {
+          receipts.add(other);
+        }
+      }
+    } catch (IOException | HopException e) {
+      log.logError(
+          "Keeping the shared lib/core jars: not every marketplace install receipt can be read", e);
+      return null;
+    }
+    return receipts;
   }
 
   /** Paths (normalised) that the receipts of every other marketplace artifact list. */
@@ -1690,7 +1867,8 @@ public class PluginInstaller {
   /**
    * Paths under {@code lib/core/} hold shared system-classpath jars (plugin assembly {@code
    * provided} scope). Marketplace <strong>installs</strong> these jars so optional plugins work the
-   * same as the full client; uninstall never removes them (sticky shared libraries).
+   * same as the full client. Uninstall and update remove one only when the marketplace created it
+   * and no other installed plugin lists it, see {@link #removeUnusedSharedFiles}.
    */
   static boolean isSharedCorePath(String relative) {
     String normalized = relative.replace('\\', '/');
