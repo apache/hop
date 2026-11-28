@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.fatjar;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -94,13 +96,21 @@ public final class VfsStagingStore implements IStagingStore {
       }
       partial = upload;
       write(localFile, partial);
-      target.refresh();
-      if (target.exists() && target.getContent().getSize() == Files.size(localFile)) {
+      if (isStaged(target, localFile)) {
         // Another run staged the same content meanwhile, and its driver may be reading it
         return;
       }
-      partial.moveTo(target);
-      partial = null;
+      try {
+        partial.moveTo(target);
+        partial = null;
+      } catch (FileSystemException e) {
+        // On S3 a rename is a copy. The store can make the copy and answer in a way its client
+        // can't read (#9760): the file under its final name is then complete, and the partial
+        // one goes below.
+        if (!isStaged(target, localFile)) {
+          throw e;
+        }
+      }
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
@@ -108,6 +118,12 @@ public final class VfsStagingStore implements IStagingStore {
     } finally {
       deleteQuietly(partial);
     }
+  }
+
+  /** The file is there under its final name, with the size of the local file. */
+  private static boolean isStaged(FileObject target, Path localFile) throws IOException {
+    target.refresh();
+    return target.exists() && target.getContent().getSize() == Files.size(localFile);
   }
 
   private static void write(Path localFile, FileObject target) throws Exception {
