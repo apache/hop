@@ -26,7 +26,12 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
 /** Tiny transform used to exercise the debug controller. Not a user-facing plugin. */
 @Transform(id = "DebugFixture", name = "Debug fixture")
@@ -42,11 +47,13 @@ public class DebugFixtureMeta extends BaseTransformMeta<DebugFixture, DebugFixtu
 
   private Mode mode = Mode.PASS;
   private int rowsToGenerate = 1;
+  private long delayMillis;
 
   @Override
   public void setDefault() {
     mode = Mode.PASS;
     rowsToGenerate = 1;
+    delayMillis = 0;
   }
 
   @Override
@@ -61,5 +68,19 @@ public class DebugFixtureMeta extends BaseTransformMeta<DebugFixture, DebugFixtu
     if (mode == Mode.GENERATE && rowMeta.searchValueMeta("n") == null) {
       rowMeta.addValueMeta(new ValueMetaInteger("n"));
     }
+  }
+
+  @Override
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
+
+    if (ioMeta == null) {
+      ioMeta = new TransformIOMeta(true, true, false, false, false, false);
+      ioMeta.addStream(
+          new Stream(StreamType.INFO, null, "Debug fixture info stream", StreamIcon.INFO, null));
+      setTransformIOMeta(ioMeta);
+    }
+
+    return ioMeta;
   }
 }

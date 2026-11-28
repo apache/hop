@@ -307,6 +307,42 @@ class DebugControllerTest {
   }
 
   @Test
+  void runToHereAlsoRunsInformationalUpstreamTransforms() throws Exception {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setName("debug-info-stream");
+
+    DebugFixtureMeta mainMeta = new DebugFixtureMeta();
+    mainMeta.setMode(DebugFixtureMeta.Mode.GENERATE);
+    mainMeta.setRowsToGenerate(2);
+    TransformMeta main = new TransformMeta("main", mainMeta);
+
+    DebugFixtureMeta infoMeta = new DebugFixtureMeta();
+    infoMeta.setMode(DebugFixtureMeta.Mode.GENERATE);
+    infoMeta.setRowsToGenerate(2);
+    TransformMeta info = new TransformMeta("info", infoMeta);
+
+    DebugFixtureMeta targetMeta = new DebugFixtureMeta();
+    targetMeta.setMode(DebugFixtureMeta.Mode.PASS);
+    targetMeta.getTransformIOMeta().getInfoStreams().getFirst().setTransformMeta(info);
+    TransformMeta target = new TransformMeta("target", targetMeta);
+
+    meta.addTransform(main);
+    meta.addTransform(info);
+    meta.addTransform(target);
+    meta.addPipelineHop(new PipelineHopMeta(main, target));
+    meta.addPipelineHop(new PipelineHopMeta(info, target));
+
+    try (Session session = Session.start(meta)) {
+      StepResult arrived = session.controller.runToHere(session.transform("target", 0), 5_000L);
+
+      assertEquals(Activity.STEPPED, arrived.activity());
+      assertTrue(session.hop("main", "target", 0).size() >= 1);
+      assertTrue(session.hop("info", "target", 0).size() >= 1);
+      assertEquals(0, session.transform("target", 0).getLinesRead());
+    }
+  }
+
+  @Test
   void copiesUseSeparateQueues() throws Exception {
     PipelineMeta meta = new PipelineMeta();
     meta.setName("copies");
@@ -334,6 +370,43 @@ class DebugControllerTest {
       session.controller.process(session.transform("gen", 0), 1);
       assertEquals(1, session.hop("gen", "pass", 1).size());
       assertEquals(0, session.transform("pass", 1).getLinesRead());
+    }
+  }
+
+  @Test
+  void runToHereWaitsForInformationalUpstreamTransformsToFinish() throws Exception {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setName("debug-slow-info-stream");
+
+    DebugFixtureMeta mainMeta = new DebugFixtureMeta();
+    mainMeta.setMode(DebugFixtureMeta.Mode.GENERATE);
+    mainMeta.setRowsToGenerate(1);
+    TransformMeta main = new TransformMeta("main", mainMeta);
+
+    DebugFixtureMeta infoMeta = new DebugFixtureMeta();
+    infoMeta.setMode(DebugFixtureMeta.Mode.GENERATE);
+    infoMeta.setRowsToGenerate(5);
+    infoMeta.setDelayMillis(100);
+    TransformMeta info = new TransformMeta("info", infoMeta);
+
+    DebugFixtureMeta targetMeta = new DebugFixtureMeta();
+    targetMeta.setMode(DebugFixtureMeta.Mode.PASS);
+    targetMeta.getTransformIOMeta().getInfoStreams().getFirst().setTransformMeta(info);
+    TransformMeta target = new TransformMeta("target", targetMeta);
+
+    meta.addTransform(main);
+    meta.addTransform(info);
+    meta.addTransform(target);
+    meta.addPipelineHop(new PipelineHopMeta(main, target));
+    meta.addPipelineHop(new PipelineHopMeta(info, target));
+
+    try (Session session = Session.start(meta)) {
+      StepResult arrived = session.controller.runToHere(session.transform("target", 0), 5_000L);
+
+      assertEquals(Activity.STEPPED, arrived.activity());
+      assertTrue(session.hop("main", "target", 0).size() >= 1);
+      assertEquals(5, session.hop("info", "target", 0).size());
+      assertEquals(0, session.transform("target", 0).getLinesRead());
     }
   }
 
