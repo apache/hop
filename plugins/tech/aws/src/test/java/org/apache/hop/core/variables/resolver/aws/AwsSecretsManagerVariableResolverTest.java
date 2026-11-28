@@ -29,6 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Base64;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -43,6 +45,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.ArgumentCaptor;
@@ -55,6 +58,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.identity.spi.AwsCredentialsIdentity;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
@@ -392,6 +396,29 @@ class AwsSecretsManagerVariableResolverTest {
     assertInstanceOf(
         ProfileCredentialsProvider.class,
         resolver.buildCredentialsProvider("CREDENTIALS_FILE", null, null, null, null, "hop"));
+  }
+
+  /** A credentials file under '~' is read from the user's home folder, as HopVfs paths are. */
+  @Test
+  void testCredentialsFileUnderTildeIsReadFromUserHome(@TempDir Path home) throws Exception {
+    Files.writeString(
+        home.resolve("credentials"),
+        "[hop]\naws_access_key_id = AKIAEXAMPLE\naws_secret_access_key = secret\n");
+    variables.setVariable("user.home", home.toString());
+
+    // The real client this time: building it reads the credentials file, no AWS call is made.
+    AwsSecretsManagerVariableResolver realResolver = new AwsSecretsManagerVariableResolver();
+    realResolver.setRegion("us-east-1");
+    realResolver.setAuthenticationType(AwsSecretsManagerAuthType.CREDENTIALS_FILE.name());
+    realResolver.setCredentialsFile("~/credentials");
+    realResolver.setProfileName("hop");
+
+    try (SecretsManagerClient client = realResolver.getClient(variables)) {
+      AwsCredentialsIdentity credentials =
+          client.serviceClientConfiguration().credentialsProvider().resolveIdentity().join();
+      assertEquals("AKIAEXAMPLE", credentials.accessKeyId());
+      assertEquals("secret", credentials.secretAccessKey());
+    }
   }
 
   @Test

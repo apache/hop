@@ -42,6 +42,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.resolver.IVariableResolver;
 import org.apache.hop.core.variables.resolver.VariableResolver;
 import org.apache.hop.core.variables.resolver.VariableResolverPlugin;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -355,7 +356,9 @@ public class AwsSecretsManagerVariableResolver
     String actualAccessKey = variables.resolve(accessKey);
     String actualSecretKey = variables.resolve(secretKey);
     String actualSessionToken = variables.resolve(sessionToken);
-    String actualCredentialsFile = variables.resolve(credentialsFile);
+    // The AWS SDK reads this file itself, outside HopVfs: apply Hop's '~' rule here.
+    String actualCredentialsFile =
+        HopVfs.resolveHomeDirectory(variables.resolve(credentialsFile), variables);
     String actualProfileName = variables.resolve(profileName);
     String actualEndpoint = variables.resolve(endpointOverride);
 

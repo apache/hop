@@ -23,6 +23,7 @@ import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.s3.metadata.S3AuthType;
 import org.apache.hop.vfs.s3.metadata.S3Meta;
 import org.apache.hop.vfs.s3.s3common.S3CommonFileProvider;
@@ -131,7 +132,9 @@ public class S3FileProvider extends S3CommonFileProvider {
         config.setSessionToken(sessionToken);
       }
     } else if (S3AuthType.CREDENTIALS_FILE.name().equals(authType)) {
-      String credentialsFile = variables.resolve(s3Meta.getCredentialsFile());
+      // The AWS SDK reads this file itself, outside HopVfs: apply Hop's '~' rule here.
+      String credentialsFile =
+          HopVfs.resolveHomeDirectory(variables.resolve(s3Meta.getCredentialsFile()), variables);
       String profileName = variables.resolve(s3Meta.getProfileName());
       if (StringUtils.isNotEmpty(credentialsFile)) {
         config.setCredentialsFile(credentialsFile);

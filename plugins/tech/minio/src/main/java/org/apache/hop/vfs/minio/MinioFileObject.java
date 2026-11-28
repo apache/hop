@@ -20,7 +20,6 @@ package org.apache.hop.vfs.minio;
 
 import io.minio.BucketExistsArgs;
 import io.minio.CopyObjectArgs;
-import io.minio.CopySource;
 import io.minio.GetObjectArgs;
 import io.minio.GetObjectResponse;
 import io.minio.ListObjectsArgs;
@@ -29,10 +28,11 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.Result;
+import io.minio.SourceObject;
 import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
-import io.minio.messages.Bucket;
 import io.minio.messages.Item;
+import io.minio.messages.ListAllMyBucketsResult;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -124,8 +124,8 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     List<String> childrenList = new ArrayList<>();
 
     if (isRootBucket()) {
-      List<Bucket> buckets = fileSystem.getClient().listBuckets();
-      for (Bucket bucket : buckets) {
+      List<ListAllMyBucketsResult.Bucket> buckets = fileSystem.getClient().listBuckets();
+      for (ListAllMyBucketsResult.Bucket bucket : buckets) {
         childrenList.add(bucket.name() + DELIMITER);
       }
     } else {
@@ -332,7 +332,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
               .bucket(bucketName)
               .object(key)
               .contentType("application/x-directory")
-              .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
+              .stream(new ByteArrayInputStream(new byte[] {}), 0L, -1L)
               .build();
       client.putObject(args);
       fileSystem.invalidateListCacheForParentOf(bucketName, key);
@@ -355,7 +355,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
               .bucket(bucketName)
               .object(key)
               .contentType("application/octet-stream")
-              .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
+              .stream(new ByteArrayInputStream(new byte[0]), 0L, -1L)
               .build();
       fileSystem.getClient().putObject(args);
       fileSystem.invalidateListCacheForParentOf(bucketName, key);
@@ -417,7 +417,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     }
 
     MinioFileObject dest = (MinioFileObject) newFile;
-    CopySource source = CopySource.builder().bucket(bucketName).object(key).build();
+    SourceObject source = SourceObject.builder().bucket(bucketName).object(key).build();
 
     if (!exists()) {
       throw new FileSystemException("vfs.provider/rename.error", this, newFile);
