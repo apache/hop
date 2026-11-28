@@ -130,8 +130,9 @@ class PluginRollbackTest {
     assertTrue(rolledBack.getObsoletePaths().isEmpty());
     assertEquals(
         rolledBack.getVersion(), PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getVersion());
-    // Shared jars stay, as on every update.
-    assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-2.0.jar")));
+    // Version 2 created the shared jar that version 1 does not ship (#9614)
+    assertFalse(Files.exists(hopHome.resolve("lib/core/shared-2.0.jar")));
+    assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-1.0.jar")));
     assertFalse(
         Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(TEST_PLUGIN)),
         "nothing stays staged");
@@ -146,6 +147,8 @@ class PluginRollbackTest {
     assertTrue(Files.isRegularFile(plugin.resolve("lib/dep-2.0.jar")));
     assertFalse(Files.exists(plugin.resolve("lib/dep-1.0.jar")));
     assertFalse(Files.exists(plugin.resolve("samples")));
+    assertEquals("shared-2.0", Files.readString(hopHome.resolve("lib/core/shared-2.0.jar")));
+    assertFalse(Files.exists(hopHome.resolve("lib/core/shared-1.0.jar")));
     assertEquals("1.0.0", PluginInstaller.rollbackVersion(hopHome, again));
   }
 
@@ -238,11 +241,11 @@ class PluginRollbackTest {
           "shared-1.0, changed",
           Files.readString(hopHome.resolve(restored.getBackup())),
           "the failed version's copy is backed up where the receipt says");
-      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/created-2.0.jar")));
-      InstallReceipt.SharedFile created = receipt.getSharedFiles().get("lib/core/created-2.0.jar");
-      assertNotNull(created, receipt.getSharedFiles().toString());
-      assertTrue(created.isCreatedByMarketplace(), "the marketplace created it, not the client");
-      assertEquals(InstallReceipt.SharedFileAction.NOT_SHIPPED, created.getAction());
+      // The jar the failed version created goes with it (#9614).
+      assertFalse(Files.exists(hopHome.resolve("lib/core/created-2.0.jar")));
+      assertFalse(
+          receipt.getSharedFiles().containsKey("lib/core/created-2.0.jar"),
+          receipt.getSharedFiles().toString());
     } finally {
       server.stop(0);
     }

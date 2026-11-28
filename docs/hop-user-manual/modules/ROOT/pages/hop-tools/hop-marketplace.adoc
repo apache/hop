@@ -100,13 +100,16 @@ From the Hop install directory:
 After install, update, rollback, apply, or uninstall, *restart Hop* so the plugin registry reloads.
 
 Installing another version of a plugin that the marketplace installed replaces it: files that only the previous version had are removed.
-Shared jars in `lib/core` stay in place.
 On Windows, a file that is in use is replaced or removed the next time Hop starts, see <<pending-changes>>.
 Until then the receipt keeps listing a file of the previous version, and the next install, apply, or uninstall drops it from the receipt once it is gone.
 A file that cannot be removed for another reason, such as file permissions, stays listed as well and is retried by the next install, apply, or uninstall.
 
 The marketplace keeps an install receipt for each plugin in `plugins/.marketplace/`, with a SHA-256 checksum of every file it installed.
 When a plugin replaces a jar in `lib/core` that has other content, the old jar is first backed up to a new folder under `plugins/.marketplace/backup/<plugin>/<version>/`, where `<version>` is the version being installed.
+
+An uninstall, or an install of a version that no longer ships a shared jar in `lib/core`, removes that jar when the marketplace created it and no other marketplace-installed plugin lists it in its receipt.
+Jars that came with the Hop client stay, and so does a jar that only receipts written by Hop before 2.21 list: those do not record that the marketplace created it.
+While a receipt in `plugins/.marketplace/` cannot be read, every shared jar stays.
 
 [[update-rollback]]
 === Update and roll back
@@ -122,7 +125,7 @@ Later, `rollback <artifactId>` puts it back without downloading it.
 A rollback installs the previous version, so it keeps the version it replaces in turn: a second rollback returns to the newer version.
 
 The marketplace keeps one previous version per plugin, and removes it when the plugin is uninstalled.
-Shared jars in `lib/core` that only the newer version has stay in place.
+Shared jars in `lib/core` that only the newer version has are removed as on an update.
 
 [[pending-changes]]
 === Files in use

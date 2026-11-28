@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -129,8 +128,8 @@ class PluginInstallerTest {
       assertFalse(
           Files.exists(
               hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json")));
-      // lib/core is sticky: left in place so other plugins can share it
-      assertTrue(Files.isRegularFile(sharedJar));
+      // The marketplace created it and no other plugin lists it (#9614)
+      assertFalse(Files.exists(sharedJar));
     } finally {
       server.stop(0);
     }
@@ -861,9 +860,10 @@ class PluginInstallerTest {
       assertFalse(
           Files.exists(pluginFolder.resolve("samples")),
           "a folder only version 1 had is removed once it is empty");
-      // Shared lib/core jars stay sticky on update as on uninstall (#9614)
-      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-1.0.jar")));
+      // Version 1 created the shared jar that version 2 no longer ships (#9614)
+      assertFalse(Files.exists(hopHome.resolve("lib/core/shared-1.0.jar")));
       assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-2.0.jar")));
+      assertFalse(receipt.getSharedFiles().containsKey("lib/core/shared-1.0.jar"));
 
       assertEquals("2.0.0", receipt.getVersion());
       assertTrue(receipt.getObsoletePaths().isEmpty());
@@ -938,12 +938,14 @@ class PluginInstallerTest {
       assertTrue(staged.getObsoletePaths().contains("plugins/tech/test/lib/dep-1.0.jar"));
       assertTrue(
           Files.isRegularFile(lib.resolve("dep-1.0.jar")), "nothing changes before activation");
+      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-1.0.jar")));
 
       installer.activateAllPending();
 
       assertTrue(Files.isRegularFile(lib.resolve("dep-3.0.jar")));
       assertFalse(Files.exists(lib.resolve("dep-1.0.jar")));
       assertFalse(Files.exists(lib.resolve("dep-2.0.jar")), "version 2 was never activated");
+      assertFalse(Files.exists(hopHome.resolve("lib/core/shared-1.0.jar")));
       InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
       assertEquals("3.0.0", receipt.getVersion());
       assertFalse(receipt.isPendingActivation());
@@ -1117,9 +1119,11 @@ class PluginInstallerTest {
       assertFalse(receipt.isUninstallPending());
       assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
       assertFalse(Files.exists(samples));
-      // The jar left in lib/core matches: this install did not create or replace it.
+      // The uninstall removed the shared jar, so this install created it again: it does not
+      // reuse what the unfinished uninstall recorded.
       InstallReceipt.SharedFile shared = sharedFile(hopHome, "lib/core/shared-2.0.jar");
-      assertEquals(InstallReceipt.SharedFileAction.UNCHANGED, shared.getAction());
+      assertEquals(InstallReceipt.SharedFileAction.CREATED, shared.getAction());
+      assertTrue(shared.isCreatedByMarketplace());
       assertNull(shared.getBackup());
     } finally {
       if (Files.isDirectory(samples)) {
@@ -1317,7 +1321,7 @@ class PluginInstallerTest {
     }
   }
 
-  private static void writeOtherReceipt(Path hopHome, String path) throws IOException {
+  static void writeOtherReceipt(Path hopHome, String path) throws IOException {
     InstallReceipt other = new InstallReceipt();
     other.setArtifactId("hop-other-plugin");
     other.setVersion("1.0.0");
@@ -1605,7 +1609,7 @@ class PluginInstallerTest {
   }
 
   @Test
-  void sharedJarAnUpdateNoLongerShipsStaysInTheReceipt() throws Exception {
+  void sharedJarAnUpdateNoLongerShipsStaysWhileAnotherPluginListsIt() throws Exception {
     HttpServer server =
         versionServer(
             TEST_PLUGIN,
@@ -1615,27 +1619,31 @@ class PluginInstallerTest {
       Path hopHome = tempDir.resolve("hop-not-shipped");
       Files.createDirectories(hopHome.resolve("plugins"));
       install(hopHome, server, "1.0.0");
+      writeOtherReceipt(hopHome, "lib/core/shared-1.0.jar");
       install(hopHome, server, "2.0.0");
 
       InstallReceipt.SharedFile dropped = sharedFile(hopHome, "lib/core/shared-1.0.jar");
       assertEquals(InstallReceipt.SharedFileAction.NOT_SHIPPED, dropped.getAction());
       assertTrue(dropped.isCreatedByMarketplace());
-      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-1.0.jar")), "sticky");
+      assertTrue(
+          Files.isRegularFile(hopHome.resolve("lib/core/shared-1.0.jar")),
+          "the other plugin lists it");
 
       install(hopHome, server, "3.0.0");
       assertEquals(
           InstallReceipt.SharedFileAction.NOT_SHIPPED,
           sharedFile(hopHome, "lib/core/shared-1.0.jar").getAction());
-      assertEquals(
-          InstallReceipt.SharedFileAction.NOT_SHIPPED,
-          sharedFile(hopHome, "lib/core/shared-2.0.jar").getAction());
+      assertFalse(Files.exists(hopHome.resolve("lib/core/shared-2.0.jar")), "nothing lists it");
+      assertNull(sharedFile(hopHome, "lib/core/shared-2.0.jar"));
 
-      // Once the file is gone, the next install drops the entry.
-      Files.delete(hopHome.resolve("lib/core/shared-1.0.jar"));
-      Files.delete(hopHome.resolve("plugins/tech/test/plugin.jar"));
-      install(hopHome, server, "3.0.0");
+      // Once the other plugin is gone, the next marketplace run removes the jar.
+      Files.delete(hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-other-plugin.json"));
+      new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
+          .activateAllPending();
+      assertFalse(Files.exists(hopHome.resolve("lib/core/shared-1.0.jar")));
       assertNull(sharedFile(hopHome, "lib/core/shared-1.0.jar"));
-      assertNotNull(sharedFile(hopHome, "lib/core/shared-2.0.jar"));
+      assertEquals("3.0.0", PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getVersion());
     } finally {
       server.stop(0);
     }
@@ -2014,7 +2022,7 @@ class PluginInstallerTest {
     }
   }
 
-  private static PluginInstaller windowsInstaller(Path hopHome, HttpServer server) {
+  static PluginInstaller windowsInstaller(Path hopHome, HttpServer server) {
     PluginInstaller installer =
         new PluginInstaller(
             new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
@@ -2116,7 +2124,7 @@ class PluginInstallerTest {
     return server;
   }
 
-  private static void serve(HttpServer server, String artifactId, String version, byte[] zipBytes) {
+  static void serve(HttpServer server, String artifactId, String version, byte[] zipBytes) {
     server.createContext(
         "/org/apache/hop/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".zip",
         exchange -> {
@@ -2132,8 +2140,7 @@ class PluginInstallerTest {
         .formatHex(PluginInstaller.sha256().digest(content.getBytes(StandardCharsets.UTF_8)));
   }
 
-  private static InstallReceipt.SharedFile sharedFile(Path hopHome, String path)
-      throws HopException {
+  static InstallReceipt.SharedFile sharedFile(Path hopHome, String path) throws HopException {
     return PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getSharedFiles().get(path);
   }
 
