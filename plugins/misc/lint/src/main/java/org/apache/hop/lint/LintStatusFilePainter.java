@@ -287,8 +287,16 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     }
   }
 
-  private LintStatus resolveStatus(String filePath) {
-    String normalized = LintPathUtils.normalizePath(filePath);
+  /**
+   * The status for an Explorer item, on the UI thread.
+   *
+   * <p>The path came from {@link LintPathUtils#resolveExplorerFilePath}, so it is normalized
+   * already, and so are the keys of both caches looked up here. Nothing in this lookup resolves a
+   * file: see {@link LintPathUtils#normalizedPathsMatch}.
+   *
+   * @param normalized the normalized path of the item
+   */
+  private LintStatus resolveStatus(String normalized) {
     if (Utils.isEmpty(normalized)) {
       return LintStatus.UNKNOWN;
     }
@@ -308,7 +316,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     }
 
     for (Map.Entry<String, LintStatus> entry : fileStatusCache.entrySet()) {
-      if (LintPathUtils.pathsMatch(entry.getKey(), normalized)) {
+      if (LintPathUtils.normalizedPathsMatch(entry.getKey(), normalized)) {
         return entry.getValue();
       }
     }
@@ -318,7 +326,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   private LintStatus resolveStatusFromResults(String normalized) {
     for (Map.Entry<String, List<LintResult>> entry :
         LintResultsManager.getInstance().getAllResultsByFile().entrySet()) {
-      if (!LintPathUtils.pathsMatch(entry.getKey(), normalized)) {
+      if (!LintPathUtils.normalizedPathsMatch(entry.getKey(), normalized)) {
         continue;
       }
       List<LintResult> results = entry.getValue();
