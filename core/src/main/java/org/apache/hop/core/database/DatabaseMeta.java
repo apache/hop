@@ -2574,4 +2574,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   public void setSshTunnelPassphrase(String passphrase) {
     iDatabase.setSshTunnelPassphrase(passphrase);
   }
+
+  /**
+   * @return the SSH jump hosts the tunnel passes, in order, before it reaches the SSH server of
+   *     {@link #getSshTunnelHost()}; empty for a direct tunnel to that server
+   */
+  public List<SshJumpHost> getSshTunnelJumpHosts() {
+    return iDatabase.getSshTunnelJumpHosts();
+  }
+
+  public void setSshTunnelJumpHosts(List<SshJumpHost> jumpHosts) {
+    iDatabase.setSshTunnelJumpHosts(jumpHosts);
+  }
 }

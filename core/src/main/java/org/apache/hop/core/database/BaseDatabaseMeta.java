@@ -207,8 +207,15 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @HopMetadataProperty(password = true)
   protected String sshTunnelPassphrase;
 
+  /**
+   * The SSH jump hosts to pass, in order, before the SSH server above. Empty for a direct tunnel to
+   * that server.
+   */
+  @HopMetadataProperty protected List<SshJumpHost> sshTunnelJumpHosts;
+
   public BaseDatabaseMeta() {
     attributes = Collections.synchronizedMap(new HashMap<>());
+    sshTunnelJumpHosts = new ArrayList<>();
     changed = false;
     if (getAccessTypeList() != null && getAccessTypeList().length > 0) {
       accessType = getAccessTypeList()[0];
@@ -486,6 +493,17 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     this.manualUrl = manualUrl;
   }
 
+  /**
+   * @return the SSH jump hosts of the tunnel, in order, never null
+   */
+  @Override
+  public List<SshJumpHost> getSshTunnelJumpHosts() {
+    if (sshTunnelJumpHosts == null) {
+      sshTunnelJumpHosts = new ArrayList<>();
+    }
+    return sshTunnelJumpHosts;
+  }
+
   /** Clone the basic settings for this connection! */
   @Override
   public Object clone() {
@@ -497,6 +515,12 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
       retval.attributes = Collections.synchronizedMap(new HashMap<>());
       for (String key : attributes.keySet()) {
         retval.attributes.put(key, attributes.get(key));
+      }
+
+      // The jump hosts are mutable objects: an edit on the clone must not reach this connection.
+      retval.sshTunnelJumpHosts = new ArrayList<>();
+      for (SshJumpHost jumpHost : getSshTunnelJumpHosts()) {
+        retval.sshTunnelJumpHosts.add(new SshJumpHost(jumpHost));
       }
     } catch (CloneNotSupportedException e) {
       throw new HopRuntimeException(e);

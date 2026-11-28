@@ -1645,6 +1645,14 @@ public interface IDatabase extends Cloneable {
   void setSshTunnelPassphrase(String passphrase);
 
   /**
+   * @return the SSH jump hosts the tunnel passes, in order, before it reaches the SSH server of
+   *     {@link #getSshTunnelHost()}; empty for a direct tunnel to that server
+   */
+  List<SshJumpHost> getSshTunnelJumpHosts();
+
+  void setSshTunnelJumpHosts(List<SshJumpHost> jumpHosts);
+
+  /**
    * Character set of this database, used to validate that stream strings can be stored. The default
    * is UTF-8; dialects that keep an encoding at the database level (PostgreSQL {@code
    * server_encoding}, MySQL {@code character_set_database}) override this.

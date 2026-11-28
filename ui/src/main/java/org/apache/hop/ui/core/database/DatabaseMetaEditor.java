@@ -38,6 +38,8 @@ import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.DatabaseTestResults;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.SshAuthenticationMethod;
+import org.apache.hop.core.database.SshJumpHost;
 import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
@@ -73,6 +75,7 @@ import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -139,6 +142,33 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private TextVar wSshTunnelPassphrase;
   private Label wlSshTunnelPrivateKeyFile;
   private Label wlSshTunnelPassphrase;
+
+  // SSH jump hosts: a list plus the fields of the selected jump host
+  private org.eclipse.swt.widgets.List wSshTunnelJumpHostList;
+  private Button wSshTunnelJumpHostAdd;
+  private Button wSshTunnelJumpHostRemove;
+  private Button wSshTunnelJumpHostUp;
+  private Button wSshTunnelJumpHostDown;
+  private Label wlSshTunnelJumpHostHost;
+  private TextVar wSshTunnelJumpHostHost;
+  private Label wlSshTunnelJumpHostPort;
+  private TextVar wSshTunnelJumpHostPort;
+  private Label wlSshTunnelJumpHostUsername;
+  private TextVar wSshTunnelJumpHostUsername;
+  private Label wlSshTunnelJumpHostAuthentication;
+  private Combo wSshTunnelJumpHostAuthentication;
+  private Label wlSshTunnelJumpHostPassword;
+  private TextVar wSshTunnelJumpHostPassword;
+  private Label wlSshTunnelJumpHostPrivateKeyFile;
+  private TextVar wSshTunnelJumpHostPrivateKeyFile;
+  private Label wlSshTunnelJumpHostPassphrase;
+  private TextVar wSshTunnelJumpHostPassphrase;
+
+  /** The editor's own copy of the jump hosts, in order; the fields edit the selected one. */
+  private final List<SshJumpHost> sshTunnelJumpHosts = new ArrayList<>();
+
+  /** True while the jump host fields are filled from the list, which is not an edit. */
+  private boolean loadingSshTunnelJumpHost;
 
   private final PropsUi props;
   private int middle;
@@ -304,6 +334,49 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wSshTunnelUsePrivateKey.addListener(SWT.Selection, event -> enableSshTunnelFields());
     wSshTunnelPrivateKeyFile.addListener(SWT.Modify, modifyListener);
     wSshTunnelPassphrase.addListener(SWT.Modify, modifyListener);
+
+    // Showing another jump host fills the fields: only a real edit changes the connection
+    Listener jumpHostFieldListener =
+        event -> {
+          if (storeSelectedSshTunnelJumpHost()) {
+            modifyListener.handleEvent(event);
+          }
+        };
+    wSshTunnelJumpHostHost.addListener(SWT.Modify, jumpHostFieldListener);
+    wSshTunnelJumpHostPort.addListener(SWT.Modify, jumpHostFieldListener);
+    wSshTunnelJumpHostUsername.addListener(SWT.Modify, jumpHostFieldListener);
+    wSshTunnelJumpHostAuthentication.addListener(SWT.Selection, jumpHostFieldListener);
+    wSshTunnelJumpHostPassword.addListener(SWT.Modify, jumpHostFieldListener);
+    wSshTunnelJumpHostPrivateKeyFile.addListener(SWT.Modify, jumpHostFieldListener);
+    wSshTunnelJumpHostPassphrase.addListener(SWT.Modify, jumpHostFieldListener);
+    wSshTunnelJumpHostList.addListener(SWT.Selection, event -> loadSelectedSshTunnelJumpHost());
+    wSshTunnelJumpHostAdd.addListener(
+        SWT.Selection,
+        event -> {
+          addSshTunnelJumpHost();
+          modifyListener.handleEvent(event);
+        });
+    wSshTunnelJumpHostRemove.addListener(
+        SWT.Selection,
+        event -> {
+          if (removeSshTunnelJumpHost()) {
+            modifyListener.handleEvent(event);
+          }
+        });
+    wSshTunnelJumpHostUp.addListener(
+        SWT.Selection,
+        event -> {
+          if (moveSshTunnelJumpHost(-1)) {
+            modifyListener.handleEvent(event);
+          }
+        });
+    wSshTunnelJumpHostDown.addListener(
+        SWT.Selection,
+        event -> {
+          if (moveSshTunnelJumpHost(1)) {
+            modifyListener.handleEvent(event);
+          }
+        });
   }
 
   private void addGeneralTab() {
@@ -1045,7 +1118,10 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wSshTunnelTab.setText(
         "  " + BaseMessages.getString(PKG, "DatabaseDialog.SshTunnelTab.title") + "  ");
 
-    Composite wSshTunnelComp = new Composite(wTabFolder, SWT.NONE);
+    // The jump hosts make this tab taller than the others: scroll rather than cut it off
+    ScrolledComposite wSshTunnelScroll = new ScrolledComposite(wTabFolder, SWT.V_SCROLL);
+    PropsUi.setLook(wSshTunnelScroll);
+    Composite wSshTunnelComp = new Composite(wSshTunnelScroll, SWT.NONE);
     PropsUi.setLook(wSshTunnelComp);
 
     FormLayout sshLayout = new FormLayout();
@@ -1213,7 +1289,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdSshTunnelPassphrase.left = new FormAttachment(middle, margin);
     fdSshTunnelPassphrase.right = new FormAttachment(100, 0);
     wSshTunnelPassphrase.setLayoutData(fdSshTunnelPassphrase);
-    lastControl = wSshTunnelPassphrase;
+    lastControl = addSshTunnelJumpHosts(wSshTunnelComp, wSshTunnelPassphrase);
 
     // Informational note about the ${sshTunnel.localPort} variable for manual JDBC URLs
     Label wlSshTunnelLocalPortInfo = new Label(wSshTunnelComp, SWT.LEFT | SWT.WRAP);
@@ -1226,15 +1302,305 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlSshTunnelLocalPortInfo.right = new FormAttachment(100, 0);
     wlSshTunnelLocalPortInfo.setLayoutData(fdlSshTunnelLocalPortInfo);
 
-    FormData fdSshTunnelComp = new FormData();
-    fdSshTunnelComp.left = new FormAttachment(0, 0);
-    fdSshTunnelComp.top = new FormAttachment(0, 0);
-    fdSshTunnelComp.right = new FormAttachment(100, 0);
-    fdSshTunnelComp.bottom = new FormAttachment(100, 0);
-    wSshTunnelComp.setLayoutData(fdSshTunnelComp);
+    wSshTunnelScroll.setContent(wSshTunnelComp);
+    wSshTunnelScroll.setExpandHorizontal(true);
+    wSshTunnelScroll.setExpandVertical(true);
+    // Only scroll vertically: the wrapping labels take the width they are given
+    wSshTunnelScroll.addListener(
+        SWT.Resize,
+        event ->
+            wSshTunnelScroll.setMinHeight(
+                wSshTunnelComp.computeSize(wSshTunnelScroll.getClientArea().width, SWT.DEFAULT).y));
 
     wSshTunnelComp.layout();
-    wSshTunnelTab.setControl(wSshTunnelComp);
+    wSshTunnelTab.setControl(wSshTunnelScroll);
+  }
+
+  /**
+   * Adds the jump hosts below {@code lastControl}: an ordered list with buttons to add, remove and
+   * move them, and the fields of the selected jump host.
+   *
+   * @return the last control added
+   */
+  private Control addSshTunnelJumpHosts(Composite parent, Control lastControl) {
+    Label wlSshTunnelJumpHosts = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelJumpHosts);
+    wlSshTunnelJumpHosts.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelJumpHosts"));
+    FormData fdlSshTunnelJumpHosts = new FormData();
+    fdlSshTunnelJumpHosts.top = new FormAttachment(lastControl, margin * 3);
+    fdlSshTunnelJumpHosts.left = new FormAttachment(0, 0);
+    fdlSshTunnelJumpHosts.right = new FormAttachment(middle, 0);
+    wlSshTunnelJumpHosts.setLayoutData(fdlSshTunnelJumpHosts);
+
+    // Created in tab order: the list, then the buttons next to it
+    wSshTunnelJumpHostList =
+        new org.eclipse.swt.widgets.List(parent, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
+    PropsUi.setLook(wSshTunnelJumpHostList);
+    wSshTunnelJumpHostAdd =
+        newSshTunnelJumpHostButton(parent, "DatabaseDialog.button.SshTunnelJumpHostAdd");
+    wSshTunnelJumpHostRemove =
+        newSshTunnelJumpHostButton(parent, "DatabaseDialog.button.SshTunnelJumpHostRemove");
+    wSshTunnelJumpHostUp =
+        newSshTunnelJumpHostButton(parent, "DatabaseDialog.button.SshTunnelJumpHostUp");
+    wSshTunnelJumpHostDown =
+        newSshTunnelJumpHostButton(parent, "DatabaseDialog.button.SshTunnelJumpHostDown");
+
+    Button[] buttons = {
+      wSshTunnelJumpHostAdd, wSshTunnelJumpHostRemove, wSshTunnelJumpHostUp, wSshTunnelJumpHostDown
+    };
+    int buttonWidth = 0;
+    for (Button button : buttons) {
+      buttonWidth = Math.max(buttonWidth, button.computeSize(SWT.DEFAULT, SWT.DEFAULT).x);
+    }
+    Control above = null;
+    for (Button button : buttons) {
+      FormData fdButton = new FormData();
+      fdButton.top =
+          above == null
+              ? new FormAttachment(wlSshTunnelJumpHosts, 0, SWT.TOP)
+              : new FormAttachment(above, margin);
+      fdButton.right = new FormAttachment(100, 0);
+      fdButton.width = buttonWidth;
+      button.setLayoutData(fdButton);
+      above = button;
+    }
+
+    FormData fdSshTunnelJumpHostList = new FormData();
+    fdSshTunnelJumpHostList.top = new FormAttachment(wlSshTunnelJumpHosts, 0, SWT.TOP);
+    fdSshTunnelJumpHostList.left = new FormAttachment(middle, margin);
+    fdSshTunnelJumpHostList.right = new FormAttachment(wSshTunnelJumpHostAdd, -margin);
+    fdSshTunnelJumpHostList.bottom = new FormAttachment(wSshTunnelJumpHostDown, 0, SWT.BOTTOM);
+    wSshTunnelJumpHostList.setLayoutData(fdSshTunnelJumpHostList);
+
+    Label wlSshTunnelJumpHostsInfo = new Label(parent, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(wlSshTunnelJumpHostsInfo);
+    wlSshTunnelJumpHostsInfo.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelJumpHostsInfo"));
+    FormData fdlSshTunnelJumpHostsInfo = new FormData();
+    fdlSshTunnelJumpHostsInfo.top = new FormAttachment(wSshTunnelJumpHostList, margin);
+    fdlSshTunnelJumpHostsInfo.left = new FormAttachment(middle, margin);
+    fdlSshTunnelJumpHostsInfo.right = new FormAttachment(100, 0);
+    wlSshTunnelJumpHostsInfo.setLayoutData(fdlSshTunnelJumpHostsInfo);
+
+    // The fields of the selected jump host
+    wlSshTunnelJumpHostHost =
+        addSshTunnelLabel(
+            parent, "DatabaseDialog.label.SshTunnelJumpHostHost", wlSshTunnelJumpHostsInfo);
+    wSshTunnelJumpHostHost =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    placeSshTunnelControl(wSshTunnelJumpHostHost, wlSshTunnelJumpHostHost);
+
+    wlSshTunnelJumpHostPort =
+        addSshTunnelLabel(
+            parent, "DatabaseDialog.label.SshTunnelJumpHostPort", wSshTunnelJumpHostHost);
+    wSshTunnelJumpHostPort =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    placeSshTunnelControl(wSshTunnelJumpHostPort, wlSshTunnelJumpHostPort);
+
+    wlSshTunnelJumpHostUsername =
+        addSshTunnelLabel(
+            parent, "DatabaseDialog.label.SshTunnelJumpHostUsername", wSshTunnelJumpHostPort);
+    wSshTunnelJumpHostUsername =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    placeSshTunnelControl(wSshTunnelJumpHostUsername, wlSshTunnelJumpHostUsername);
+
+    wlSshTunnelJumpHostAuthentication =
+        addSshTunnelLabel(
+            parent,
+            "DatabaseDialog.label.SshTunnelJumpHostAuthentication",
+            wSshTunnelJumpHostUsername);
+    wSshTunnelJumpHostAuthentication = new Combo(parent, SWT.READ_ONLY | SWT.BORDER);
+    wSshTunnelJumpHostAuthentication.setItems(
+        IEnumHasCodeAndDescription.getDescriptions(SshAuthenticationMethod.class));
+    placeSshTunnelControl(wSshTunnelJumpHostAuthentication, wlSshTunnelJumpHostAuthentication);
+
+    wlSshTunnelJumpHostPassword =
+        addSshTunnelLabel(
+            parent,
+            "DatabaseDialog.label.SshTunnelJumpHostPassword",
+            wSshTunnelJumpHostAuthentication);
+    wSshTunnelJumpHostPassword =
+        new TextVar(
+            manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    placeSshTunnelControl(wSshTunnelJumpHostPassword, wlSshTunnelJumpHostPassword);
+
+    wlSshTunnelJumpHostPrivateKeyFile =
+        addSshTunnelLabel(
+            parent,
+            "DatabaseDialog.label.SshTunnelJumpHostPrivateKeyFile",
+            wSshTunnelJumpHostPassword);
+    wSshTunnelJumpHostPrivateKeyFile =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    placeSshTunnelControl(wSshTunnelJumpHostPrivateKeyFile, wlSshTunnelJumpHostPrivateKeyFile);
+
+    wlSshTunnelJumpHostPassphrase =
+        addSshTunnelLabel(
+            parent,
+            "DatabaseDialog.label.SshTunnelJumpHostPassphrase",
+            wSshTunnelJumpHostPrivateKeyFile);
+    wSshTunnelJumpHostPassphrase =
+        new TextVar(
+            manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    placeSshTunnelControl(wSshTunnelJumpHostPassphrase, wlSshTunnelJumpHostPassphrase);
+
+    return wSshTunnelJumpHostPassphrase;
+  }
+
+  private Button newSshTunnelJumpHostButton(Composite parent, String key) {
+    Button button = new Button(parent, SWT.PUSH);
+    PropsUi.setLook(button);
+    button.setText(BaseMessages.getString(PKG, key));
+    return button;
+  }
+
+  private Label addSshTunnelLabel(Composite parent, String key, Control above) {
+    Label label = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(label);
+    label.setText(BaseMessages.getString(PKG, key));
+    FormData fdLabel = new FormData();
+    fdLabel.top = new FormAttachment(above, margin);
+    fdLabel.left = new FormAttachment(0, 0);
+    fdLabel.right = new FormAttachment(middle, 0);
+    label.setLayoutData(fdLabel);
+    return label;
+  }
+
+  private void placeSshTunnelControl(Control control, Label label) {
+    PropsUi.setLook(control);
+    FormData fdControl = new FormData();
+    fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+    fdControl.left = new FormAttachment(middle, margin);
+    fdControl.right = new FormAttachment(100, 0);
+    control.setLayoutData(fdControl);
+  }
+
+  /** Fills the list from the editor's copy of the jump hosts and selects {@code index}. */
+  private void refreshSshTunnelJumpHostList(int index) {
+    wSshTunnelJumpHostList.removeAll();
+    for (int i = 0; i < sshTunnelJumpHosts.size(); i++) {
+      wSshTunnelJumpHostList.add(describeSshTunnelJumpHost(i));
+    }
+    if (index >= 0 && index < sshTunnelJumpHosts.size()) {
+      wSshTunnelJumpHostList.select(index);
+      wSshTunnelJumpHostList.showSelection();
+    }
+    loadSelectedSshTunnelJumpHost();
+  }
+
+  /** The list entry of a jump host: its position, then user@host:port. */
+  private String describeSshTunnelJumpHost(int index) {
+    SshJumpHost jumpHost = sshTunnelJumpHosts.get(index);
+    String description;
+    if (Utils.isEmpty(jumpHost.getHost())) {
+      description = BaseMessages.getString(PKG, "DatabaseDialog.SshTunnelJumpHost.NoHost");
+    } else {
+      description = jumpHost.getHost();
+      if (!Utils.isEmpty(jumpHost.getUsername())) {
+        description = jumpHost.getUsername() + "@" + description;
+      }
+      if (!Utils.isEmpty(jumpHost.getPort())) {
+        description += ":" + jumpHost.getPort();
+      }
+    }
+    return (index + 1) + ". " + description;
+  }
+
+  /** Shows the selected jump host in the fields, or empty fields when none is selected. */
+  private void loadSelectedSshTunnelJumpHost() {
+    int index = wSshTunnelJumpHostList.getSelectionIndex();
+    SshJumpHost jumpHost =
+        index >= 0 && index < sshTunnelJumpHosts.size()
+            ? sshTunnelJumpHosts.get(index)
+            : new SshJumpHost();
+    SshAuthenticationMethod method =
+        jumpHost.getAuthenticationMethod() == null
+            ? SshAuthenticationMethod.PASSWORD
+            : jumpHost.getAuthenticationMethod();
+    loadingSshTunnelJumpHost = true;
+    try {
+      wSshTunnelJumpHostHost.setText(Const.NVL(jumpHost.getHost(), ""));
+      wSshTunnelJumpHostPort.setText(Const.NVL(jumpHost.getPort(), ""));
+      wSshTunnelJumpHostUsername.setText(Const.NVL(jumpHost.getUsername(), ""));
+      wSshTunnelJumpHostAuthentication.select(method.getIndex());
+      wSshTunnelJumpHostPassword.setText(Const.NVL(jumpHost.getPassword(), ""));
+      wSshTunnelJumpHostPrivateKeyFile.setText(Const.NVL(jumpHost.getPrivateKeyFile(), ""));
+      wSshTunnelJumpHostPassphrase.setText(Const.NVL(jumpHost.getPassphrase(), ""));
+    } finally {
+      loadingSshTunnelJumpHost = false;
+    }
+    enableSshTunnelFields();
+  }
+
+  /**
+   * Copies the fields into the selected jump host.
+   *
+   * @return true if a jump host changed, false while the fields are being filled or none is
+   *     selected
+   */
+  private boolean storeSelectedSshTunnelJumpHost() {
+    int index = wSshTunnelJumpHostList.getSelectionIndex();
+    if (loadingSshTunnelJumpHost || index < 0 || index >= sshTunnelJumpHosts.size()) {
+      return false;
+    }
+    SshJumpHost jumpHost = sshTunnelJumpHosts.get(index);
+    jumpHost.setHost(wSshTunnelJumpHostHost.getText());
+    jumpHost.setPort(wSshTunnelJumpHostPort.getText());
+    jumpHost.setUsername(wSshTunnelJumpHostUsername.getText());
+    jumpHost.setAuthenticationMethod(getSshTunnelJumpHostAuthentication());
+    jumpHost.setPassword(wSshTunnelJumpHostPassword.getText());
+    jumpHost.setPrivateKeyFile(wSshTunnelJumpHostPrivateKeyFile.getText());
+    jumpHost.setPassphrase(wSshTunnelJumpHostPassphrase.getText());
+    wSshTunnelJumpHostList.setItem(index, describeSshTunnelJumpHost(index));
+    if (wSshTunnelJumpHostList.getSelectionIndex() != index) {
+      wSshTunnelJumpHostList.select(index);
+    }
+    enableSshTunnelFields();
+    return true;
+  }
+
+  private SshAuthenticationMethod getSshTunnelJumpHostAuthentication() {
+    return IEnumHasCodeAndDescription.lookupDescription(
+        SshAuthenticationMethod.class,
+        wSshTunnelJumpHostAuthentication.getText(),
+        SshAuthenticationMethod.PASSWORD);
+  }
+
+  private void addSshTunnelJumpHost() {
+    SshJumpHost jumpHost = new SshJumpHost();
+    jumpHost.setPort("22");
+    sshTunnelJumpHosts.add(jumpHost);
+    refreshSshTunnelJumpHostList(sshTunnelJumpHosts.size() - 1);
+    wSshTunnelJumpHostHost.setFocus();
+  }
+
+  /**
+   * @return true if the selected jump host was removed
+   */
+  private boolean removeSshTunnelJumpHost() {
+    int index = wSshTunnelJumpHostList.getSelectionIndex();
+    if (index < 0 || index >= sshTunnelJumpHosts.size()) {
+      return false;
+    }
+    sshTunnelJumpHosts.remove(index);
+    refreshSshTunnelJumpHostList(Math.min(index, sshTunnelJumpHosts.size() - 1));
+    return true;
+  }
+
+  /**
+   * Moves the selected jump host {@code offset} places, -1 is up.
+   *
+   * @return true if it moved
+   */
+  private boolean moveSshTunnelJumpHost(int offset) {
+    int index = wSshTunnelJumpHostList.getSelectionIndex();
+    int target = index + offset;
+    if (index < 0 || target < 0 || target >= sshTunnelJumpHosts.size()) {
+      return false;
+    }
+    Collections.swap(sshTunnelJumpHosts, index, target);
+    refreshSshTunnelJumpHostList(target);
+    return true;
   }
 
   private void enableSshTunnelFields() {
@@ -1250,6 +1616,31 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wSshTunnelPassphrase.setEnabled(enabled && usePrivateKey);
     wlSshTunnelPrivateKeyFile.setEnabled(enabled && usePrivateKey);
     wlSshTunnelPassphrase.setEnabled(enabled && usePrivateKey);
+
+    int selected = wSshTunnelJumpHostList.getSelectionIndex();
+    boolean jumpHostSelected = enabled && selected >= 0;
+    boolean jumpHostKey =
+        jumpHostSelected
+            && getSshTunnelJumpHostAuthentication() == SshAuthenticationMethod.PRIVATE_KEY;
+    wSshTunnelJumpHostList.setEnabled(enabled);
+    wSshTunnelJumpHostAdd.setEnabled(enabled);
+    wSshTunnelJumpHostRemove.setEnabled(jumpHostSelected);
+    wSshTunnelJumpHostUp.setEnabled(jumpHostSelected && selected > 0);
+    wSshTunnelJumpHostDown.setEnabled(jumpHostSelected && selected < sshTunnelJumpHosts.size() - 1);
+    wlSshTunnelJumpHostHost.setEnabled(jumpHostSelected);
+    wSshTunnelJumpHostHost.setEnabled(jumpHostSelected);
+    wlSshTunnelJumpHostPort.setEnabled(jumpHostSelected);
+    wSshTunnelJumpHostPort.setEnabled(jumpHostSelected);
+    wlSshTunnelJumpHostUsername.setEnabled(jumpHostSelected);
+    wSshTunnelJumpHostUsername.setEnabled(jumpHostSelected);
+    wlSshTunnelJumpHostAuthentication.setEnabled(jumpHostSelected);
+    wSshTunnelJumpHostAuthentication.setEnabled(jumpHostSelected);
+    wlSshTunnelJumpHostPassword.setEnabled(jumpHostSelected && !jumpHostKey);
+    wSshTunnelJumpHostPassword.setEnabled(jumpHostSelected && !jumpHostKey);
+    wlSshTunnelJumpHostPrivateKeyFile.setEnabled(jumpHostKey);
+    wSshTunnelJumpHostPrivateKeyFile.setEnabled(jumpHostKey);
+    wlSshTunnelJumpHostPassphrase.setEnabled(jumpHostKey);
+    wSshTunnelJumpHostPassphrase.setEnabled(jumpHostKey);
   }
 
   private void enableFields() {
@@ -1433,6 +1824,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wSshTunnelUsePrivateKey.setSelection(databaseMeta.isSshTunnelUsePrivateKey());
     wSshTunnelPrivateKeyFile.setText(Const.NVL(databaseMeta.getSshTunnelPrivateKeyFile(), ""));
     wSshTunnelPassphrase.setText(Const.NVL(databaseMeta.getSshTunnelPassphrase(), ""));
+    sshTunnelJumpHosts.clear();
+    for (SshJumpHost jumpHost : databaseMeta.getSshTunnelJumpHosts()) {
+      sshTunnelJumpHosts.add(new SshJumpHost(jumpHost));
+    }
+    refreshSshTunnelJumpHostList(sshTunnelJumpHosts.isEmpty() ? -1 : 0);
 
     updateDriverInfo();
     enableFields();
@@ -1512,6 +1908,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     meta.setSshTunnelUsePrivateKey(wSshTunnelUsePrivateKey.getSelection());
     meta.setSshTunnelPrivateKeyFile(wSshTunnelPrivateKeyFile.getText());
     meta.setSshTunnelPassphrase(wSshTunnelPassphrase.getText());
+    List<SshJumpHost> jumpHosts = new ArrayList<>();
+    for (SshJumpHost jumpHost : sshTunnelJumpHosts) {
+      jumpHosts.add(new SshJumpHost(jumpHost));
+    }
+    meta.setSshTunnelJumpHosts(jumpHosts);
   }
 
   /** Updates the displayed driver information, including the driver name and version. */

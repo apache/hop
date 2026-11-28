@@ -231,6 +231,28 @@ With the tunnel enabled, the `Host Name` and `Port` on the `General` tab describ
 |Passphrase|Optional passphrase protecting the private key.
 |===
 
+=== SSH jump hosts
+
+Some networks put more than one SSH server between Hop and the database, for example a bastion host that is the only one reachable from outside, with the SSH server that can reach the database behind it. List those servers under `Jump hosts` on the `SSH Tunnel` tab, in the order Hop has to pass them. The SSH server configured above stays the last one: the server that reaches the database.
+
+Hop signs in to the first jump host directly, then to every next server through the one before it (the way `ssh -J` does), and finally to the SSH server, which forwards the database port. Each jump host has its own credentials, so one can use a private key and the next a password. Leave the list empty to connect to the SSH server directly.
+
+Select a jump host in the list to edit it. `Add` appends one, `Remove` deletes the selected one, and `Move up` and `Move down` change the order.
+
+[%header, width="90%", cols="1,3"]
+|===
+|Property|Description
+|Jump host name|Host name or IP address of the jump host, as seen from the jump host before it (from Hop for the first one). A jump host whose name resolves to an empty value is skipped, so a variable can leave it out in an environment that does not need it.
+|Jump host port|SSH port of the jump host, defaults to `22`.
+|Jump host username|User name to authenticate on the jump host.
+|Jump host authentication|`Password` or `Private key`.
+|Jump host password|Password to authenticate on the jump host.
+|Jump host private key file|Path to the private key file, for private key authentication.
+|Jump host passphrase|Optional passphrase protecting the private key.
+|===
+
+All fields accept variables. The passwords and passphrases are stored encrypted in the connection metadata, like the other passwords of the connection.
+
 === SSH tunnel with a manual JDBC URL
 
 Because the local port of the tunnel is allocated dynamically at runtime, you can't hard-code it into a link:#_advanced_properties[manual JDBC URL]. For connection strings that can't be expressed with the standard host/port/database template - for example an Oracle TCPS descriptor - Hop exposes the forwarded port through the `${sshTunnel.localPort}` variable.

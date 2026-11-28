@@ -1,0 +1,42 @@
+{
+  "rdbms": {
+    "POSTGRESQL": {
+      "sshTunnelEnabled": true,
+      "sshTunnelHost": "${SSH_TARGET_HOST}",
+      "sshTunnelPort": "${SSH_TUNNEL_PORT}",
+      "sshTunnelUsername": "${SSH_TUNNEL_USER}",
+      "sshTunnelPassword": "${SSH_TUNNEL_PASSWORD}",
+      "sshTunnelUsePrivateKey": false,
+      "sshTunnelPrivateKeyFile": "",
+      "sshTunnelJumpHosts": [
+        {
+          "host": "${SSH_JUMP_HOST}",
+          "port": "22",
+          "username": "${SSH_TUNNEL_USER}",
+          "authenticationMethod": "PRIVATE_KEY",
+          "privateKeyFile": "${PROJECT_HOME}/../ssh/keys/it_rsa"
+        }
+      ],
+      "databaseName": "${POSTGRES_DATABASE}",
+      "pluginId": "POSTGRESQL",
+      "accessType": 0,
+      "hostname": "${POSTGRES_BEHIND_SSH_HOST}",
+      "password": "${POSTGRES_PASSWORD}",
+      "pluginName": "PostgreSQL",
+      "port": "${POSTGRES_PORT}",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": "${POSTGRES_USER}"
+    }
+  },
+  "name": "unit-test-db-ssh-jump-host"
+}

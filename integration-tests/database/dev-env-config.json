@@ -39,6 +39,21 @@
       "name": "MYSQL_DATABASE",
       "value": "sys",
       "description": ""
+    },
+    {
+      "name": "SSH_JUMP_HOST",
+      "value": "ssh-jump",
+      "description": "SSH jump host container, the first hop and reachable from the test container (integration-tests-database.yaml)"
+    },
+    {
+      "name": "SSH_TARGET_HOST",
+      "value": "ssh-target",
+      "description": "SSH server behind the jump host, unreachable from the test container"
+    },
+    {
+      "name": "POSTGRES_BEHIND_SSH_HOST",
+      "value": "postgres-behind-ssh",
+      "description": "PostgreSQL host name only the SSH server behind the jump host resolves"
     }
   ]
 }
