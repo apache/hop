@@ -16,9 +16,12 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemOptions;
@@ -27,8 +30,13 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.s3.metadata.S3AuthType;
 import org.apache.hop.vfs.s3.metadata.S3Meta;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileProvider;
+import org.apache.hop.vfs.s3.s3.vfs.S3FileSystem;
+import org.apache.hop.vfs.s3.s3common.S3CommonFileSystemConfigBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import software.amazon.awssdk.identity.spi.AwsCredentialsIdentity;
+import software.amazon.awssdk.services.s3.S3Client;
 
 /** Unit tests for S3FileProvider */
 class S3FileProviderTest {
@@ -166,6 +174,34 @@ class S3FileProviderTest {
     S3FileProvider namedProvider = new S3FileProvider(variables, meta);
     FileSystem fs = namedProvider.doCreateFileSystem(fileName, null);
     assertNotNull(fs);
+  }
+
+  /** A credentials file under '~' is read from the user's home folder, as HopVfs paths are. */
+  @Test
+  void testCredentialsFileUnderTildeIsReadFromUserHome(@TempDir Path home) throws Exception {
+    Files.writeString(
+        home.resolve("credentials"),
+        "[backblaze]\naws_access_key_id = AKIAEXAMPLE\naws_secret_access_key = secret\n");
+    variables.setVariable("user.home", home.toString());
+
+    S3Meta meta = new S3Meta();
+    meta.setAuthenticationType(S3AuthType.CREDENTIALS_FILE.name());
+    meta.setCredentialsFile("~/credentials");
+    meta.setProfileName("backblaze");
+    meta.setRegion("us-east-1");
+
+    S3FileSystem fs =
+        (S3FileSystem) new S3FileProvider(variables, meta).doCreateFileSystem(fileName, null);
+    assertEquals(
+        home.resolve("credentials").toString(),
+        new S3CommonFileSystemConfigBuilder(fs.getFileSystemOptions()).getCredentialsFile());
+
+    S3Client client = fs.getS3Client();
+    AwsCredentialsIdentity credentials =
+        client.serviceClientConfiguration().credentialsProvider().resolveIdentity().join();
+    assertEquals("AKIAEXAMPLE", credentials.accessKeyId());
+    assertEquals("secret", credentials.secretAccessKey());
+    client.close();
   }
 
   @Test
