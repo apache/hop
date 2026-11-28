@@ -27,12 +27,10 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.RemoveObjectsArgs;
 import io.minio.Result;
 import io.minio.SourceObject;
 import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
-import io.minio.messages.DeleteRequest;
 import io.minio.messages.Item;
 import io.minio.messages.ListAllMyBucketsResult;
 import java.io.ByteArrayInputStream;
@@ -40,7 +38,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,28 +286,8 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   protected void doDelete(String key, String bucketName) throws FileSystemException {
     try {
-      MinioClient client = fileSystem.getClient();
-
-      // We can only delete a folder if it's empty.
-      // So we delete any objects in the folder first.
-      //
-      if (getType() == FileType.FOLDER) {
-        // list all children inside the folder
-        //
-        ListObjectsArgs listArgs = ListObjectsArgs.builder().bucket(bucketName).build();
-        Iterable<Result<Item>> items = client.listObjects(listArgs);
-        Iterator<Result<Item>> iterator = items.iterator();
-        List<DeleteRequest.Object> deleteObjects = new ArrayList<>();
-        while (iterator.hasNext()) {
-          Result<Item> result = iterator.next();
-          deleteObjects.add(new DeleteRequest.Object(result.get().objectName()));
-        }
-
-        RemoveObjectsArgs removeArgs =
-            RemoveObjectsArgs.builder().bucket(bucketName).objects(deleteObjects).build();
-        client.removeObjects(removeArgs);
-      }
-
+      // Commons VFS only deletes a folder once it is empty: delete() skips a folder with children
+      // and deleteAll() deletes them first. There is nothing else to remove here.
       RemoveObjectArgs removeObjectArgs =
           RemoveObjectArgs.builder().bucket(bucketName).object(key).build();
       fileSystem.getClient().removeObject(removeObjectArgs);
