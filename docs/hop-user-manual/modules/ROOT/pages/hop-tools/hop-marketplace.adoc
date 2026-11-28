@@ -80,6 +80,9 @@ From the Hop install directory:
 ./hop marketplace update hop-tech-parquet
 ./hop marketplace update --all
 ./hop marketplace rollback hop-tech-parquet
+./hop marketplace verify
+./hop marketplace verify hop-tech-parquet
+./hop marketplace reinstall hop-tech-parquet
 ./hop marketplace query parquet
 ./hop marketplace query "spark engine"
 ./hop marketplace uninstall hop-tech-parquet
@@ -97,7 +100,7 @@ From the Hop install directory:
 ./hop marketplace validate -f hop-env.yaml --strict
 ----
 
-After install, update, rollback, apply, or uninstall, *restart Hop* so the plugin registry reloads.
+After install, update, rollback, reinstall, apply, or uninstall, *restart Hop* so the plugin registry reloads.
 
 Installing another version of a plugin that the marketplace installed replaces it: files that only the previous version had are removed.
 Shared jars in `lib/core` stay in place.
@@ -123,6 +126,26 @@ A rollback installs the previous version, so it keeps the version it replaces in
 
 The marketplace keeps one previous version per plugin, and removes it when the plugin is uninstalled.
 Shared jars in `lib/core` that only the newer version has stay in place.
+
+[[verify-reinstall]]
+=== Verify and reinstall
+
+`verify` compares the files of marketplace-installed plugins with their install receipts and changes nothing.
+Without an artifact id it checks every one.
+It lists the files that are missing, and the files whose SHA-256 checksum no longer matches the one in the receipt, and exits with code 1 when there are any.
+It also lists, without failing:
+
+* a shared jar in `lib/core` that another marketplace install wrote since, or that the install left as it was because it could not replace it.
+* files of the previous version that are removed later, see <<pending-changes>>.
+* files in the plugin's folder that no receipt lists, such as a JDBC driver copied there by hand, or a file of an older version that could load next to the current one.
+
+A change that waits for the next Hop start counts as made.
+A receipt written by Hop before 2.21 has no checksums: `verify` then only checks that the files are there.
+
+`reinstall <artifactId>` downloads the installed version again and installs it, also when every file is there, so missing and modified files get their packaged content back.
+It tries the repository the plugin was installed from first.
+The previous version stays available to `rollback`.
+Files in the plugin's folder that the plugin does not ship are left alone.
 
 [[pending-changes]]
 === Files in use
@@ -177,7 +200,7 @@ The main *Plugin Marketplace* dialog has three tabs:
 * *Install spec* — edit a Hop install spec (`hop-env.yaml` / JSON) and validate or apply it
 * *Repositories* — configure Maven repositories (same settings as the CLI / hop-config)
 
-After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
+After install, update, rollback, reinstall, apply, or uninstall, *restart Hop* so the plugin registry reloads.
 
 === Plugins tab
 
@@ -195,8 +218,10 @@ Use this tab to work with the local optional-plugin catalog:
 * *Install* / *Uninstall* / *Refresh* — act on the selected plugins (uninstall requires a marketplace receipt)
 * *Update* — installs the version shown under *Update available* for the selected plugins
 * *Rollback* — puts back the version that the installed version of the selected plugins replaced, see <<update-rollback>>
+* *Reinstall* — downloads and installs the installed version of the selected plugins again, see <<verify-reinstall>>
+* *Verify* — checks the files of the selected plugins against their install receipts and lists what is missing or modified, see <<verify-reinstall>>. When files are missing or modified, it offers to reinstall those plugins.
 * Several plugins can be selected at once with ctrl-click, shift-click, or ctrl-A, and installed or uninstalled in one go. Installs run one after another behind a single progress dialog; a plugin that fails does not stop the others and every failure is reported together at the end.
-* On *Hop Web* with authentication enabled, *Install*, *Update*, *Rollback*, *Uninstall*, repository editing, and hop-env *Apply* require the administrator permission `plugin.manage` (built-in *Admin* role). Catalog browse, *Refresh*, and *Validate* remain available to other roles. See the Hop Web authorization section for details.
+* On *Hop Web* with authentication enabled, *Install*, *Update*, *Rollback*, *Reinstall*, *Uninstall*, repository editing, and hop-env *Apply* require the administrator permission `plugin.manage` (built-in *Admin* role). Catalog browse, *Refresh*, *Verify*, and *Validate* remain available to other roles. See the Hop Web authorization section for details.
 
 Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
 

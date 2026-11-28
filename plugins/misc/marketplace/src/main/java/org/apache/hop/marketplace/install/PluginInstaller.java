@@ -171,8 +171,23 @@ public class PluginInstaller {
       String preferredRepoId,
       IInstallListener listener)
       throws HopException {
+    return install(coordinates, activateImmediately, forceRepoId, preferredRepoId, listener, false);
+  }
+
+  /**
+   * @param again install the version even when it is installed with all its files, to replace files
+   *     that were changed or damaged (see {@link #reinstall})
+   */
+  private InstallReceipt install(
+      MavenCoordinates coordinates,
+      boolean activateImmediately,
+      String forceRepoId,
+      String preferredRepoId,
+      IInstallListener listener,
+      boolean again)
+      throws HopException {
     IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
-    InstallReceipt already = satisfiedInstall(coordinates);
+    InstallReceipt already = again ? null : satisfiedInstall(coordinates);
     if (already != null) {
       // An earlier update may have left files of the previous version that were in use.
       if (!nullSafe(already.getObsoletePaths()).isEmpty()) {
@@ -373,6 +388,55 @@ public class PluginInstaller {
   }
 
   /**
+   * Download and install the installed version of a plugin again, also when every file it recorded
+   * is on disk: files that were changed or damaged get their packaged content back. The repository
+   * it was installed from is tried first. The version it replaced stays available to {@link
+   * #rollback}.
+   *
+   * @param listener receives the install phases. Pass {@link IInstallListener#NONE} for headless
+   *     callers.
+   */
+  public InstallReceipt reinstall(String artifactId, IInstallListener listener)
+      throws HopException {
+    InstallReceipt current = readReceipt(hopHome, artifactId);
+    if (current == null
+        || current.isUninstallPending()
+        || StringUtils.isBlank(current.getVersion())) {
+      throw new HopException(
+          "No marketplace install of '"
+              + artifactId
+              + "'. Only plugins installed via the marketplace can be reinstalled.");
+    }
+    if (current.isPendingActivation()) {
+      throw new HopException(
+          "Version "
+              + current.getVersion()
+              + " of "
+              + artifactId
+              + " is staged and not active yet. Restart Hop before reinstalling it.");
+    }
+    MavenCoordinates coordinates =
+        new MavenCoordinates(groupIdOf(current, null), artifactId, current.getVersion());
+    InstallReceipt receipt =
+        install(coordinates, true, null, current.getRepositoryId(), listener, true);
+    log.logBasic("Reinstalled " + coordinates.gav() + ". Restart Hop to load it.");
+    return receipt;
+  }
+
+  /**
+   * The group id of an install: from its receipt, else from {@code fallback}'s receipt, else the
+   * configured one, else {@code org.apache.hop}.
+   */
+  private String groupIdOf(InstallReceipt receipt, InstallReceipt fallback) {
+    return StringUtils.defaultIfBlank(
+        StringUtils.firstNonBlank(
+            receipt.getGroupId(),
+            fallback == null ? null : fallback.getGroupId(),
+            config == null ? null : config.getGroupId()),
+        "org.apache.hop");
+  }
+
+  /**
    * Put back the version the installed one replaced, from the backup its install made. This is an
    * install of that version: the version installed now is backed up in turn, so a second rollback
    * returns to it.
@@ -409,14 +473,8 @@ public class PluginInstaller {
               + artifactId
               + " to roll back to. The marketplace keeps one when it installs another version.");
     }
-    String groupId =
-        StringUtils.defaultIfBlank(
-            StringUtils.firstNonBlank(
-                saved.getGroupId(),
-                current.getGroupId(),
-                config == null ? null : config.getGroupId()),
-            "org.apache.hop");
-    MavenCoordinates coordinates = new MavenCoordinates(groupId, artifactId, saved.getVersion());
+    MavenCoordinates coordinates =
+        new MavenCoordinates(groupIdOf(saved, current), artifactId, saved.getVersion());
     try {
       InstallReceipt receipt =
           installZip(
@@ -956,6 +1014,16 @@ public class PluginInstaller {
    * that are not staged themselves and that no other receipt lists.
    */
   List<String> filesTheStagedVersionDoesNotHave(String artifactId, List<String> paths) {
+    return filesNoReceiptLists(hopHome, artifactId, paths, log);
+  }
+
+  /**
+   * The files in the top-level plugin folders ({@code plugins/<type>/<name>}) of {@code paths} that
+   * are not in {@code paths} themselves and that no other receipt than the one of {@code
+   * artifactId} lists.
+   */
+  static List<String> filesNoReceiptLists(
+      Path hopHome, String artifactId, Collection<String> paths, ILogChannel log) {
     Set<String> staged = new HashSet<>();
     Set<String> pluginFolders = new LinkedHashSet<>();
     for (String path : paths) {
@@ -1702,7 +1770,7 @@ public class PluginInstaller {
   }
 
   /** Web layout keeps shared jars in {@code WEB-INF/lib} instead of {@code lib/core}. */
-  private static Path activationTarget(Path hopHome, String relative) {
+  static Path activationTarget(Path hopHome, String relative) {
     Path standard = hopHome.resolve(relative);
     String normalized = relative == null ? "" : relative.replace('\\', '/');
     if (!normalized.startsWith("lib/core/") || normalized.endsWith("/")) {

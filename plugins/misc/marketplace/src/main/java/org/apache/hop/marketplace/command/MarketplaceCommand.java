@@ -54,6 +54,7 @@ import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PendingChanges;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
+import org.apache.hop.marketplace.install.PluginVerifier;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
@@ -73,6 +74,8 @@ import picocli.CommandLine.Parameters;
       MarketplaceCommand.UninstallCommand.class,
       MarketplaceCommand.UpdateCommand.class,
       MarketplaceCommand.RollbackCommand.class,
+      MarketplaceCommand.VerifyCommand.class,
+      MarketplaceCommand.ReinstallCommand.class,
       MarketplaceCommand.ListCommand.class,
       MarketplaceCommand.QueryCommand.class,
       MarketplaceCommand.ApplyCommand.class,
@@ -682,6 +685,202 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "rollback failed" : e.getMessage(), e);
+      }
+    }
+  }
+
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "verify",
+      description =
+          "Compare the files of plugins installed via the marketplace with their install receipts:"
+              + " list the files that are missing or no longer have the content the install wrote."
+              + " Changes nothing. Exit code 1 when files are missing or modified.")
+  public static class VerifyCommand extends MarketplaceSubCommand {
+    @Parameters(
+        index = "0",
+        arity = "0..*",
+        paramLabel = "ARTIFACT_ID",
+        description = "Plugins to verify, e.g. hop-tech-parquet. Default: every one.")
+    private List<String> artifactIds;
+
+    @Override
+    public void run() {
+      try {
+        if (log == null) {
+          log = new LogChannel("Marketplace");
+        }
+        Path hopHome = HopHome.resolve();
+        PluginVerifier verifier = new PluginVerifier(log, hopHome);
+        List<PluginVerifier.Result> results = new ArrayList<>();
+        if (artifactIds == null || artifactIds.isEmpty()) {
+          results.addAll(verifier.verifyAll());
+          if (results.isEmpty()) {
+            System.out.println("No marketplace-installed plugins.");
+            return;
+          }
+        }
+        // Not installed via the marketplace, unreadable, or missing or modified files
+        List<String> failed = new ArrayList<>();
+        if (artifactIds != null) {
+          for (String artifactId : artifactIds) {
+            try {
+              results.add(verifier.verify(artifactId));
+            } catch (HopException e) {
+              System.err.println(CONST_ERROR + StringUtils.strip(e.getMessage()));
+              failed.add(artifactId);
+            }
+          }
+        }
+        for (PluginVerifier.Result result : results) {
+          for (String line : describe(result)) {
+            System.out.println(line);
+          }
+          if (result.isDamaged() || result.state() == PluginVerifier.State.UNREADABLE) {
+            failed.add(result.artifactId());
+          }
+        }
+        if (failed.isEmpty()) {
+          return;
+        }
+        List<String> reinstallable =
+            results.stream()
+                .filter(PluginVerifier.Result::isDamaged)
+                .map(PluginVerifier.Result::artifactId)
+                .toList();
+        if (!reinstallable.isEmpty()) {
+          System.out.println(
+              reinstallable.size()
+                  + " plugin(s) have missing or modified files. 'hop marketplace reinstall "
+                  + String.join(" ", reinstallable)
+                  + "' installs them again.");
+        }
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), "verify failed for: " + String.join(", ", failed));
+      } catch (CommandLine.ExecutionException e) {
+        throw e;
+      } catch (Exception e) {
+        System.err.println(CONST_ERROR + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "verify failed" : e.getMessage(), e);
+      }
+    }
+
+    /** The lines for one plugin: its state, then one indented line per file found. */
+    static List<String> describe(PluginVerifier.Result result) {
+      List<String> lines = new ArrayList<>();
+      String name =
+          result.artifactId()
+              + (StringUtils.isBlank(result.version()) ? "" : " " + result.version());
+      lines.add(
+          switch (result.state()) {
+            case OK ->
+                name
+                    + ": OK"
+                    + (result.withoutChecksums()
+                        ? " (all files are there; the receipt has no checksums, so their content"
+                            + " was not checked. A reinstall records them.)"
+                        : "");
+            case DAMAGED -> name + ": missing or modified files";
+            case UNREADABLE -> name + ": " + result.error();
+            case PENDING_ACTIVATION ->
+                name + ": not checked, Hop activates this version the next time it starts";
+            case UNINSTALL_PENDING ->
+                name
+                    + ": uninstall not finished; the next install, apply or uninstall removes the"
+                    + " rest";
+          });
+      for (PluginVerifier.FileFinding file : result.files()) {
+        lines.add("  " + findingLabel(file) + "  " + file.path());
+      }
+      return lines;
+    }
+
+    private static String findingLabel(PluginVerifier.FileFinding file) {
+      return switch (file.finding()) {
+        case MISSING -> "missing";
+        case MODIFIED -> "modified" + (file.detail() == null ? "" : " (" + file.detail() + ")");
+        case SHARED_BY_OTHER -> "ok, written by " + file.detail() + ":";
+        case SHARED_KEPT -> "ok, kept the copy that was there:";
+        case OBSOLETE -> "old version, removed later:";
+        case UNKNOWN -> "not installed by the marketplace:";
+      };
+    }
+  }
+
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "reinstall",
+      description =
+          "Download and install the installed version of plugins again, also when all their files"
+              + " are there, to replace files that are missing or modified. The repository a"
+              + " plugin was installed from is tried first. A plugin that fails to reinstall does"
+              + " not stop the others; the command exits non-zero when any of them failed.")
+  public static class ReinstallCommand extends MarketplaceSubCommand {
+    @Parameters(
+        index = "0",
+        arity = "1..*",
+        paramLabel = "ARTIFACT_ID",
+        description = "Plugins to reinstall, e.g. hop-tech-parquet")
+    private List<String> artifactIds;
+
+    @Override
+    public void run() {
+      try {
+        if (log == null) {
+          log = new LogChannel("Marketplace");
+        }
+        MarketplaceConfig config = MarketplaceConfig.load();
+        if (!config.isEnabled()) {
+          throw new HopException("Marketplace is disabled in hop-config.json");
+        }
+        Path hopHome = HopHome.resolve();
+        PluginInstaller installer = new PluginInstaller(log, hopHome, config);
+        installer.activateAllPending();
+        List<String> failed = new ArrayList<>();
+        int reinstalled = 0;
+        ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
+        try {
+          for (int i = 0; i < artifactIds.size(); i++) {
+            String artifactId = artifactIds.get(i);
+            progress.item(artifactId, i, artifactIds.size());
+            try {
+              InstallReceipt receipt = installer.reinstall(artifactId, progress);
+              progress.complete();
+              reinstalled++;
+              System.out.println("Reinstalled " + artifactId + " " + receipt.getVersion() + ".");
+            } catch (Exception e) {
+              progress.complete();
+              failed.add(artifactId);
+              System.err.println(
+                  CONST_ERROR
+                      + "failed to reinstall "
+                      + artifactId
+                      + ": "
+                      + StringUtils.strip(e.getMessage()));
+              log.logError("Marketplace reinstall failed for " + artifactId, e);
+            }
+          }
+        } finally {
+          progress.complete();
+        }
+        if (reinstalled > 0) {
+          System.out.println("Restart Hop to load the reinstalled plugins.");
+        }
+        printPendingChanges(hopHome, log);
+        if (!failed.isEmpty()) {
+          throw new CommandLine.ExecutionException(
+              new CommandLine(this), "failed to reinstall: " + String.join(", ", failed));
+        }
+      } catch (CommandLine.ExecutionException e) {
+        throw e;
+      } catch (Exception e) {
+        System.err.println(CONST_ERROR + e.getMessage());
+        if (log != null) {
+          log.logError("Marketplace reinstall failed", e);
+        }
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "reinstall failed" : e.getMessage(), e);
       }
     }
   }
