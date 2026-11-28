@@ -122,17 +122,17 @@ public class Variables implements IVariables {
       getProperties().putAll(System.getenv());
     }
 
-    // Clone the system properties to avoid ConcurrentModificationException while iterating
-    // and then add all of them to properties variable.
+    List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
+    for (DescribedVariable describedVariable : describedVariables) {
+      getProperties().put(describedVariable.getName(), describedVariable.getValue());
+    }
+
+    // Clone the system properties to avoid ConcurrentModificationException while iterating.
+    // Apply them after hop-config defaults so explicit launcher options keep their precedence.
     //
     Set<String> systemPropertiesNames = System.getProperties().stringPropertyNames();
     for (String key : systemPropertiesNames) {
       getProperties().put(key, System.getProperties().getProperty(key));
-    }
-
-    List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
-    for (DescribedVariable describedVariable : describedVariables) {
-      getProperties().put(describedVariable.getName(), describedVariable.getValue());
     }
 
     if (parent != null) {
