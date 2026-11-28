@@ -256,11 +256,12 @@ class DeletePostgresIT {
   }
 
   /**
-   * "Use batch update" with an error hop: batching is switched off for the run, so only the failing
-   * row goes to the error hop, not every row of its batch.
+   * "Use batch deletes" with an error hop: only the failing rows go to the error hop, not every row
+   * of their batch. PostgreSQL's batch failure contract tells them apart; with
+   * HOP_DATABASE_BATCH_RECOVERY=LEGACY batching is switched off for a savepoint per row instead.
    */
   @Test
-  void batchModeIsSwitchedOffWithAnErrorHop() throws Exception {
+  void withAnErrorHopOnlyTheFailingRowsOfABatchAreRejected() throws Exception {
     createTarget("delete_batch", 50, 7);
     List<Object[]> output = new ArrayList<>();
     List<Object[]> errors = new ArrayList<>();

@@ -61,12 +61,47 @@ Rows whose content or embedding is empty are passed through to the output stream
 |Create HNSW index|Create an HNSW approximate-nearest-neighbour index. This runs against an existing table too, not only against one this transform creates.
 |Index metric|Distance metric the HNSW index is built for. Use the same metric in pgvector search.
 |Delete document before upsert|Delete the existing rows for a document ID once before inserting its new chunks. Use this when re-indexing a document whose chunk count may have changed.
-|Commit size|Number of rows per commit. Use 0 to commit once at the end of the pipeline, the way Table Output does. Batching is disabled automatically when the transform has an error hop, because PostgreSQL aborts the whole transaction on a failed batch and individual rows could not be diverted.
+|Commit size|Number of rows per commit, and per batch. Use 0 to commit once at the end of the pipeline, the way Table Output does. See <<Batches and error handling>> for what an error hop changes.
 |===
 
 === Column mappings
 
 The *Column mappings* tab maps additional stream fields onto extra columns of the target table, so that metadata such as a source URL, a publication date or a document type can be stored alongside the vector and used later as a filter in pgvector search.
+
+== Batches and error handling
+
+Every row is one `INSERT ... ON CONFLICT (id) DO UPDATE` statement.
+Without an error hop the statements are sent to the database in JDBC batches of the commit size, and a batch the database refuses is rolled back and the transform stops.
+With a commit size of 0 the rows are written one by one, in a single transaction for the run.
+
+With an error hop attached every row goes to exactly one stream: the main output when it is stored, the error hop when it is not.
+On a database whose driver's behaviour for a failed batch has been measured, PostgreSQL among them, the transform keeps batching with the error hop.
+When a batch fails, it works out which rows the database refused, sends those to the error hop and stores the others.
+A row only appears on either stream after the commit that includes it, and the rows keep their input order, also the rows that store nothing and the rows that fail before they reach the database.
+When the transform is stopped or fails, the rows that still wait in its batch are not written and not passed on.
+
+The error rows carry one of these codes:
+
+* `PGVECTORUPSERT001`: the row failed before its statement reached the database: no key could be built, its chunk index or embedding could not be read, or the delete of its document failed.
+* `PGVECTORUPSERT002`: the database refused the row, for example a vector with the wrong number of dimensions, or a value a constraint of the table forbids.
+* `PGVECTORUPSERT003`: the row was in a failed batch that the driver can't say anything about, on a connection without transactions, so it could neither be undone nor safely sent again.
+
+With *Delete document before upsert* the first row of a document runs the delete of the document's earlier rows and its own statement together, right after the rows before it are committed: both are committed, or neither is.
+A refused row therefore never leaves its document deleted; the next row of the same document runs the delete instead.
+
+The databases measured so far, with their default connection options, are listed in the development manual under "Creating a dialect".
+On every other database, including the dialects that extend PostgreSQL, an error hop switches batching off: every row runs on its own behind a savepoint and is passed on right after it, before the commit that includes it.
+The same goes for a commit size of 0 and for a transactional pipeline.
+In that mode a document whose first row is refused stays deleted.
+
+To go back to that behaviour on a measured database:
+
+* set *When a batch fails, the driver* on the *Advanced* tab of the connection to *As before*, or
+* set the variable `HOP_DATABASE_BATCH_RECOVERY` to `LEGACY`, for every connection.
+
+The same option can name what the driver does, for a dialect that has not been measured or a connection whose options change it.
+
+When a failed batch is worked out, a row can be sent to the database more than once, so a failed batch can fire non-transactional triggers again.
 
 == Notes
 
@@ -87,4 +122,4 @@ The *Embedding dimensions* option only applies when the table is created by this
 
 Running more than one copy of this transform is rejected when any of *Create table if missing*, *Create HNSW index* or a column mapping is set, because the copies would issue the same DDL concurrently. *Delete document before upsert* is rejected with multiple copies as well: each copy tracks the documents it has deleted on its own, so one copy can delete rows another has just inserted.
 
-Attaching an error hop turns off JDBC batching, because a rejected batch cannot be mapped back onto the individual rows that caused it. Rows are then written one statement at a time, with a savepoint per row so a rejected row can be diverted while the rest of the transaction survives.
+For what an error hop changes about batches and commits, see <<Batches and error handling>>.

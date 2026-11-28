@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.insertupdate;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -80,6 +82,20 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
       injectionKeyDescription = "InsertUpdateMeta.Injection.DO_NOT",
       injectionKey = "DO_NOT")
   private boolean updateBypassed;
+
+  /**
+   * Insert and update the rows in batches of the commit size, recovered by the connection's batch
+   * failure contract, instead of one statement per row. Off for a new transform and for a transform
+   * saved before the option existed. It only applies where that contract is validated and every key
+   * condition is an equality; elsewhere the rows are still written one by one.
+   */
+  @Getter
+  @Setter
+  @HopMetadataProperty(
+      key = "use_batch",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.UseBatchUpdate",
+      injectionKey = "BATCH_UPDATE")
+  private boolean useBatchUpdate;
 
   /** database connection */
   @HopMetadataProperty(

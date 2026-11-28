@@ -41,8 +41,36 @@ This name has to be unique in a single pipeline.
 This is important for data sources that allow for table names with periods in them.
 |Target table|Name of the table in which you want to do the insert or update.
 |Commit size|The number of rows to change (insert / update) before running a commit.
+|Use batch deletes|Sends the deletes to the database in batches of the commit size.
 |The keys(s) to look up the value(s)|Specify fields to delete the corresponding rows for
 |===
+
+== Batches and error handling
+
+With *Use batch deletes* on, the deletes are sent to the database in batches of the commit size.
+When the delete of a row in a batch fails, for example because a foreign key of another table still references the row, what happened to the other rows of the batch depends on the database's JDBC driver: some run the other rows, some stop at the failing row, and some lose the whole batch.
+A delete whose key matches no row is not a failure.
+
+On a database whose driver's behaviour has been measured, the transform uses it to work out which rows of a failed batch are deleted, and with an error hop attached it sends each row to exactly one stream: the main output for rows that were deleted, the error hop for rows that were refused (error code `DEL002`).
+A row only appears on the main output after the database has committed its delete, and the rows keep their input order, also a row whose key could not be passed to the database (error code `DEL001`).
+On such a database the transform also keeps batching when an error hop is attached.
+That includes PostgreSQL, where an error hop otherwise switches batching off and every row runs on its own behind a savepoint.
+Without an error hop a failed batch is rolled back, none of its rows is passed on, and the transform stops.
+When the transform is stopped or fails, the rows that still wait in its batch are not deleted.
+
+The databases measured so far, with their default connection options, are listed in the development manual under "Creating a dialect".
+On every other database, and when a connection option changes how the driver handles a failed batch, the transform handles a failed batch as it always did: a row is passed on as soon as it is added to the batch, and when the batch fails only the row that ran it goes to the error hop (error code `DEL001`).
+
+To go back to that behaviour on a measured database:
+
+* set *When a batch fails, the driver* on the *Advanced* tab of the connection to *As before*, or
+* set the variable `HOP_DATABASE_BATCH_RECOVERY` to `LEGACY`, for every connection.
+
+The same option can name what the driver does, for a connection whose options change it.
+
+When a failed batch is worked out this way, the delete of a row can be sent to the database more than once, so a failed batch can fire non-transactional triggers again.
+
+With *Use batch deletes* off, a commit size of 0, or a connection shared by a transactional pipeline, the rows are deleted one by one, as before.
 
 == Samples
 

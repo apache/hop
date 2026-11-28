@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0008-upsert-batch-error-accounting</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>pgvector upsert with an error hop on PostgreSQL, twelve chunks of which the database refuses three (a vector of the wrong size): one in the middle of the first commit window, one at the first position of the second and one at the end of the final partial window. Once at commit size 5: PostgreSQL's validated batch failure contract (the whole batch is lost) keeps batching on with the error hop, without a savepoint per row, and the good rows of a failed batch are run again. Once at commit size 0: one transaction, every row behind a savepoint, as before. Asserts for both that exactly the three bad chunks reach the error stream with code PGVECTORUPSERT002, that the nine good chunks are stored and reported once, and that no chunk is reported on the main output unless it is in the table. A third upsert deletes each document before its chunks: a document whose only new chunk is refused keeps its earlier chunks, and a document whose first new chunk is refused is still replaced by the others.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/11/27 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/11/27 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Init tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DROP TABLE IF EXISTS hop_pgv_acc_target;
+DROP TABLE IF EXISTS hop_pgv_acc_written;
+DROP TABLE IF EXISTS hop_pgv_acc_rejects;
+DROP TABLE IF EXISTS hop_pgv_one_target;
+DROP TABLE IF EXISTS hop_pgv_one_written;
+DROP TABLE IF EXISTS hop_pgv_one_rejects;
+DROP TABLE IF EXISTS hop_pgv_del_target;
+DROP TABLE IF EXISTS hop_pgv_del_written;
+DROP TABLE IF EXISTS hop_pgv_del_rejects;
+CREATE TABLE hop_pgv_acc_target (id TEXT PRIMARY KEY, document_id TEXT, chunk_index INTEGER, content TEXT, embedding vector(3));
+CREATE TABLE hop_pgv_acc_written (document_id TEXT, chunk_index INTEGER, chunk_text TEXT);
+CREATE TABLE hop_pgv_acc_rejects (document_id TEXT, chunk_index INTEGER, err_desc TEXT, err_code VARCHAR(40));
+CREATE TABLE hop_pgv_one_target (id TEXT PRIMARY KEY, document_id TEXT, chunk_index INTEGER, content TEXT, embedding vector(3));
+CREATE TABLE hop_pgv_one_written (document_id TEXT, chunk_index INTEGER, chunk_text TEXT);
+CREATE TABLE hop_pgv_one_rejects (document_id TEXT, chunk_index INTEGER, err_desc TEXT, err_code VARCHAR(40));
+CREATE TABLE hop_pgv_del_target (id TEXT PRIMARY KEY, document_id TEXT, chunk_index INTEGER, content TEXT, embedding vector(3));
+CREATE TABLE hop_pgv_del_written (document_id TEXT, chunk_index INTEGER, chunk_text TEXT);
+CREATE TABLE hop_pgv_del_rejects (document_id TEXT, chunk_index INTEGER, err_desc TEXT, err_code VARCHAR(40));
+INSERT INTO hop_pgv_del_target (id, document_id, chunk_index, content, embedding) VALUES ('doc-keep_0', 'doc-keep', 0, 'old', '[0,1,0]'), ('doc-keep_1', 'doc-keep', 1, 'old', '[0,1,0]'), ('doc-keep_2', 'doc-keep', 2, 'old', '[0,1,0]'), ('doc-swap_0', 'doc-swap', 0, 'old', '[0,1,0]'), ('doc-swap_1', 'doc-swap', 1, 'old', '[0,1,0]'), ('doc-swap_2', 'doc-swap', 2, 'old', '[0,1,0]'), ('doc-swap_3', 'doc-swap', 3, 'old', '[0,1,0]');</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>pgvector</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0008-upsert-batch-error-accounting.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0008-upsert-batch-error-accounting.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>432</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>every row on exactly one stream</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DO $$
+DECLARE
+  n BIGINT;
+BEGIN
+
+  -- commit size 5: twelve chunks went in; twelve rows have to come out on exactly one of the two streams.
+  SELECT COUNT(*) INTO n FROM (SELECT chunk_index FROM hop_pgv_acc_written UNION ALL SELECT chunk_index FROM hop_pgv_acc_rejects) s;
+  IF n &lt;&gt; 12 THEN
+    RAISE EXCEPTION 'commit size 5: rows on the main output plus rows on the error stream: got %, expected 12', n;
+  END IF;
+
+  -- commit size 5: only the three chunks the database refused are rejects; the good chunks of their commit window are not taken down with them.
+  SELECT COUNT(*) INTO n FROM hop_pgv_acc_rejects;
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'commit size 5: rows on the error stream: got %, expected 3', n;
+  END IF;
+
+  -- commit size 5: the rejects are exactly the bad chunks: middle of window 1, first of window 2, last of the final partial window.
+  SELECT COUNT(*) INTO n FROM hop_pgv_acc_rejects WHERE document_id = 'doc-acc' AND chunk_index IN (2, 5, 11);
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'commit size 5: rejected rows that are the bad chunks: got %, expected 3', n;
+  END IF;
+
+  -- commit size 5: every reject carries the database's message and the code PGVECTORUPSERT002 of a row the database refused, in a recovered batch.
+  SELECT COUNT(*) INTO n FROM hop_pgv_acc_rejects WHERE err_desc LIKE '%expected 3 dimensions, not 2%' AND err_code = 'PGVECTORUPSERT002';
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'commit size 5: rejects with the database message and code PGVECTORUPSERT002: got %, expected 3', n;
+  END IF;
+
+  -- commit size 5: all nine good chunks are reported on the main output, each once.
+  SELECT COUNT(DISTINCT chunk_index) INTO n FROM hop_pgv_acc_written WHERE document_id = 'doc-acc' AND chunk_index IN (0, 1, 3, 4, 6, 7, 8, 9, 10);
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'commit size 5: good chunks on the main output: got %, expected 9', n;
+  END IF;
+
+  -- commit size 5: no chunk is reported more than once.
+  SELECT COUNT(*) INTO n FROM (SELECT chunk_index FROM hop_pgv_acc_written GROUP BY chunk_index HAVING COUNT(*) &gt; 1) d;
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'commit size 5: chunks on the main output more than once: got %, expected 0', n;
+  END IF;
+
+  -- commit size 5: the nine good chunks are stored, and nothing else.
+  SELECT COUNT(*) INTO n FROM hop_pgv_acc_target;
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'commit size 5: rows in the target table: got %, expected 9', n;
+  END IF;
+  SELECT COUNT(*) INTO n FROM hop_pgv_acc_target WHERE id IN ('doc-acc_2', 'doc-acc_5', 'doc-acc_11');
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'commit size 5: refused chunks in the target table: got %, expected 0', n;
+  END IF;
+
+  -- commit size 5: no chunk is reported as stored unless it is in the table.
+  SELECT COUNT(*) INTO n FROM hop_pgv_acc_written w WHERE NOT EXISTS (SELECT 1 FROM hop_pgv_acc_target t WHERE t.id = w.document_id || '_' || w.chunk_index AND t.content = w.chunk_text);
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'commit size 5: chunks reported as stored that are not in the table: got %, expected 0', n;
+  END IF;
+
+  -- commit size 0: twelve chunks went in; twelve rows have to come out on exactly one of the two streams.
+  SELECT COUNT(*) INTO n FROM (SELECT chunk_index FROM hop_pgv_one_written UNION ALL SELECT chunk_index FROM hop_pgv_one_rejects) s;
+  IF n &lt;&gt; 12 THEN
+    RAISE EXCEPTION 'commit size 0: rows on the main output plus rows on the error stream: got %, expected 12', n;
+  END IF;
+
+  -- commit size 0: only the three chunks the database refused are rejects; the good chunks of their commit window are not taken down with them.
+  SELECT COUNT(*) INTO n FROM hop_pgv_one_rejects;
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'commit size 0: rows on the error stream: got %, expected 3', n;
+  END IF;
+
+  -- commit size 0: the rejects are exactly the bad chunks: middle of window 1, first of window 2, last of the final partial window.
+  SELECT COUNT(*) INTO n FROM hop_pgv_one_rejects WHERE document_id = 'doc-acc' AND chunk_index IN (2, 5, 11);
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'commit size 0: rejected rows that are the bad chunks: got %, expected 3', n;
+  END IF;
+
+  -- commit size 0: every reject carries the database's message and the code PGVECTORUPSERT002 of a row the database refused, on its own behind a savepoint.
+  SELECT COUNT(*) INTO n FROM hop_pgv_one_rejects WHERE err_desc LIKE '%expected 3 dimensions, not 2%' AND err_code = 'PGVECTORUPSERT002';
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'commit size 0: rejects with the database message and code PGVECTORUPSERT002: got %, expected 3', n;
+  END IF;
+
+  -- commit size 0: all nine good chunks are reported on the main output, each once.
+  SELECT COUNT(DISTINCT chunk_index) INTO n FROM hop_pgv_one_written WHERE document_id = 'doc-acc' AND chunk_index IN (0, 1, 3, 4, 6, 7, 8, 9, 10);
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'commit size 0: good chunks on the main output: got %, expected 9', n;
+  END IF;
+
+  -- commit size 0: no chunk is reported more than once.
+  SELECT COUNT(*) INTO n FROM (SELECT chunk_index FROM hop_pgv_one_written GROUP BY chunk_index HAVING COUNT(*) &gt; 1) d;
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'commit size 0: chunks on the main output more than once: got %, expected 0', n;
+  END IF;
+
+  -- commit size 0: the nine good chunks are stored, and nothing else.
+  SELECT COUNT(*) INTO n FROM hop_pgv_one_target;
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'commit size 0: rows in the target table: got %, expected 9', n;
+  END IF;
+  SELECT COUNT(*) INTO n FROM hop_pgv_one_target WHERE id IN ('doc-acc_2', 'doc-acc_5', 'doc-acc_11');
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'commit size 0: refused chunks in the target table: got %, expected 0', n;
+  END IF;
+
+  -- commit size 0: no chunk is reported as stored unless it is in the table.
+  SELECT COUNT(*) INTO n FROM hop_pgv_one_written w WHERE NOT EXISTS (SELECT 1 FROM hop_pgv_one_target t WHERE t.id = w.document_id || '_' || w.chunk_index AND t.content = w.chunk_text);
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'commit size 0: chunks reported as stored that are not in the table: got %, expected 0', n;
+  END IF;
+
+  -- delete before upsert: four chunks went in, two refused, two stored.
+  SELECT COUNT(*) INTO n FROM hop_pgv_del_rejects WHERE err_code = 'PGVECTORUPSERT002' AND ((document_id = 'doc-keep' AND chunk_index = 0) OR (document_id = 'doc-swap' AND chunk_index = 0));
+  IF n &lt;&gt; 2 THEN
+    RAISE EXCEPTION 'delete before upsert: refused first chunks on the error stream with code PGVECTORUPSERT002: got %, expected 2', n;
+  END IF;
+  SELECT COUNT(*) INTO n FROM (SELECT chunk_index FROM hop_pgv_del_written UNION ALL SELECT chunk_index FROM hop_pgv_del_rejects) s;
+  IF n &lt;&gt; 4 THEN
+    RAISE EXCEPTION 'delete before upsert: rows on the main output plus rows on the error stream: got %, expected 4', n;
+  END IF;
+  SELECT COUNT(*) INTO n FROM hop_pgv_del_written WHERE document_id = 'doc-swap' AND chunk_index IN (1, 2);
+  IF n &lt;&gt; 2 THEN
+    RAISE EXCEPTION 'delete before upsert: stored chunks of doc-swap on the main output: got %, expected 2', n;
+  END IF;
+
+  -- delete before upsert: the only new chunk of doc-keep was refused, so its delete was rolled back with it and doc-keep keeps its three earlier chunks.
+  SELECT COUNT(*) INTO n FROM hop_pgv_del_target WHERE document_id = 'doc-keep' AND content = 'old';
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'delete before upsert: earlier chunks doc-keep still has: got %, expected 3', n;
+  END IF;
+
+  -- delete before upsert: doc-swap is replaced by the two chunks that are stored; its four earlier chunks are gone.
+  SELECT COUNT(*) INTO n FROM hop_pgv_del_target WHERE document_id = 'doc-swap';
+  IF n &lt;&gt; 2 THEN
+    RAISE EXCEPTION 'delete before upsert: rows of doc-swap in the table: got %, expected 2', n;
+  END IF;
+  SELECT COUNT(*) INTO n FROM hop_pgv_del_target WHERE (id = 'doc-swap_1' AND content = 's1') OR (id = 'doc-swap_2' AND content = 's2');
+  IF n &lt;&gt; 2 THEN
+    RAISE EXCEPTION 'delete before upsert: new chunks of doc-swap in the table: got %, expected 2', n;
+  END IF;
+END
+$$;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>pgvector</connection>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Init tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Init tables</from>
+      <to>0008-upsert-batch-error-accounting.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0008-upsert-batch-error-accounting.hpl</from>
+      <to>every row on exactly one stream</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

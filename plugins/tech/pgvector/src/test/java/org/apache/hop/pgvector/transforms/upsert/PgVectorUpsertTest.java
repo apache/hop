@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -61,6 +62,7 @@ class PgVectorUpsertTest {
   private TransformMockHelper<PgVectorUpsertMeta, PgVectorUpsertData> helper;
   private final Map<Integer, Object> bound = new HashMap<>();
   private List<Object[]> passed;
+  private Consumer<Object[]> passedHook = row -> {};
   private List<Object[]> diverted;
   private Database database;
   private Savepoint savepoint;
@@ -180,6 +182,61 @@ class PgVectorUpsertTest {
             new Object[] {"doc-a", "1", "two", "[1,2]"}));
 
     verify(database, never()).commit();
+  }
+
+  @Test
+  void withAnErrorHopEveryRowIsPassedOnBeforeTheCommitThatIncludesItBuggy() throws Exception {
+    // Pins today's single-row path: each row leaves right after its own statement, and the commit
+    // that makes it durable comes later. A failure or a stop before that commit rolls back rows
+    // that are already downstream.
+    when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    List<String> events = new ArrayList<>();
+    doAnswer(
+            invocation -> {
+              events.add("commit");
+              return null;
+            })
+        .when(database)
+        .commit();
+    PgVectorUpsertData data = newData(newMeta(), stubStatement());
+    data.commitSize = 2;
+    passedHook = row -> events.add("put " + row[2]);
+
+    run(
+        newMeta(),
+        data,
+        List.<Object[]>of(
+            new Object[] {"doc-a", "0", "one", "[1,2]"},
+            new Object[] {"doc-a", "1", "two", "[1,2]"}));
+
+    assertEquals(List.of("put one", "put two", "commit"), events);
+  }
+
+  @Test
+  void aRefusedInsertKeepsTheDeleteOfItsDocumentBuggy() throws Exception {
+    // Pins today's single-row path with "Delete document before upsert": the delete and the insert
+    // of a document's first row each run behind a savepoint of their own. When the insert is
+    // refused only the insert is rolled back, so the row goes to the error hop while its delete
+    // stays, and the document counts as deleted.
+    when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    when(database.setSavepoint()).thenReturn(savepoint);
+    PgVectorUpsertMeta meta = newMeta();
+    meta.setDeleteDocumentBeforeUpsert(true);
+    PreparedStatement insert = stubStatement();
+    when(insert.executeUpdate()).thenThrow(new SQLException("expected 2 dimensions, not 3"));
+    PreparedStatement deleteStatement = mock(PreparedStatement.class);
+    PgVectorUpsertData data = newData(meta, insert);
+    data.deleteStatement = deleteStatement;
+    data.useSafePoints = true;
+    realSavepoints();
+
+    run(meta, data, List.<Object[]>of(new Object[] {"doc-a", "0", "one", "[1,2,3]"}));
+
+    verify(deleteStatement).executeUpdate();
+    verify(database, times(1)).rollback(savepoint);
+    verify(database, never()).rollback();
+    assertEquals(1, diverted.size());
+    assertTrue(data.deletedDocuments.contains("doc-a"), "the delete stays");
   }
 
   private static org.mockito.stubbing.Answer<Integer> rejectCall(int failingCall) {
@@ -477,6 +534,7 @@ class PgVectorUpsertTest {
     doAnswer(
             invocation -> {
               passed.add(invocation.getArgument(1));
+              passedHook.accept(invocation.getArgument(1));
               return null;
             })
         .when(transform)

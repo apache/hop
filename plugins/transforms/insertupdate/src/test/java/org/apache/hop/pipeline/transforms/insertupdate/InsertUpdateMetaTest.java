@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.insertupdate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -131,7 +133,8 @@ class InsertUpdateMetaTest {
   @BeforeEach
   void setUpLoadSave() throws Exception {
 
-    List<String> attributes = Arrays.asList("connection", "lookup", "commit", "update_bypassed");
+    List<String> attributes =
+        Arrays.asList("connection", "lookup", "commit", "update_bypassed", "use_batch");
 
     Map<String, String> getterMap =
         new HashMap<>() {
@@ -140,6 +143,7 @@ class InsertUpdateMetaTest {
             put("lookup", "getInsertUpdateLookupField");
             put("commit", "getCommitSize");
             put("update_bypassed", "isUpdateBypassed");
+            put("use_batch", "isUseBatchUpdate");
           }
         };
     Map<String, String> setterMap =
@@ -149,6 +153,7 @@ class InsertUpdateMetaTest {
             put("lookup", "setInsertUpdateLookupField");
             put("commit", "setCommitSize");
             put("update_bypassed", "setUpdateBypassed");
+            put("use_batch", "setUseBatchUpdate");
           }
         };
 
@@ -248,6 +253,55 @@ class InsertUpdateMetaTest {
   @Test
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  /** "Use batch updates" is off for a new transform. */
+  @Test
+  void testNewTransformDoesNotUseBatchUpdates() {
+    InsertUpdateMeta meta = new InsertUpdateMeta();
+    meta.setDefault();
+    assertFalse(meta.isUseBatchUpdate());
+  }
+
+  @Test
+  void testUseBatchUpdateXmlRoundTrip() throws Exception {
+    InsertUpdateMeta meta = new InsertUpdateMeta();
+    meta.setDefault();
+    meta.setUseBatchUpdate(true);
+
+    String xml = meta.getXml();
+    assertTrue(xml.contains("<use_batch>Y</use_batch>"), xml);
+
+    InsertUpdateMeta loaded = new InsertUpdateMeta();
+    loaded.loadXml(
+        XmlHandler.loadXmlString(
+            XmlHandler.openTag(TransformMeta.XML_TAG)
+                + xml
+                + XmlHandler.closeTag(TransformMeta.XML_TAG),
+            TransformMeta.XML_TAG),
+        null);
+    assertTrue(loaded.isUseBatchUpdate());
+  }
+
+  /** A transform saved before the option existed has no use_batch: it keeps writing row by row. */
+  @Test
+  void testXmlSavedBeforeTheOptionDoesNotUseBatchUpdates() throws Exception {
+    String transformXml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + "<connection>db</connection><commit>100</commit>"
+            + "<update_bypassed>N</update_bypassed>"
+            + "<lookup><schema/><table>t</table>"
+            + "<key><name>id</name><field>id</field><condition>=</condition><name2/></key>"
+            + "<value><name>id</name><rename>id</rename><update>N</update></value>"
+            + "</lookup>"
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+
+    InsertUpdateMeta meta = new InsertUpdateMeta();
+    meta.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
+
+    assertFalse(meta.isUseBatchUpdate());
+    assertEquals("100", meta.getCommitSize());
+    assertEquals(1, meta.getInsertUpdateLookupField().getLookupKeys().size());
   }
 
   @Test
