@@ -46,6 +46,7 @@ import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.Selectors;
+import org.apache.hop.airflow.engine.AirflowDagFiles;
 import org.apache.hop.airflow.engine.AirflowDagIds;
 import org.apache.hop.airflow.engine.AirflowDagTasks;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
@@ -239,15 +240,18 @@ public class AirflowBundleWriter {
   }
 
   /**
-   * Two workflows whose paths only differ in characters a DAG id cannot hold, such as {@code a
-   * b.hwf} and {@code a_b.hwf}, would get the same DAG id.
+   * Every DAG of the bundle needs its own DAG id: the Airflow Java SDK refuses a bundle with two
+   * DAGs of the same id, and the launcher then leaves one of them out. That happens for two
+   * workflows whose paths only differ in characters a DAG id cannot hold, such as {@code a b.hwf}
+   * and {@code a_b.hwf}, and for {@value HopAirflowBundle#DAG_METADATA_KEY} objects: two objects of
+   * a workflow without a DAG id of their own, or a DAG id that is also the DAG id of another
+   * workflow or object.
    */
   private void checkDagIds(FileObject project) throws IOException, HopException {
     List<PathMatcher> matchers = new ArrayList<>();
     for (String pattern : workflowPatterns) {
       matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + pattern));
     }
-    Map<String, String> workflows = new LinkedHashMap<>();
     FileObject[] files = project.findFiles(new WorkflowSelector(project));
     if (files == null) {
       return;
@@ -257,22 +261,42 @@ public class AirflowBundleWriter {
       relativePaths.add(AirflowDagIds.relativePath(project, file));
     }
     relativePaths.sort(null);
+    List<AirflowDagFiles.PublishedDag> objects = AirflowDagFiles.read(project);
+    Map<String, String> dags = new LinkedHashMap<>();
     for (String relative : relativePaths) {
       if (!matchers.isEmpty() && matchers.stream().noneMatch(m -> m.matches(Path.of(relative)))) {
         continue;
       }
-      String dagId = AirflowDagIds.dagId(dagIdPrefix, projectName, relative);
-      String other = workflows.putIfAbsent(dagId, relative);
-      if (other != null) {
-        throw new HopException(
-            "Workflows "
-                + other
-                + " and "
-                + relative
-                + " would both become DAG "
-                + dagId
-                + ": rename one of them");
+      List<AirflowDagFiles.PublishedDag> ofWorkflow =
+          objects.stream().filter(dag -> relative.equals(dag.workflow())).toList();
+      if (ofWorkflow.isEmpty()) {
+        checkDagId(
+            dags, AirflowDagIds.dagId(dagIdPrefix, projectName, relative), "Workflow " + relative);
       }
+      for (AirflowDagFiles.PublishedDag object : ofWorkflow) {
+        String dagId =
+            object.dagId() == null
+                ? AirflowDagIds.dagId(dagIdPrefix, projectName, relative)
+                : AirflowDagIds.objectDagId(dagIdPrefix, projectName, object.dagId());
+        checkDagId(dags, dagId, "Airflow DAG " + object.name() + " of workflow " + relative);
+      }
+    }
+  }
+
+  private static void checkDagId(Map<String, String> dags, String dagId, String what)
+      throws HopException {
+    String other = dags.putIfAbsent(dagId, what);
+    if (other != null) {
+      throw new HopException(
+          other
+              + " and "
+              + what
+              + " would both become DAG "
+              + dagId
+              + ": "
+              + (other.startsWith("Workflow ") && what.startsWith("Workflow ")
+                  ? "rename one of the workflows"
+                  : "give the Airflow DAG a DAG id of its own"));
     }
   }
 

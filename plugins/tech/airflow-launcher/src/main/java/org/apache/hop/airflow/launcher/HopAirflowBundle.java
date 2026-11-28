@@ -83,6 +83,12 @@ public final class HopAirflowBundle {
   /** One task, {@code run_workflow}, that runs the whole workflow. */
   public static final String TASKS_WHOLE_WORKFLOW = "WHOLE_WORKFLOW";
 
+  /**
+   * The tasks of an Airflow DAG object that follows {@link #ATTRIBUTE_TASKS} of the bundle, as an
+   * object without tasks does.
+   */
+  public static final String TASKS_BUNDLE_DEFAULT = "BUNDLE_DEFAULT";
+
   public static final String DEFAULT_RUN_CONFIGURATION = "local";
   public static final String DEFAULT_LOG_LEVEL = "Basic";
 
@@ -99,6 +105,21 @@ public final class HopAirflowBundle {
    * also waits until Airflow shows the DAG with the tasks it published.
    */
   public static final String DAG_DOC_TASKS = "Tasks: ";
+
+  /**
+   * Starts the line of a DAG's documentation that names the version of its {@link
+   * #DAG_METADATA_KEY} object: the first 12 hex digits of the SHA-256 of its .json file. A change
+   * of the settings alone leaves the workflow version as it was: the Airflow run configuration also
+   * waits until Airflow shows the DAG with the settings it published. A DAG without an object has
+   * no such line.
+   */
+  public static final String DAG_DOC_SETTINGS = "Settings: ";
+
+  /**
+   * The key of the Hop metadata type that describes a DAG of a workflow, and the folder of its
+   * objects in the metadata folder of the project.
+   */
+  public static final String DAG_METADATA_KEY = "airflow-dag";
 
   /**
    * The key of the run conf that holds the version of the workflow the run was started for. The

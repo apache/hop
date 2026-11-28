@@ -21,5 +21,6 @@ package org.apache.hop.airflow.client;
  * A DAG as Airflow reports it.
  *
  * @param docMd its documentation, or null
+ * @param scheduled true when the DAG has a schedule: unpausing it starts the schedule as well
  */
-public record AirflowDag(String dagId, boolean paused, String docMd) {}
+public record AirflowDag(String dagId, boolean paused, String docMd, boolean scheduled) {}

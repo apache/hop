@@ -41,6 +41,18 @@ public final class AirflowDagIds {
   }
 
   /**
+   * The DAG id of an Airflow DAG object with a DAG id of its own: the prefix and that id.
+   *
+   * @param dagIdPrefix the prefix of the run configuration, empty for the default
+   * @param projectName the project the bundle is made of
+   * @param id the DAG id of the object
+   */
+  public static String objectDagId(String dagIdPrefix, String projectName, String id) {
+    String prefix = StringUtils.isBlank(dagIdPrefix) ? defaultPrefix(projectName) : dagIdPrefix;
+    return prefix + id.replaceAll("[^A-Za-z0-9_.-]", "_");
+  }
+
+  /**
    * The path of a workflow relative to the project, as the launcher sees it. VFS keeps a '%' in a
    * file name encoded ({@code 100%25.hwf}), and other file systems can keep more encoded; the
    * launcher reads the plain file name ({@code 100%.hwf}).

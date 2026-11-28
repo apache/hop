@@ -330,7 +330,16 @@ class AirflowClientTest {
         get(urlEqualTo("/api/v2/dags/known/details"))
             .willReturn(
                 aResponse()
-                    .withBody("{\"dag_id\":\"known\",\"is_paused\":true,\"doc_md\":\"doc\"}")));
+                    .withBody(
+                        "{\"dag_id\":\"known\",\"is_paused\":true,\"doc_md\":\"doc\","
+                            + "\"timetable_summary\":null}")));
+    server.stubFor(
+        get(urlEqualTo("/api/v2/dags/daily/details"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"daily\",\"is_paused\":false,\"doc_md\":null,"
+                            + "\"timetable_summary\":\"0 6 * * *\"}")));
     server.stubFor(
         get(urlEqualTo("/api/v2/dags/unknown/details"))
             .willReturn(
@@ -339,7 +348,8 @@ class AirflowClientTest {
                     .withBody("{\"detail\":\"The Dag with ID: `unknown` was not found\"}")));
 
     AirflowClient client = client(AirflowAuthenticationType.NONE, null);
-    assertEquals(new AirflowDag("known", true, "doc"), client.findDag("known"));
+    assertEquals(new AirflowDag("known", true, "doc", false), client.findDag("known"));
+    assertEquals(new AirflowDag("daily", false, null, true), client.findDag("daily"));
     assertNull(client.findDag("unknown"));
   }
 

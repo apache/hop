@@ -96,11 +96,14 @@ Otherwise the DAGs can fail to load: Airflow then reports an import error, and t
 
 == What Airflow gets
 
+A workflow with an xref:metadata-types/airflow-dag.adoc[Airflow DAG] becomes the DAGs those objects describe, with their schedule, DAG id, display name, tags, limits and parameter values.
+Without one:
+
 * *DAG id*: the prefix and the path of the workflow without `.hwf`, with folders separated by two underscores.
 `etl/load.hwf` in project `sales` becomes `sales__etl__load`.
 * *Tags*: `hop` and the project name.
 * *Description*: the description of the workflow.
-* *Schedule*: none.
+* *Schedule*: none, unless an Airflow DAG sets one.
 Start the DAGs from Airflow, through its REST API, with the xref:workflow/actions/airflow-trigger-dag-run.adoc[Trigger Airflow DAG run] action, or with the xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow run configuration].
 The schedule of the xref:workflow/actions/start.adoc[Start] action is not used: a Start action that repeats runs the workflow once.
 * *Run conf*: each key of the DAG run's conf becomes a parameter, or a variable when the workflow does not declare it, as with `hop run -p`.
@@ -108,6 +111,7 @@ Key `hop_workflow_version` is the exception: the Apache Airflow run configuratio
 Text is passed as it is, including commas; numbers, lists and objects are passed as JSON.
 A key with `=` fails the task: `hop run` would split it in the wrong place.
 The Java SDK cannot declare DAG params, so the trigger form in Airflow shows no fields: pass the values as JSON.
+An Airflow DAG can give parameters a value for every run; a key of the conf wins.
 * *Result*: every task keeps the outcome of its run in XCom `hop_outcome`, including `success`, `exitCode`, `name`, `executionId`, `startDate`, `endDate`, the counters, and `error` when the run failed.
 Apart from conditions (see below), the return value of the task holds the same outcome.
 * *Stop*: marking the DAG run failed stops the running actions as the Stop button in Hop GUI does.

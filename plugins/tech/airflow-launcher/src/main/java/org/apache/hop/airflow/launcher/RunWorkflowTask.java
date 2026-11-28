@@ -60,6 +60,9 @@ public class RunWorkflowTask implements Task {
     if (bundle == null || workflow == null) {
       throw new IllegalStateException("No Hop workflow for DAG " + context.ti.dagId);
     }
+    if (workflow.settings() != null && workflow.settings().error() != null) {
+      throw new IllegalStateException(workflow.settings().error());
+    }
     ActionTasks.ActionTask task = workflow.task(context.ti.taskId);
     if (task == null && !HopBundleMain.TASK_ID.equals(context.ti.taskId)) {
       // A DAG that Airflow parsed from an earlier version of the workflow
@@ -112,7 +115,12 @@ public class RunWorkflowTask implements Task {
               bundle.projectName());
       List<String> args =
           HopCommandLine.build(
-              bundle, workflow, action, context.dagRun.conf, resultFile, workerProjects);
+              bundle,
+              workflow,
+              action,
+              conf(workflow, context.dagRun.conf),
+              resultFile,
+              workerProjects);
       int exitCode = runtime.execute(args);
 
       Map<String, Object> outcome = outcome(resultFile, exitCode);
@@ -146,6 +154,21 @@ public class RunWorkflowTask implements Task {
         Files.deleteIfExists(stateOut);
       }
     }
+  }
+
+  /**
+   * The parameter values of the Airflow DAG object, with the DAG run conf over them: a key of the
+   * conf wins.
+   */
+  static Map<String, Object> conf(HopWorkflowFile workflow, Map<String, Object> runConf) {
+    Map<String, Object> conf = new LinkedHashMap<>();
+    if (workflow.settings() != null) {
+      conf.putAll(workflow.settings().parameters());
+    }
+    if (runConf != null) {
+      conf.putAll(runConf);
+    }
+    return conf;
   }
 
   @SuppressWarnings("unchecked")

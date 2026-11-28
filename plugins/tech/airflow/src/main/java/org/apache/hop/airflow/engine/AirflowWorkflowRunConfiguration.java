@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.airflow.bundle.AirflowBundleWriter;
 import org.apache.hop.airflow.metadata.AirflowConnection;
+import org.apache.hop.airflow.metadata.AirflowDagDefinition;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -131,6 +132,19 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
   private AirflowDagTasks tasks = AirflowDagTasks.PER_ACTION;
 
   @GuiWidgetElement(
+      id = "airflowDag",
+      order = "067",
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
+      type = GuiElementType.METADATA,
+      metadata = AirflowDagDefinition.class,
+      label = "i18n::AirflowWorkflowRunConfiguration.AirflowDag.Label",
+      toolTip = "i18n::AirflowWorkflowRunConfiguration.AirflowDag.Tooltip")
+  @HopMetadataProperty(key = "airflow_dag")
+  private String dagName;
+
+  @GuiWidgetElement(
       id = "unpausingDag",
       order = "070",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -180,6 +194,7 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
     this.environmentFiles = config.environmentFiles;
     this.dagIdPrefix = config.dagIdPrefix;
     this.tasks = config.tasks;
+    this.dagName = config.dagName;
     this.unpausingDag = config.unpausingDag;
     this.dagWaitSeconds = config.dagWaitSeconds;
     this.pollSeconds = config.pollSeconds;

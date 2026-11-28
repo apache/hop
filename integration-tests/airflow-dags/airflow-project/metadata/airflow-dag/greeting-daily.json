@@ -1,0 +1,25 @@
+{
+  "name": "greeting-daily",
+  "workflow": "${PROJECT_HOME}/greeting.hwf",
+  "dag_id": "greeting_daily",
+  "display_name": "Greeting, daily",
+  "tags": "daily, greeting",
+  "tasks": "PER_ACTION",
+  "documentation": "The **daily** greeting.",
+  "schedule": "0 6 * * *",
+  "start_date": "2099-01-01",
+  "end_date": "",
+  "catchup": "NO",
+  "paused_on_creation": "NO",
+  "max_active_runs": "1",
+  "max_active_tasks": "2",
+  "run_timeout_seconds": "600",
+  "max_consecutive_failed_runs": "",
+  "fail_fast": false,
+  "parameters": [
+    {
+      "name": "GREETING",
+      "value": "from the Airflow DAG object"
+    }
+  ]
+}

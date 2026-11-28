@@ -64,7 +64,20 @@ class HopBundleMainTest {
     HopWorkflowFile perAction = HopWorkflowFile.read(file, "two.hwf", "p__");
     assertEquals(1, perAction.tasks().size());
 
-    HopWorkflowFile whole = HopBundleMain.asOneTask(perAction);
+    BundleManifest manifest =
+        new BundleManifest(
+            folder,
+            "2026-10-30",
+            "",
+            "p",
+            "local",
+            "Basic",
+            List.of(),
+            List.of(),
+            "p__",
+            ActionTasks.NOT_EVALUATING,
+            HopAirflowBundle.TASKS_WHOLE_WORKFLOW);
+    HopWorkflowFile whole = HopBundleMain.dags(List.of(perAction), List.of(), manifest).get(0);
 
     assertTrue(whole.tasks().isEmpty());
     assertTrue(
@@ -87,7 +100,7 @@ class HopBundleMainTest {
     Path broken = folder.resolve("broken.hwf");
     Files.writeString(broken, "<workflow>");
     HopWorkflowFile unreadable = HopWorkflowFile.read(broken, "broken.hwf", "p__");
-    assertEquals(unreadable, HopBundleMain.asOneTask(unreadable));
+    assertEquals(unreadable, HopBundleMain.dags(List.of(unreadable), List.of(), manifest).get(0));
   }
 
   @Test

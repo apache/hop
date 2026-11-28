@@ -18,7 +18,9 @@
 package org.apache.hop.airflow.launcher;
 
 import io.ktor.network.sockets.InetSocketAddress;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,31 +96,11 @@ public final class HopBundleMain {
             manifest.workflowPatterns(),
             manifest.dagIdPrefix(),
             manifest.notEvaluatingActions());
-    if (manifest.wholeWorkflowTasks()) {
-      workflows = workflows.stream().map(HopBundleMain::asOneTask).toList();
-    }
+    workflows = unique(dags(workflows, HopDagSettings.read(manifest.folder()), manifest));
     Bundle dags = new Bundle();
-    Map<String, HopWorkflowFile> listed = new LinkedHashMap<>();
     for (HopWorkflowFile workflow : workflows) {
-      HopWorkflowFile other = listed.putIfAbsent(workflow.dagId(), workflow);
-      if (other != null) {
-        // Airflow then shows an import error with this message
-        throw new IllegalStateException(
-            "Workflows "
-                + other.relativePath()
-                + " and "
-                + workflow.relativePath()
-                + " would both become DAG "
-                + workflow.dagId()
-                + ": rename one of them");
-      }
       WORKFLOWS.put(workflow.dagId(), workflow);
-      DagDef dag =
-          new DagDef(workflow.dagId())
-              .config("queue", QUEUE)
-              .config("description", workflow.description())
-              .config("tags", List.of("hop", manifest.projectName()))
-              .config("doc_md", dagDoc(workflow, manifest.tasks()));
+      DagDef dag = dagDef(workflow, manifest);
       if (workflow.tasks().isEmpty()) {
         // stdout: Airflow shows a task's stderr as errors
         System.out.println(
@@ -139,7 +121,7 @@ public final class HopBundleMain {
             + manifest.projectName()
             + ": "
             + workflows.size()
-            + " workflows in "
+            + " DAGs in "
             + manifest.folder()
             + " listed in "
             + (System.currentTimeMillis() - start)
@@ -148,12 +130,209 @@ public final class HopBundleMain {
   }
 
   /**
-   * The workflow as one task, {@link #TASK_ID}, as the bundle asks ({@link
-   * HopAirflowBundle#TASKS_WHOLE_WORKFLOW}). A workflow that already runs as one task keeps its
-   * reason, such as a file Hop could not read.
+   * The DAGs without a second DAG of the same id. The SDK would refuse the bundle, and Airflow
+   * would then list none of its DAGs, so one DAG keeps the id and the others are left out with a
+   * message. The DAG of the default id of its workflow keeps it, so an object's own DAG id never
+   * takes the DAG and the run history of another workflow; else the first one. A publish from Hop
+   * refuses such a bundle before this.
    */
-  static HopWorkflowFile asOneTask(HopWorkflowFile workflow) {
-    if (workflow.tasks().isEmpty()) {
+  static List<HopWorkflowFile> unique(List<HopWorkflowFile> dags) {
+    List<HopWorkflowFile> byClaim = new ArrayList<>(dags);
+    byClaim.sort(Comparator.comparing(dag -> hasDefaultDagId(dag) ? 0 : 1));
+    Map<String, HopWorkflowFile> kept = new LinkedHashMap<>();
+    for (HopWorkflowFile dag : byClaim) {
+      HopWorkflowFile other = kept.putIfAbsent(dag.dagId(), dag);
+      if (other != null) {
+        // stdout: Airflow shows a task's stderr as errors
+        System.out.println(
+            source(dag)
+                + " is not listed: "
+                + source(other)
+                + " is DAG "
+                + dag.dagId()
+                + " already. "
+                + (other.settings() == null && dag.settings() == null
+                    ? "Rename one of the workflows."
+                    : "Give the Airflow DAG its own DAG id."));
+      }
+    }
+    return dags.stream().filter(dag -> kept.get(dag.dagId()) == dag).toList();
+  }
+
+  /** True for the DAG of a workflow, or of an object of a workflow without a DAG id of its own. */
+  private static boolean hasDefaultDagId(HopWorkflowFile dag) {
+    return dag.settings() == null
+        || (dag.settings().dagId() == null && dag.settings().workflow() != null);
+  }
+
+  /** What a DAG is made of, for messages: the workflow, or the Airflow DAG object. */
+  private static String source(HopWorkflowFile dag) {
+    return dag.settings() == null
+        ? "Workflow " + dag.relativePath()
+        : "Airflow DAG " + dag.settings().name() + " (" + dag.settings().file() + ")";
+  }
+
+  /**
+   * The DAGs of the workflows. A workflow without a {@value HopAirflowBundle#DAG_METADATA_KEY}
+   * object is one DAG, as the bundle describes it. A workflow with objects is one DAG per object;
+   * an object without a DAG id keeps the DAG id of the workflow. An object Hop can't use, or whose
+   * workflow is not in the project, is a DAG that fails with the reason.
+   */
+  static List<HopWorkflowFile> dags(
+      List<HopWorkflowFile> workflows, List<HopDagSettings> allSettings, BundleManifest manifest) {
+    Map<String, List<HopDagSettings>> byWorkflow = new LinkedHashMap<>();
+    for (HopDagSettings settings : allSettings) {
+      if (settings.workflow() != null) {
+        byWorkflow.computeIfAbsent(settings.workflow(), k -> new ArrayList<>()).add(settings);
+      }
+    }
+    List<HopWorkflowFile> dags = new ArrayList<>();
+    Map<String, HopWorkflowFile> scanned = new LinkedHashMap<>();
+    for (HopWorkflowFile workflow : workflows) {
+      scanned.put(workflow.relativePath(), workflow);
+      List<HopDagSettings> settingsOfWorkflow = byWorkflow.get(workflow.relativePath());
+      if (settingsOfWorkflow == null) {
+        dags.add(manifest.wholeWorkflowTasks() ? asOneTask(workflow, bundleReason()) : workflow);
+        continue;
+      }
+      for (HopDagSettings settings : settingsOfWorkflow) {
+        dags.add(dag(workflow, settings, manifest));
+      }
+    }
+    for (HopDagSettings settings : allSettings) {
+      if (settings.workflow() != null && scanned.containsKey(settings.workflow())) {
+        continue;
+      }
+      if (settings.workflow() != null
+          && Files.isRegularFile(manifest.folder().resolve(settings.workflow()))) {
+        // stdout: Airflow shows a task's stderr as errors
+        System.out.println(
+            "Airflow DAG "
+                + settings.name()
+                + " is not listed: workflow "
+                + settings.workflow()
+                + " is not one of the workflows of the bundle ("
+                + HopAirflowBundle.ATTRIBUTE_WORKFLOWS
+                + ")");
+        continue;
+      }
+      String error =
+          settings.error() != null
+              ? settings.error()
+              : "Airflow DAG "
+                  + settings.name()
+                  + " ("
+                  + settings.file()
+                  + "): workflow "
+                  + settings.workflow()
+                  + " is not in the project";
+      String dagId =
+          settings.dagId() != null
+              ? HopWorkflowFile.objectDagId(manifest.dagIdPrefix(), settings.dagId())
+              : settings.workflow() != null
+                  ? HopWorkflowFile.dagId(manifest.dagIdPrefix(), settings.workflow())
+                  : HopWorkflowFile.objectDagId(manifest.dagIdPrefix(), settings.name());
+      String path = settings.workflow() != null ? settings.workflow() : settings.file();
+      dags.add(
+          new HopWorkflowFile(
+              path, dagId, error, List.of(), error, null, settings.withError(error)));
+    }
+    return dags;
+  }
+
+  /** The DAG of one Airflow DAG object of a workflow. */
+  static HopWorkflowFile dag(
+      HopWorkflowFile workflow, HopDagSettings settings, BundleManifest manifest) {
+    String dagId =
+        settings.dagId() == null
+            ? workflow.dagId()
+            : HopWorkflowFile.objectDagId(manifest.dagIdPrefix(), settings.dagId());
+    if (settings.error() != null) {
+      return failing(workflow, dagId, settings);
+    }
+    HopWorkflowFile dag;
+    if (settings.tasks() == null
+        ? manifest.wholeWorkflowTasks()
+        : HopAirflowBundle.TASKS_WHOLE_WORKFLOW.equals(settings.tasks())) {
+      String reason =
+          settings.tasks() == null
+              ? bundleReason()
+              : "Airflow DAG " + settings.name() + " runs the workflow as one task";
+      dag = asOneTask(workflow, reason).withSettings(dagId, settings);
+    } else {
+      dag = workflow.withSettings(dagId, settings);
+    }
+    if (settings.failFast()) {
+      List<String> otherRules =
+          dag.tasks().stream()
+              .map(ActionTasks.ActionTask::triggerRule)
+              .filter(rule -> !HopDagSettings.FAIL_FAST_TRIGGER_RULES.contains(rule))
+              .distinct()
+              .toList();
+      if (!otherRules.isEmpty()) {
+        String error =
+            "Airflow DAG "
+                + settings.name()
+                + " fails fast, which Airflow allows only when every task waits for all tasks"
+                + " before it to succeed. The tasks of workflow "
+                + workflow.relativePath()
+                + " also use trigger rules "
+                + String.join(", ", otherRules)
+                + ", for joins or hops that are followed on failure. Turn off fail fast, or run"
+                + " the workflow as one task.";
+        return failing(workflow, dagId, settings.withError(error));
+      }
+    }
+    return dag;
+  }
+
+  /** A DAG of the workflow that only fails, with the error of the settings as its description. */
+  private static HopWorkflowFile failing(
+      HopWorkflowFile workflow, String dagId, HopDagSettings settings) {
+    return new HopWorkflowFile(
+        workflow.relativePath(),
+        dagId,
+        settings.error(),
+        List.of(),
+        settings.error(),
+        workflow.version(),
+        settings);
+  }
+
+  private static String bundleReason() {
+    return "the bundle runs every workflow as one task ("
+        + HopAirflowBundle.ATTRIBUTE_TASKS
+        + ": "
+        + HopAirflowBundle.TASKS_WHOLE_WORKFLOW
+        + ")";
+  }
+
+  /** The DAG with its settings, without the tasks. */
+  static DagDef dagDef(HopWorkflowFile workflow, BundleManifest manifest) {
+    List<String> tags = new ArrayList<>(List.of("hop", manifest.projectName()));
+    HopDagSettings settings = workflow.settings();
+    String tasks = manifest.tasks();
+    if (settings != null) {
+      settings.tags().stream().filter(tag -> !tags.contains(tag)).forEach(tags::add);
+      if (settings.tasks() != null) {
+        tasks = settings.tasks();
+      }
+    }
+    DagDef dag =
+        new DagDef(workflow.dagId())
+            .config("queue", QUEUE)
+            .config("description", workflow.description())
+            .config("tags", tags);
+    if (settings != null) {
+      settings.config().forEach(dag::config);
+    }
+    return dag.config("doc_md", dagDoc(workflow, tasks));
+  }
+
+  /** The workflow as one task, {@link #TASK_ID}, for this reason. */
+  static HopWorkflowFile asOneTask(HopWorkflowFile workflow, String reason) {
+    if (workflow.tasks().isEmpty() && workflow.singleTaskReason() != null) {
+      // Keep the reason it already runs as one task for, such as a file Hop could not read
       return workflow;
     }
     return new HopWorkflowFile(
@@ -161,12 +340,9 @@ public final class HopBundleMain {
         workflow.dagId(),
         workflow.description(),
         List.of(),
-        "the bundle runs every workflow as one task ("
-            + HopAirflowBundle.ATTRIBUTE_TASKS
-            + ": "
-            + HopAirflowBundle.TASKS_WHOLE_WORKFLOW
-            + ")",
-        workflow.version());
+        reason,
+        workflow.version(),
+        workflow.settings());
   }
 
   /** One task per action, plus the gates; see {@link ActionTasks}. */
@@ -220,15 +396,31 @@ public final class HopBundleMain {
   }
 
   /**
-   * Names the workflow, and its version and the tasks of the bundle for the Airflow run
-   * configuration.
+   * The workflow, its version, the tasks and the version of the Airflow DAG object, for the Airflow
+   * run configuration, then the documentation of the object, if any. The documentation comes last:
+   * the run configuration reads the first {@link HopAirflowBundle#DAG_DOC_TASKS} line, which the
+   * documentation could hold as well.
    */
   static String dagDoc(HopWorkflowFile workflow, String tasks) {
+    HopDagSettings settings = workflow.settings();
     String doc = "Hop workflow `" + workflow.relativePath() + "`";
     if (workflow.version() != null) {
       doc += "\n\n" + HopAirflowBundle.DAG_DOC_VERSION + workflow.version();
     }
-    return doc + "\n\n" + HopAirflowBundle.DAG_DOC_TASKS + tasks;
+    doc += "\n\n" + HopAirflowBundle.DAG_DOC_TASKS + tasks;
+    if (settings != null && settings.version() != null) {
+      doc +=
+          "\n\n"
+              + HopAirflowBundle.DAG_DOC_SETTINGS
+              + settings.version()
+              + " (`"
+              + settings.file()
+              + "`)";
+    }
+    if (settings != null && settings.documentation() != null) {
+      doc += "\n\n" + settings.documentation();
+    }
+    return doc;
   }
 
   private static String doc(ActionTasks.ActionTask task, HopWorkflowFile workflow) {

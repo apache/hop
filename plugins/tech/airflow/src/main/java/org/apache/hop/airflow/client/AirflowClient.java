@@ -210,8 +210,13 @@ public class AirflowClient {
       return null;
     }
     Object docMd = dag.get("doc_md");
+    // Airflow reports no timetable summary for a DAG without a schedule
+    Object schedule = dag.get("timetable_summary");
     return new AirflowDag(
-        dagId, Boolean.TRUE.equals(dag.get("is_paused")), docMd == null ? null : docMd.toString());
+        dagId,
+        Boolean.TRUE.equals(dag.get("is_paused")),
+        docMd == null ? null : docMd.toString(),
+        schedule != null && !"None".equals(schedule.toString()));
   }
 
   @SuppressWarnings("unchecked")
