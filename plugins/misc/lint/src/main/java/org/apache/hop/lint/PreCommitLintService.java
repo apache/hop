@@ -167,6 +167,7 @@ public final class PreCommitLintService {
    *     before it starts Java, so resolving them against the working directory found none of them
    *     and the hook let every commit through.
    */
+  @SuppressWarnings("java:S106") // only the command line git hook reads this list
   public static List<StagedFile> readStagedFiles(String stagedFileListPath, File baseDirectory)
       throws HopException {
     List<StagedFile> files = new ArrayList<>();

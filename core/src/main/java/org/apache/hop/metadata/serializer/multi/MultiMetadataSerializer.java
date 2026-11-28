@@ -249,6 +249,7 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
    * A provider that cannot be read (a project folder on a VFS scheme that is not registered yet)
    * does not hide the objects of the providers that can.
    */
+  @SuppressWarnings("java:S106") // stderr until Hop logging is initialized
   private HopException unavailable(
       IHopMetadataProvider provider, String action, String name, Exception e) {
     String message =

@@ -68,6 +68,7 @@ import picocli.CommandLine.ParameterException;
     mixinStandardHelpOptions = true,
     versionProvider = HopVersionProvider.class)
 @HopCommand(id = "export", description = "Export diagrams")
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
   private static final String CONST_HOP_EXPORT = "hop-export";
 

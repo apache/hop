@@ -73,6 +73,7 @@ public class GraphConnectionConfigOptionPlugin implements IConfigOptions {
   private boolean listGraphDatabaseTypes;
 
   /** Where the results go, standard output unless a test sets another stream. */
+  @SuppressWarnings("java:S106") // hop conf prints its results
   private PrintStream out = System.out;
 
   @Override

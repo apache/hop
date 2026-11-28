@@ -16,7 +16,14 @@
  */
 package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,5 +47,33 @@ class PGPEncryptStreamMetaTest {
     Assertions.assertEquals("keyNameField", meta.getKeyNameFieldName());
     Assertions.assertEquals("streamField", meta.getStreamField());
     Assertions.assertEquals("result", meta.getResultFieldName());
+  }
+
+  @Test
+  void checkReportsEveryValidSettingAsOk() {
+    PGPEncryptStreamMeta meta = new PGPEncryptStreamMeta();
+    meta.setGpgLocation("/usr/bin/gpg");
+    meta.setKeyName("key-name");
+    meta.setStreamField("streamField");
+    meta.setResultFieldName("result");
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta("pgp", meta),
+        new RowMeta(),
+        new String[] {"input"},
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    // GPG location, key name, result field, stream field and the input transform
+    Assertions.assertEquals(5, remarks.size());
+    remarks.forEach(
+        remark ->
+            Assertions.assertEquals(
+                ICheckResult.TYPE_RESULT_OK, remark.getType(), remark.getText()));
   }
 }

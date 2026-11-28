@@ -100,7 +100,9 @@ class BaseGuiContextHandlerFilterTest {
         name = "B",
         tooltip = "B",
         image = "b.svg")
-    public void actionB(PrepareOnceContext context) {}
+    public void actionB(PrepareOnceContext context) {
+      // Only needs to exist for this test
+    }
 
     @GuiContextAction(
         id = "prepare-once-a",
@@ -109,7 +111,9 @@ class BaseGuiContextHandlerFilterTest {
         name = "A",
         tooltip = "A",
         image = "a.svg")
-    public void actionA(PrepareOnceContext context) {}
+    public void actionA(PrepareOnceContext context) {
+      // Only needs to exist for this test
+    }
 
     @GuiContextActionFilter(parentId = PREPARE_ONCE)
     public boolean filterActions(String contextActionId, PrepareOnceContext context) {

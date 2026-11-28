@@ -42,6 +42,7 @@ import picocli.CommandLine;
 
 @Getter
 @Setter
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public abstract class HopConfigBase implements Runnable, IHasHopMetadataProvider {
   @CommandLine.Option(
       names = {"-h", "--help"},

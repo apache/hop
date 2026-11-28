@@ -403,7 +403,9 @@ class StanfordSimpleNlpAsyncTest {
     }
 
     @Override
-    public void shutdown() {}
+    public void shutdown() {
+      // Not used by this test
+    }
 
     @Override
     public List<Runnable> shutdownNow() {

@@ -505,10 +505,14 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
   }
 
   private void processDatasetsFolder(
-      Toc toc, FileObject sourceFolder, FileObject targetFolder, String relativeName) {}
+      Toc toc, FileObject sourceFolder, FileObject targetFolder, String relativeName) {
+    // Data sets are not documented
+  }
 
   private void processMetadataFolders(
-      Toc toc, FileObject sourceFolder, FileObject targetFolder, String relativeName) {}
+      Toc toc, FileObject sourceFolder, FileObject targetFolder, String relativeName) {
+    // Metadata is documented separately, by MetadataDelegate
+  }
 
   /**
    * List all the folders in the source or our documentation subject.

@@ -90,10 +90,14 @@ public class WatchFilesDialog extends BaseTransformDialog {
     widgets.setCompositeWidgetsListener(
         new IGuiPluginCompositeWidgetsListener() {
           @Override
-          public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {}
+          public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+            // Nothing to add to the generated widgets
+          }
 
           @Override
-          public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {}
+          public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
+            // Nothing to adjust once the widgets are filled in
+          }
 
           @Override
           public void widgetModified(
@@ -103,7 +107,9 @@ public class WatchFilesDialog extends BaseTransformDialog {
           }
 
           @Override
-          public void persistContents(GuiCompositeWidgets compositeWidgets) {}
+          public void persistContents(GuiCompositeWidgets compositeWidgets) {
+            // ok() copies the widget contents into the transform
+          }
         });
     updateOptions();
     Control viewport = widgets.getWidgetsMap().get("directory").getParent();

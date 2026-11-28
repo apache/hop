@@ -83,7 +83,9 @@ class BoltSchemaAndVectorSearchTest {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 
   static Map<String, Object> row(Object... keyValues) {

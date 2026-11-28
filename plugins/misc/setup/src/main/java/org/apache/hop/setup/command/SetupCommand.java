@@ -55,6 +55,7 @@ import picocli.CommandLine.Option;
             + "which edits hop-config.json.",
     subcommands = {SetupCommand.ApplyCommand.class, SetupCommand.ShowCommand.class})
 @HopCommand(id = "setup", description = "Configure Hop environment variables")
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class SetupCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
 
   private ILogChannel log;

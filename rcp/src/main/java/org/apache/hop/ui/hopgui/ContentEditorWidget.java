@@ -228,7 +228,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
         .addDocumentListener(
             new IDocumentListener() {
               @Override
-              public void documentAboutToBeChanged(DocumentEvent event) {}
+              public void documentAboutToBeChanged(DocumentEvent event) {
+                // Only the change itself matters, see documentChanged()
+              }
 
               @Override
               public void documentChanged(DocumentEvent event) {
@@ -859,7 +861,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
         .addDocumentListener(
             new IDocumentListener() {
               @Override
-              public void documentAboutToBeChanged(DocumentEvent event) {}
+              public void documentAboutToBeChanged(DocumentEvent event) {
+                // Only the change itself matters, see documentChanged()
+              }
 
               @Override
               public void documentChanged(DocumentEvent event) {

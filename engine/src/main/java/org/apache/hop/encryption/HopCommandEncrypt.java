@@ -35,6 +35,7 @@ import picocli.CommandLine.Command;
 @Setter
 @HopCommand(id = "encrypt", description = "Encrypt or obfuscate a secret")
 @Command(mixinStandardHelpOptions = true, description = "Encrypt secrets")
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class HopCommandEncrypt implements Runnable, IHopCommand {
   @CommandLine.Option(
       names = {"-hop", "--hop"},

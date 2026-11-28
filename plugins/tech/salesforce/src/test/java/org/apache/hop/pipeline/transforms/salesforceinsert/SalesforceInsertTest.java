@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinsert;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -39,6 +40,7 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -200,6 +202,26 @@ class SalesforceInsertTest {
     sfInputTransform.writeToSalesForce(new Object[] {"001i000001c5Nv9AAE"});
     verify(sfInputTransform.getLogChannel())
         .logDetailed("Called writeToSalesForce with 0 out of 2");
+  }
+
+  @Test
+  void aFieldWithoutStreamFieldReadsTheInputFieldNamedLikeItsSalesforceField() throws Exception {
+    SalesforceInsertField named = new SalesforceInsertField();
+    named.setUpdateLookup("Name");
+    named.setUpdateStream("customer");
+    SalesforceInsertField unnamed = new SalesforceInsertField();
+    unnamed.setUpdateLookup("Industry");
+    SalesforceInsertMeta meta = smh.iTransformMeta;
+    doReturn(List.of(named, unnamed)).when(meta).getFields();
+    SalesforceInsert transform =
+        new SalesforceInsert(
+            smh.transformMeta, meta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline);
+
+    IRowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("Industry"));
+    inputRowMeta.addValueMeta(new ValueMetaString("customer"));
+
+    assertArrayEquals(new int[] {1, 0}, transform.findStreamFieldIndexes(inputRowMeta));
   }
 
   private SalesforceInsertData generateSalesforceInsertData() {

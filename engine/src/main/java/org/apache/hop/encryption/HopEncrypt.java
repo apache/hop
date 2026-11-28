@@ -24,6 +24,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.eclipse.jetty.util.security.Password;
 
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class HopEncrypt {
   /**
    * Create an encrypted password

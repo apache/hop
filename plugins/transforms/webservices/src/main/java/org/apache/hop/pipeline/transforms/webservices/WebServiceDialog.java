@@ -284,7 +284,7 @@ public class WebServiceDialog extends BaseTransformDialog {
               outWsdlParamContainer = new WsdlOperationContainer(wsdlOperation, param.getMode());
             }
           } else {
-            System.out.println(
+            log.logDetailed(
                 "Parameter : "
                     + param.getName().getLocalPart()
                     + ", mode="

@@ -437,6 +437,8 @@ public final class HopOidcClient {
     public String redirectAfterLogin;
     public String idToken; // retained for logout
 
-    public AuthSession() {}
+    public AuthSession() {
+      // Nothing to initialize: the fields are set one by one
+    }
   }
 }

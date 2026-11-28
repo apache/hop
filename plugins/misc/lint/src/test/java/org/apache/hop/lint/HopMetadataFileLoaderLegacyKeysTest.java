@@ -55,7 +55,9 @@ class HopMetadataFileLoaderLegacyKeysTest {
   public static class RenamedType extends HopMetadataBase implements IHopMetadata {
     @HopMetadataProperty private String description;
 
-    public RenamedType() {}
+    public RenamedType() {
+      // Nothing to initialize
+    }
   }
 
   private static IHopMetadataProvider provider(Path metadataFolder) {

@@ -697,16 +697,24 @@ public class HopLinter {
 
   private static final class NullProgressMonitor implements IProgressMonitor {
     @Override
-    public void beginTask(String task, int work) {}
+    public void beginTask(String task, int work) {
+      // Progress is not reported
+    }
 
     @Override
-    public void done() {}
+    public void done() {
+      // Progress is not reported
+    }
 
     @Override
-    public void setTaskName(String name) {}
+    public void setTaskName(String name) {
+      // Progress is not reported
+    }
 
     @Override
-    public void subTask(String name) {}
+    public void subTask(String name) {
+      // Progress is not reported
+    }
 
     @Override
     public boolean isCanceled() {
@@ -714,7 +722,9 @@ public class HopLinter {
     }
 
     @Override
-    public void worked(int work) {}
+    public void worked(int work) {
+      // Progress is not reported
+    }
   }
 
   private Object loadHopObject(

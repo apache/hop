@@ -330,7 +330,6 @@ public class ProjectsUtil {
 
     // Same?
     if (filePath.equals(directoryPath)) {
-      System.out.println("Found " + filePath + " in directory " + directoryPath);
       return true;
     }
 

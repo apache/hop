@@ -82,10 +82,14 @@ public final class SftpTestServerHelper {
         private OutputStream out;
 
         @Override
-        public void destroy(final ChannelSession channel) throws Exception {}
+        public void destroy(final ChannelSession channel) throws Exception {
+          // Not used by this test
+        }
 
         @Override
-        public void setErrorStream(final OutputStream err) {}
+        public void setErrorStream(final OutputStream err) {
+          // Not used by this test
+        }
 
         @Override
         public void setExitCallback(final ExitCallback callback) {
@@ -93,7 +97,9 @@ public final class SftpTestServerHelper {
         }
 
         @Override
-        public void setInputStream(final InputStream in) {}
+        public void setInputStream(final InputStream in) {
+          // Not used by this test
+        }
 
         @Override
         public void setOutputStream(final OutputStream out) {
@@ -234,7 +240,9 @@ public final class SftpTestServerHelper {
         final Path file,
         final Principal owner,
         final LinkOption... options)
-        throws IOException {}
+        throws IOException {
+      // Not used by this test
+    }
 
     @Override
     public void setFilePermissions(

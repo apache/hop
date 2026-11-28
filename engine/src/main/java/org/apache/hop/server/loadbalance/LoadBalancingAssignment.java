@@ -45,5 +45,7 @@ public class LoadBalancingAssignment {
   private int occupyingSlotsAtAssignment;
   private int maxConcurrent;
 
-  public LoadBalancingAssignment() {}
+  public LoadBalancingAssignment() {
+    // Nothing to initialize: the fields are set through the setters
+  }
 }

@@ -102,6 +102,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   }
 
   @Override
+  @SuppressWarnings("java:S106") // stderr until Hop logging is initialized
   public List<T> loadAll() throws HopException {
     List<T> list = new ArrayList<>();
     List<String> names = listObjectNames();

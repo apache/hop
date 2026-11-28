@@ -31,6 +31,7 @@ import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.owasp.encoder.Encode;
@@ -122,7 +123,12 @@ public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPl
 
       if (pipeline != null) {
 
-        pipeline.stopAll();
+        if (inputOnly && pipeline instanceof Pipeline localPipeline) {
+          // Stop the input transforms only: the rows already read still go through the pipeline
+          localPipeline.safeStop();
+        } else {
+          pipeline.stopAll();
+        }
 
         String message =
             BaseMessages.getString(PKG, "StopPipelineServlet.PipelineStopRequested", pipelineName);

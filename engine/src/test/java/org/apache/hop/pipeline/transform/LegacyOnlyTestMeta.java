@@ -56,7 +56,9 @@ public class LegacyOnlyTestMeta extends BaseTransformMeta<Dummy, DummyData> {
   }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Not used by this test
+  }
 
   @Override
   public void getFields(
@@ -66,7 +68,9 @@ public class LegacyOnlyTestMeta extends BaseTransformMeta<Dummy, DummyData> {
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider)
-      throws HopTransformException {}
+      throws HopTransformException {
+    // Not used by this test
+  }
 
   @Override
   public void check(

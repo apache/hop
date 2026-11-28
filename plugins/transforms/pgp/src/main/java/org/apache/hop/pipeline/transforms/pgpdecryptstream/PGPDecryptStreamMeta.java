@@ -119,6 +119,7 @@ public class PGPDecryptStreamMeta
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.GPGLocationOK");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      remarks.add(cr);
     }
     if (!isPassPhraseFromField()) {
       // Check static pass-phrase
@@ -130,6 +131,7 @@ public class PGPDecryptStreamMeta
       } else {
         errorMessage = BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.PassphraseOK");
         cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+        remarks.add(cr);
       }
     }
     if (Utils.isEmpty(resultFieldName)) {

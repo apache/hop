@@ -866,25 +866,39 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void start() {}
+  public void start() {
+    // A SQL editor tab has nothing to run
+  }
 
   @Override
-  public void stop() {}
+  public void stop() {
+    // A SQL editor tab has nothing to run
+  }
 
   @Override
-  public void pause() {}
+  public void pause() {
+    // A SQL editor tab has nothing to run
+  }
 
   @Override
-  public void resume() {}
+  public void resume() {
+    // A SQL editor tab has nothing to run
+  }
 
   @Override
-  public void preview() {}
+  public void preview() {
+    // A SQL editor tab has nothing to run
+  }
 
   @Override
-  public void debug() {}
+  public void debug() {
+    // A SQL editor tab has nothing to run
+  }
 
   @Override
-  public void redraw() {}
+  public void redraw() {
+    // The SQL editor repaints itself
+  }
 
   @Override
   public void updateGui() {
@@ -912,7 +926,9 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void deleteSelected() {}
+  public void deleteSelected() {
+    // The SQL text widget handles Delete itself
+  }
 
   @Override
   public void pasteFromClipboard() {
@@ -990,7 +1006,9 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void applyStateProperties(Map<String, Object> stateProperties) {}
+  public void applyStateProperties(Map<String, Object> stateProperties) {
+    // A SQL editor tab keeps no state properties
+  }
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {

@@ -46,8 +46,4 @@ public class ScriptValuesData extends BaseTransformData implements ITransformDat
     context = null;
     fieldsUsed = null;
   }
-
-  public void check(int i) {
-    System.out.println(i);
-  }
 }

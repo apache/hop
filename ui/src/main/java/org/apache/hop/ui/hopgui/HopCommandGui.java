@@ -60,7 +60,9 @@ public class HopCommandGui implements Runnable, IHopCommand, IHasHopMetadataProv
   private MultiMetadataProvider metadataProvider;
   private ILogChannel log;
 
-  public HopCommandGui() {}
+  public HopCommandGui() {
+    // The plugin registry creates the command through this constructor
+  }
 
   @Override
   public void initialize(

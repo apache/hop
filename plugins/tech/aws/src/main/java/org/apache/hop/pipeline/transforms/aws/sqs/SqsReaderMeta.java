@@ -100,7 +100,9 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
    * a new transform is created.
    */
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // The defaults are in the getters
+  }
 
   public String getAwsCredChain() {
     return awsCredChain = Utils.isEmpty(awsCredChain) ? "N" : awsCredChain;

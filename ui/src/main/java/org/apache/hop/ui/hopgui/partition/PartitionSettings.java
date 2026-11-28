@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -137,8 +138,8 @@ public class PartitionSettings {
     try {
       return schemaManager.getSerializer().loadAll();
     } catch (Exception e) {
-      e.printStackTrace(
-          System.out); // TODO: properly throw exception, don't eat exception like this!!!
+      // TODO: properly throw exception, don't eat exception like this!!!
+      LogChannel.UI.logError("Error loading the partition schemas", e);
       return Collections.emptyList();
     }
   }

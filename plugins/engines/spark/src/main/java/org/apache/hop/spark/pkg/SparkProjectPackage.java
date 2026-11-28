@@ -382,6 +382,7 @@ public final class SparkProjectPackage {
    * can also open the shared path; the SparkFiles copy is the reliable fallback when Volume FUSE is
    * not visible the same way on every executor JVM.
    */
+  @SuppressWarnings("java:S106") // runs on the driver, next to MainSpark's progress
   public static void distributeToCluster(
       org.apache.spark.sql.SparkSession spark, IVariables variables) throws HopException {
     if (spark == null || variables == null) {

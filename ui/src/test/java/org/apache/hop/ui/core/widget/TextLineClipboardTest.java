@@ -160,7 +160,9 @@ class TextLineClipboardTest {
     }
 
     @Override
-    public void copy() {}
+    public void copy() {
+      // Not used by this test
+    }
 
     @Override
     public void cut() {

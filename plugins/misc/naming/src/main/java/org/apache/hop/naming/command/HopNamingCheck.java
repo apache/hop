@@ -60,6 +60,7 @@ import picocli.CommandLine.Option;
 @Command(
     versionProvider = HopVersionProvider.class,
     description = "Validate names against project Naming Schemes")
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class HopNamingCheck implements Runnable, IHopCommand, IHasHopMetadataProvider {
 
   @Option(

@@ -254,6 +254,8 @@ class ExplorerFileServletTest {
     }
 
     @Override
-    public void setWriteListener(WriteListener listener) {}
+    public void setWriteListener(WriteListener listener) {
+      // Not used by this test
+    }
   }
 }

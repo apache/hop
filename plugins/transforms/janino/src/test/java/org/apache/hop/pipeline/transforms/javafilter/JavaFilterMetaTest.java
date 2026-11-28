@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -215,6 +216,7 @@ class JavaFilterMetaTest {
     var io1 = meta.getTransformIOMeta();
     var io2 = meta.getTransformIOMeta();
     assertNotNull(io1);
+    assertSame(io1, io2);
     assertEquals(2, io1.getTargetStreams().size());
   }
 

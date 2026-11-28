@@ -27,6 +27,7 @@ import org.apache.airflow.sdk.Task;
  * The task of a Join action, or a gate on a hop. Its trigger rule decides whether it runs, so it
  * only passes the state of the tasks before it on: it does not start Hop.
  */
+@SuppressWarnings("java:S106") // no Hop logging here: Airflow keeps stdout as the task log
 public class PassOnTask implements Task {
 
   @Override

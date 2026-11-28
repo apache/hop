@@ -75,6 +75,7 @@ import org.w3c.dom.NodeList;
  * outputAbsoluteArtifactFilename=true}. Without it the jars get their coordinates from their own
  * {@code pom.properties}, which is enough to describe a zip nobody built a manifest for.
  */
+@SuppressWarnings("java:S106") // build tool: reports to the build output
 public class PluginManifestGenerator {
 
   /** Hop modules that are the engine itself, never a plugin another plugin "requires". */

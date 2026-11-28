@@ -84,6 +84,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
     }
   }
 
+  @SuppressWarnings("java:S106") // stderr until Hop logging is initialized
   private static void logSkippedObject(String name, Class<?> metadataClass, Exception e) {
     String message =
         "Error copying metadata object '"

@@ -133,10 +133,14 @@ class MarkdownEditActionsTest {
       }
 
       @Override
-      public void setText(String text) {}
+      public void setText(String text) {
+        // Not used by this test
+      }
 
       @Override
-      public void setTextSuppressModify(String text) {}
+      public void setTextSuppressModify(String text) {
+        // Not used by this test
+      }
 
       @Override
       public String getLanguage() {
@@ -144,37 +148,59 @@ class MarkdownEditActionsTest {
       }
 
       @Override
-      public void setLanguage(String languageId) {}
+      public void setLanguage(String languageId) {
+        // Not used by this test
+      }
 
       @Override
-      public void setReadOnly(boolean readOnly) {}
+      public void setReadOnly(boolean readOnly) {
+        // Not used by this test
+      }
 
       @Override
-      public void addModifyListener(ModifyListener listener) {}
+      public void addModifyListener(ModifyListener listener) {
+        // Not used by this test
+      }
 
       @Override
-      public void removeModifyListener(ModifyListener listener) {}
+      public void removeModifyListener(ModifyListener listener) {
+        // Not used by this test
+      }
 
       @Override
-      public void selectAll() {}
+      public void selectAll() {
+        // Not used by this test
+      }
 
       @Override
-      public void unselectAll() {}
+      public void unselectAll() {
+        // Not used by this test
+      }
 
       @Override
-      public void copy() {}
+      public void copy() {
+        // Not used by this test
+      }
 
       @Override
-      public void cut() {}
+      public void cut() {
+        // Not used by this test
+      }
 
       @Override
-      public void paste() {}
+      public void paste() {
+        // Not used by this test
+      }
 
       @Override
-      public void undo() {}
+      public void undo() {
+        // Not used by this test
+      }
 
       @Override
-      public void redo() {}
+      public void redo() {
+        // Not used by this test
+      }
 
       @Override
       public String getSelectionText() {
@@ -187,7 +213,9 @@ class MarkdownEditActionsTest {
       }
 
       @Override
-      public void setSelection(int start, int end) {}
+      public void setSelection(int start, int end) {
+        // Not used by this test
+      }
 
       @Override
       public int getCaretPosition() {
@@ -195,10 +223,14 @@ class MarkdownEditActionsTest {
       }
 
       @Override
-      public void setCaretPosition(int position) {}
+      public void setCaretPosition(int position) {
+        // Not used by this test
+      }
 
       @Override
-      public void insert(String text) {}
+      public void insert(String text) {
+        // Not used by this test
+      }
 
       @Override
       public boolean isEditable() {

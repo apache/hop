@@ -286,10 +286,14 @@ class AnnotationPainterTest {
     }
 
     @Override
-    public void setBackground(EColor color) {}
+    public void setBackground(EColor color) {
+      // Not used by this test
+    }
 
     @Override
-    public void setForeground(EColor color) {}
+    public void setForeground(EColor color) {
+      // Not used by this test
+    }
 
     @Override
     public void setBackground(int red, int green, int blue) {
@@ -297,19 +301,29 @@ class AnnotationPainterTest {
     }
 
     @Override
-    public void setForeground(int red, int green, int blue) {}
+    public void setForeground(int red, int green, int blue) {
+      // Not used by this test
+    }
 
     @Override
-    public void fillRectangle(int x, int y, int width, int height) {}
+    public void fillRectangle(int x, int y, int width, int height) {
+      // Not used by this test
+    }
 
     @Override
-    public void fillGradientRectangle(int x, int y, int width, int height, boolean vertical) {}
+    public void fillGradientRectangle(int x, int y, int width, int height, boolean vertical) {
+      // Not used by this test
+    }
 
     @Override
-    public void drawImage(EImage image, int x, int y, float magnification) {}
+    public void drawImage(EImage image, int x, int y, float magnification) {
+      // Not used by this test
+    }
 
     @Override
-    public void drawImage(EImage image, int x, int y, float magnification, double angle) {}
+    public void drawImage(EImage image, int x, int y, float magnification, double angle) {
+      // Not used by this test
+    }
 
     @Override
     public void drawImage(
@@ -319,7 +333,9 @@ class AnnotationPainterTest {
         int desiredWidth,
         int desiredHeight,
         float magnification,
-        double angle) {}
+        double angle) {
+      // Not used by this test
+    }
 
     @Override
     public boolean drawFileImage(String path, int x, int y, int width, int height) {
@@ -342,10 +358,14 @@ class AnnotationPainterTest {
     }
 
     @Override
-    public void drawRectangle(int x, int y, int width, int height) {}
+    public void drawRectangle(int x, int y, int width, int height) {
+      // Not used by this test
+    }
 
     @Override
-    public void drawPoint(int x, int y) {}
+    public void drawPoint(int x, int y) {
+      // Not used by this test
+    }
 
     @Override
     public void drawText(String text, int x, int y) {
@@ -383,19 +403,29 @@ class AnnotationPainterTest {
     }
 
     @Override
-    public void fillPolygon(int[] polygon) {}
+    public void fillPolygon(int[] polygon) {
+      // Not used by this test
+    }
 
     @Override
-    public void drawPolygon(int[] polygon) {}
+    public void drawPolygon(int[] polygon) {
+      // Not used by this test
+    }
 
     @Override
-    public void drawPolyline(int[] polyline) {}
+    public void drawPolyline(int[] polyline) {
+      // Not used by this test
+    }
 
     @Override
-    public void setAntialias(boolean antiAlias) {}
+    public void setAntialias(boolean antiAlias) {
+      // Not used by this test
+    }
 
     @Override
-    public void setTransform(float translationX, float translationY, float magnification) {}
+    public void setTransform(float translationX, float translationY, float magnification) {
+      // Not used by this test
+    }
 
     @Override
     public float getMagnification() {
@@ -403,10 +433,14 @@ class AnnotationPainterTest {
     }
 
     @Override
-    public void setAlpha(int alpha) {}
+    public void setAlpha(int alpha) {
+      // Not used by this test
+    }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+      // Not used by this test
+    }
 
     @Override
     public int getAlpha() {
@@ -414,10 +448,14 @@ class AnnotationPainterTest {
     }
 
     @Override
-    public void setFont(String fontName, int fontSize, boolean fontBold, boolean fontItalic) {}
+    public void setFont(String fontName, int fontSize, boolean fontBold, boolean fontItalic) {
+      // Not used by this test
+    }
 
     @Override
-    public void switchForegroundBackgroundColors() {}
+    public void switchForegroundBackgroundColors() {
+      // Not used by this test
+    }
 
     @Override
     public Point getArea() {
@@ -425,9 +463,13 @@ class AnnotationPainterTest {
     }
 
     @Override
-    public void drawTransformIcon(int x, int y, TransformMeta transformMeta, float magnification) {}
+    public void drawTransformIcon(int x, int y, TransformMeta transformMeta, float magnification) {
+      // Not used by this test
+    }
 
     @Override
-    public void drawActionIcon(int x, int y, ActionMeta actionMeta, float magnification) {}
+    public void drawActionIcon(int x, int y, ActionMeta actionMeta, float magnification) {
+      // Not used by this test
+    }
   }
 }

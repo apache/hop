@@ -258,7 +258,9 @@ public class MaskingPattern extends HopMetadataBase implements IHopMetadata {
       toolTip = "i18n::MaskingPattern.HashSecret.Tooltip")
   private String hashSecret = "";
 
-  public MaskingPattern() {}
+  public MaskingPattern() {
+    // The metadata serializer creates the pattern before it sets the fields
+  }
 
   /** Suggestions for the classification combo. A project can type its own term. */
   public List<String> classificationSuggestions(

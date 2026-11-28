@@ -31,6 +31,7 @@ import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.ParameterException;
 
 @Command(versionProvider = HopVersionProvider.class)
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class HopConfig extends HopConfigBase implements Runnable, IHasHopMetadataProvider {
 
   public static void main(String[] args) {

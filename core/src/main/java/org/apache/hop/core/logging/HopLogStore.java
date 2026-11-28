@@ -30,7 +30,10 @@ import org.apache.hop.core.util.ExecutorUtil;
 
 public class HopLogStore {
 
+  @SuppressWarnings("java:S106") // keeps the real stdout before any redirect
   public static PrintStream OriginalSystemOut = System.out;
+
+  @SuppressWarnings("java:S106") // keeps the real stderr before any redirect
   public static PrintStream OriginalSystemErr = System.err;
 
   private static HopLogStore store;

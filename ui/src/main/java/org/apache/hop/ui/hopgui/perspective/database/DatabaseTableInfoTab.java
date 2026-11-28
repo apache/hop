@@ -669,7 +669,9 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void setName(String name) {}
+  public void setName(String name) {
+    // The tab is named after its schema and table
+  }
 
   @Override
   public IHopFileType getFileType() {
@@ -682,34 +684,54 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void setFilename(String filename) {}
+  public void setFilename(String filename) {
+    // The tab is named after its schema and table
+  }
 
   @Override
-  public void save() {}
+  public void save() {
+    // A read-only table info tab has nothing to save
+  }
 
   @Override
-  public void saveAs(String filename) {}
+  public void saveAs(String filename) {
+    // A read-only table info tab has nothing to save
+  }
 
   @Override
-  public void start() {}
+  public void start() {
+    // A table info tab has nothing to run
+  }
 
   @Override
-  public void stop() {}
+  public void stop() {
+    // A table info tab has nothing to run
+  }
 
   @Override
-  public void pause() {}
+  public void pause() {
+    // A table info tab has nothing to run
+  }
 
   @Override
-  public void resume() {}
+  public void resume() {
+    // A table info tab has nothing to run
+  }
 
   @Override
-  public void preview() {}
+  public void preview() {
+    // A table info tab has nothing to run
+  }
 
   @Override
-  public void debug() {}
+  public void debug() {
+    // A table info tab has nothing to run
+  }
 
   @Override
-  public void redraw() {}
+  public void redraw() {
+    // The tab repaints itself
+  }
 
   @Override
   public void updateGui() {
@@ -738,13 +760,19 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void cutSelectedToClipboard() {}
+  public void cutSelectedToClipboard() {
+    // The table info tab is read-only
+  }
 
   @Override
-  public void deleteSelected() {}
+  public void deleteSelected() {
+    // The table info tab is read-only
+  }
 
   @Override
-  public void pasteFromClipboard() {}
+  public void pasteFromClipboard() {
+    // The table info tab is read-only
+  }
 
   @Override
   public boolean isCloseable() {
@@ -762,10 +790,14 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void undo() {}
+  public void undo() {
+    // The table info tab is read-only
+  }
 
   @Override
-  public void redo() {}
+  public void redo() {
+    // The table info tab is read-only
+  }
 
   @Override
   public Map<String, Object> getStateProperties() {
@@ -773,7 +805,9 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void applyStateProperties(Map<String, Object> stateProperties) {}
+  public void applyStateProperties(Map<String, Object> stateProperties) {
+    // A table info tab keeps no state properties
+  }
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {

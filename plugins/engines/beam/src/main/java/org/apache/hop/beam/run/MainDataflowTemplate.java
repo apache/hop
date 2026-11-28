@@ -36,6 +36,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 
+@SuppressWarnings("java:S106") // cluster entry point: progress goes to the driver log
 public class MainDataflowTemplate {
   public static final String EXPERIMENT_APACHE_HOP_PIPELINE = "apache_hop_pipeline";
 
@@ -53,6 +54,8 @@ public class MainDataflowTemplate {
     void setHopPipelineLocation(String value);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public static void main(String[] args) {
     Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
     System.out.println(">>>>>>");
@@ -88,7 +91,10 @@ public class MainDataflowTemplate {
       pipeline.run();
 
     } catch (Exception e) {
-      System.out.println(e);
+      // Fail the launch: Dataflow only reports a template launch as failed on a non-zero exit code
+      System.err.println("Error launching the Hop pipeline from a Dataflow template: " + e);
+      e.printStackTrace();
+      System.exit(1);
     }
   }
 

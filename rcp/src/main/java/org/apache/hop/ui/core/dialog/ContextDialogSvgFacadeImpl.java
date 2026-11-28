@@ -28,11 +28,17 @@ public class ContextDialogSvgFacadeImpl extends ContextDialogSvgFacade {
   }
 
   @Override
-  void registerInternal(Canvas canvas, ContextDialog dialog) {}
+  void registerInternal(Canvas canvas, ContextDialog dialog) {
+    // Only Hop Web publishes context dialog SVGs
+  }
 
   @Override
-  void unregisterInternal(Canvas canvas) {}
+  void unregisterInternal(Canvas canvas) {
+    // Only Hop Web publishes context dialog SVGs
+  }
 
   @Override
-  void renderAndPublishInternal(Canvas canvas, ContextDialog dialog) {}
+  void renderAndPublishInternal(Canvas canvas, ContextDialog dialog) {
+    // Only Hop Web publishes context dialog SVGs
+  }
 }

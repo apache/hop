@@ -33,7 +33,9 @@ class CanvasInteractionHandlerTest {
     final List<String> calls = new ArrayList<>();
 
     @Override
-    public void replaceAreaOwners(List<AreaOwner> owners) {}
+    public void replaceAreaOwners(List<AreaOwner> owners) {
+      // Not used by this test
+    }
 
     @Override
     public void handleWebCanvasHover(int graphX, int graphY, int screenX, int screenY) {

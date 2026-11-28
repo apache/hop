@@ -54,10 +54,14 @@ public class BeamSplunkOutputDialog extends BaseTransformDialog {
     widgets.setCompositeWidgetsListener(
         new IGuiPluginCompositeWidgetsListener() {
           @Override
-          public void widgetsCreated(GuiCompositeWidgets w) {}
+          public void widgetsCreated(GuiCompositeWidgets w) {
+            // Nothing to add to the generated widgets
+          }
 
           @Override
-          public void widgetsPopulated(GuiCompositeWidgets w) {}
+          public void widgetsPopulated(GuiCompositeWidgets w) {
+            // Nothing to adjust once the widgets are filled in
+          }
 
           @Override
           public void widgetModified(GuiCompositeWidgets w, Control control, String id) {
@@ -65,7 +69,9 @@ public class BeamSplunkOutputDialog extends BaseTransformDialog {
           }
 
           @Override
-          public void persistContents(GuiCompositeWidgets w) {}
+          public void persistContents(GuiCompositeWidgets w) {
+            // ok() copies the widget contents into the transform
+          }
         });
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());

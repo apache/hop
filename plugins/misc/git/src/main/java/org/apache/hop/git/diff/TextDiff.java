@@ -32,7 +32,9 @@ public final class TextDiff {
 
   @Getter @Setter private boolean ignoreWhiteSpaces = false;
 
-  public TextDiff() {}
+  public TextDiff() {
+    // Nothing to initialize: the defaults are the field initializers
+  }
 
   public List<Diff> diff(String leftText, String rightText) {
     List<Line> leftLines = splitLines(leftText);

@@ -181,6 +181,8 @@ public class SshTunnelManager {
     }
 
     @Override
-    public void showMessage(String message) {}
+    public void showMessage(String message) {
+      // JSch's informational messages are not shown
+    }
   }
 }

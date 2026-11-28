@@ -195,7 +195,9 @@ class OpenLineageSinkTest {
               }
 
               @Override
-              public void close() {}
+              public void close() {
+                // Not used by this test
+              }
             };
           }
         };

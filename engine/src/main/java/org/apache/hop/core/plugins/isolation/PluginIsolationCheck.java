@@ -71,6 +71,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
  * <p>Lines starting with {@code ISOLATION} are the result, the rest is Hop's own logging. Exit code
  * 0 when nothing failed, 1 when something did, 2 when Hop did not start.
  */
+@SuppressWarnings("java:S106") // command line tool: the console is its user interface
 public class PluginIsolationCheck {
 
   static final String PREFIX = "ISOLATION ";

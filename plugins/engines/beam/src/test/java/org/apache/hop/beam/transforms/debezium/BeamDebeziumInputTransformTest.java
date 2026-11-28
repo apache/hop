@@ -300,7 +300,9 @@ public class BeamDebeziumInputTransformTest {
     }
 
     @Override
-    public void stop() {}
+    public void stop() {
+      // Not used by this test
+    }
 
     @Override
     public ConfigDef config() {
@@ -331,7 +333,9 @@ public class BeamDebeziumInputTransformTest {
     }
 
     @Override
-    public void stop() {}
+    public void stop() {
+      // Not used by this test
+    }
 
     @Override
     public String version() {

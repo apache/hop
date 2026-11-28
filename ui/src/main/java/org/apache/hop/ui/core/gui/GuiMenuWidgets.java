@@ -133,7 +133,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     //
     List<GuiMenuItem> guiMenuItems = registry.findChildGuiMenuItems(root, root);
     if (guiMenuItems.isEmpty()) {
-      System.err.println("Create menu widgets: no GUI menu items found for root: " + root);
+      LogChannel.UI.logError("Create menu widgets: no GUI menu items found for root: " + root);
       return;
     }
 

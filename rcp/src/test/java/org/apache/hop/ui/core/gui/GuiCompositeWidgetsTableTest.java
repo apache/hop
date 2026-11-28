@@ -492,7 +492,9 @@ class GuiCompositeWidgetsTableTest extends SwtBotTestBase {
 
     private boolean stringSetterUsed;
 
-    public RoleRow() {}
+    public RoleRow() {
+      // Nothing to initialize
+    }
 
     public SampleKind getRole() {
       return role;

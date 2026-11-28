@@ -59,7 +59,9 @@ class SerializableMetadataLegacyKeysTest {
   public static class RenamedType extends HopMetadataBase implements IHopMetadata {
     @HopMetadataProperty private String description;
 
-    public RenamedType() {}
+    public RenamedType() {
+      // Nothing to initialize
+    }
   }
 
   /** An unknown type in an export is logged and skipped. */

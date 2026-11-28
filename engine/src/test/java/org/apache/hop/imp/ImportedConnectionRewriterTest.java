@@ -99,16 +99,24 @@ class ImportedConnectionRewriterTest {
 
   private static final class TestImport extends HopImportBase {
     @Override
-    public void importFiles() {}
+    public void importFiles() {
+      // Not used by this test
+    }
 
     @Override
-    public void findFilesToImport() {}
+    public void findFilesToImport() {
+      // Not used by this test
+    }
 
     @Override
-    public void importConnections() {}
+    public void importConnections() {
+      // Not used by this test
+    }
 
     @Override
-    public void importVariables() {}
+    public void importVariables() {
+      // Not used by this test
+    }
 
     @Override
     public String getImportReport() {

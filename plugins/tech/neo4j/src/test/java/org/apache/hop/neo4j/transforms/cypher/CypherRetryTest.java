@@ -399,18 +399,26 @@ class CypherRetryTest {
             }
 
             @Override
-            public void commit() {}
+            public void commit() {
+              // Not used by this test
+            }
 
             @Override
-            public void rollback() {}
+            public void rollback() {
+              // Not used by this test
+            }
 
             @Override
-            public void close() {}
+            public void close() {
+              // Not used by this test
+            }
           });
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 
   /**
@@ -447,13 +455,19 @@ class CypherRetryTest {
             }
 
             @Override
-            public void commit() {}
+            public void commit() {
+              // Not used by this test
+            }
 
             @Override
-            public void rollback() {}
+            public void rollback() {
+              // Not used by this test
+            }
 
             @Override
-            public void close() {}
+            public void close() {
+              // Not used by this test
+            }
           };
       T result = work.execute(transaction);
       if (executeTwice) {
@@ -463,6 +477,8 @@ class CypherRetryTest {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 }

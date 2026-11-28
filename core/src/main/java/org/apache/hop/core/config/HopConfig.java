@@ -182,6 +182,7 @@ public class HopConfig extends ConfigFile {
    * to take turns: a change landing halfway through serialising it left Jackson iterating a map
    * that had moved under it.
    */
+  @SuppressWarnings("java:S106") // can run before Hop logging is initialized
   public static Map<String, String> readGuiProperties() {
     synchronized (CONFIG_LOCK) {
       try {
@@ -214,6 +215,7 @@ public class HopConfig extends ConfigFile {
    * @param defaultValue - default value
    * @return the value associated to the variable
    */
+  @SuppressWarnings("java:S106") // can run before Hop logging is initialized
   public static String readStringVariable(String key, String defaultValue) {
     try {
       List<DescribedVariable> variables = getInstance().getDescribedVariables();

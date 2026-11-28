@@ -79,7 +79,9 @@ class AiAdvisorCatalogContextTest {
     }
 
     @Override
-    public void setPluginId(String pluginId) {}
+    public void setPluginId(String pluginId) {
+      // Not used by this test
+    }
 
     @Override
     public String getPluginName() {
@@ -87,7 +89,9 @@ class AiAdvisorCatalogContextTest {
     }
 
     @Override
-    public void setPluginName(String pluginName) {}
+    public void setPluginName(String pluginName) {
+      // Not used by this test
+    }
 
     @Override
     public FakeCatalog clone() {
@@ -95,7 +99,9 @@ class AiAdvisorCatalogContextTest {
     }
 
     @Override
-    public void initialize(IVariables variables, IHopMetadataProvider metadataProvider) {}
+    public void initialize(IVariables variables, IHopMetadataProvider metadataProvider) {
+      // Not used by this test
+    }
 
     @Override
     public CatalogAnswer<String> ping() {
@@ -132,7 +138,9 @@ class AiAdvisorCatalogContextTest {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+      // Not used by this test
+    }
   }
 
   private static TransformMeta transform(String name, IDeclaresLineage.Declaration... declared) {
